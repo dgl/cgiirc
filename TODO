@@ -22,9 +22,13 @@ Commands:
 = default pass through
 = access commands
 - commands that will call to interface: help, (un)query
+- don't send blank lines
+- /nick doesn't work?
 
 Interfaces:
+- hilight text targeted at nickname
 Javascript Interface:
+- make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
 - userlist: need to sort mode changes
 - right click context menus
 - pop-out needs to work in mozilla too
@@ -60,18 +64,3 @@ Abuse:
 - limiting the number of connections to a server? (^^^ sock/server)
 - admin interface?
 
-----
-design for website:
- - Home
- - Demo
- - Download
- - Mailing List
-
-docs:
-install guide
-faq
-user guide
-other (admin/extra scripts)
-programming guide
-
-remember to note that the .zip file has windows line endings.
