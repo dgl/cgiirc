@@ -19,7 +19,7 @@ sub parse_config {
 
 sub make_utf8 {
 	# Use perl's unicode support assuming we have 5.6 and Encode
-	return pack("U", $_[0]) if $] >= 5.006 && $INC{'Encode.pm'};
+	return pack("U", hex($_[0])) if $] >= 5.006 && $INC{'Encode.pm'};
 	# From http://www1.tip.nl/~t876506/utf8tbl.html
    my $chr = unpack("n", pack("H*", shift));
    return chr $chr if $chr < 0x7F;
