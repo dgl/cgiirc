@@ -25,7 +25,7 @@ use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.32 2005/01/08 17:27:54 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.33 2005/01/23 22:25:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -172,14 +172,14 @@ if(ref $cgi && defined $cgi->{item}) {
 
    if(ref $cgi && $cgi->{adv}) {
 	  if($config->{'login advanced'}) {
-		 @order = split(' ', $config->{'login advanced'});
+		 @order = split(/,\s*/, $config->{'login advanced'});
 	  }else{
 		 @order = qw/Nickname Realname Server Port Channel Password Format/;
        push @order, 'Character set';
 	  }
    }else{
 	  if($config->{'login basic'}) {
-		 @order = split(' ', $config->{'login basic'});
+		 @order = split(/,\s*/, $config->{'login basic'});
 	  }else{
 		 @order = qw/Nickname Server Channel/;
 	  }
