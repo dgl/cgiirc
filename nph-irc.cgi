@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.43 2002/05/03 19:05:47 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.44 2002/05/04 20:16:28 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -109,7 +109,8 @@ sub net_tcpconnect {
    if($family == AF_INET) {
 	  $saddr = sockaddr_in($port, $inet_addr);
      if(config_set('vhost')) {
-        bind($fh, pack_sockaddr_in(0, inet_aton($config->{vhost})));
+        (my $vhost) = $config->{vhost} =~ /([^ ]+)/;
+        bind($fh, pack_sockaddr_in(0, inet_aton($vhost)));
      }else{
         bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
      }
@@ -117,7 +118,8 @@ sub net_tcpconnect {
 	  $saddr = sockaddr_in6($port, $inet_addr);
      if(config_set('vhost6')) {
         # this needs testing...
-        bind($fh, pack_sockaddr_in6(0, inet_pton($config->{vhost6})));
+        (my $vhost) = $config->{vhost6} =~ /([^ ]+)/;
+        bind($fh, pack_sockaddr_in6(0, inet_pton($vhost)));
      }
    }else{
 	  return 0;
@@ -456,7 +458,9 @@ sub load_interface {
    }
 
    $interface = $name->new($event,$timer, $config, $ioptions);
-   $interface->header($config, $cgi);
+   my $bg = $format->{$format->{bg}};
+   my $fg = $format->{$format->{fg}};
+   $interface->header($config, $cgi, $bg, $fg);
 
    return $interface;
 }
@@ -919,8 +923,8 @@ sub init {
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
-   $interface = load_interface();
    $format = load_format($cgi->{format});
+   $interface = load_interface();
  
    access_ipcheck();
 
