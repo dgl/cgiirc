@@ -1,0 +1,74 @@
+RawCommand stuff: each handler needs to be more consistant
+some sort of hash with, activity, target(s) (use an array ref maybe), also some
+sort of type, so for example creation of new windows only on 'message private'
+and 'channel join' or something.
+these todo items are related:
+- formats?
+- sort out targets
+- activity levels
+
+----
++++do form, commands, and so on
+rather important, we send a cmd=bleh back into the client.cgi, to start with
+say will be a command and will do parsing of commands on the server side.
+commands that will call interface: help, (un)query
+----
+clean up irc.cgi, some sort of order for commands, let the options that are
+displayed be optionally set in the config.
+how does login work with multiple channels and keys?
+- joining channels with keys?
+show browser button in advanced, with (automatic)
+----
+- ctcp (userinfo, version, ping)
+- ctcp kill/ban
+- admin interface?
+- rmstale
+- usermode
+
+----
+config options:
+fonts
+timestamps
+vhost
+
+----
+multiple connects from the same IP
+-- change tmp file name to PREFIX-random-$ENV{REMOTE_ADDR}
+-- what about proxies - many users could be behind 1 IP
+                      - some have multiple outbound IPs
+some way of limiting the number of connections to a server?
+what about ipv6 REMOTE_ADDR? :(
+random value via http referer problem (use cookie?)
+
+key worded channels / nick in use text entry?
+:www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
+(ouch!)
+
+
+
+IE:
+right click context menus
+
+non-IE interface DO!
+
+--auto detection of browser
+- selecting colour in interfaces?
+
+default.pm use @ISA to override it
+
+
+----
+design for website:
+- Home
+- Demo
+- Download
+- Mailing List
+
+docs:
+install guide
+faq
+user guide
+other (admin/extra scripts)
+programming guide
+
+remember to note that the .zip file has windows line endings.

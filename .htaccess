@@ -1,0 +1,5 @@
+<Files config.cgiirc>
+   deny from all
+</Files>
+DirectoryIndex irc.cgi
+

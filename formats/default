@@ -1,0 +1,76 @@
+looking_up = {prefix-client} Looking up {server $0}
+connecting = {prefix-client} Connecting to {server $0} [$1] port {hilight $2}
+
+accessdenied = {prefix-client} Access from your IP address is blocked
+accesssserverdenied = {prefix-client} Access to that server is blocked
+
+cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
+
+join = {prefix-user} $0 {host $1} has joined {channel $T}
+nick = {prefix-user} $0 is now known as $2
+quit = {prefix-user} $0 {host $1} has quit {reason $2}
+part = {prefix-user} $0 left {channel $T} {reason $2}
+user mode = {prefix-user} usermode/$0 $2
+mode = {prefix-user} mode/$T [$2] by $0
+topic = {prefix-user} $0 changed the topic to: $2
+invite = {prefix-user} $0 invites you to join $2
+kick = {prefix-user} $2 was kicked from $T by $0 {reason $3}
+
+prefix-error = %04***%n
+prefix-info = %03***%n
+prefix-user = %03***%n
+prefix-client = %02***%n
+prefix-server = %05***%n
+
+notice public = {notice-target $0 $1} {text $2}
+notice private = {notice-nick $0}{notice-host $1} {text $2}
+notice server = %05-$0%05-%n {text $2}
+
+notice-target = %02-%03$0%02:%04$T%02-%n
+notice-nick = %03$0%n
+notice-host = [$0]
+
+message public = {message-nick $0} {text $2}
+message private = {message-nick $0} {text $2}
+
+message public own = {message-nick $0} {text $2}
+message private own = {message-nick $0} {text $2}
+
+message-nick = <$0>
+text = $0
+channel = %_$0%_
+reason = [$0]
+
+server = %_$0%_
+hilight = %_$0%_
+host = [$0]
+
+default = {prefix-server} $0-
+
+reply away = {prefix-user} $T is away: $0
+reply channel time = {prefix-server} Channel created on $0
+reply notopic = {prefix-server} No topic set
+reply topic = {prefix-server} Topic is: $0
+reply topicwhotime = {prefix-server} Topic set by $0 [$1]
+
+irc close = {prefix-error} Disconnected from IRC
+
+bg = 00
+fg = 01
+00 = #ffffff
+01 = #000000
+02 = #0000FF
+03 = #008000
+04 = #ff0000
+05 = #800000
+06 = #800080
+07 = #ff6600
+08 = #ffff00
+09 = #00ff00
+10 = #008080
+11 = #00ffff
+12 = #0000ff
+13 = #ff00ff
+14 = #808080
+15 = #c0c0c0
+
