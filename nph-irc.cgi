@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.50 2002/05/06 13:42:20 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.51 2002/05/06 14:04:17 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -43,7 +43,7 @@ BEGIN {
    eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
    unless(defined $::IPV6) {
       $::IPV6 = 0;
-	  eval('sub AF_INET6 {0}');
+	  eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
 }
 
@@ -76,57 +76,44 @@ sub net_hostlookup {
       my($family,$socktype, $proto, $saddr, $canonname, @res) = 
       getaddrinfo($host,undef, AF_UNSPEC, SOCK_STREAM);
       return undef unless $family;
-
-	  if($family == AF_INET && length $saddr == 16) {
-        return (unpack_sockaddr_in($saddr))[1];
-	  }elsif(length $saddr == 28) {
-        return (undef,(unpack_sockaddr_in6($saddr))[1]);
-     }
+      my($addr, $port) = getnameinfo($saddr, NI_NUMERICHOST | NI_NUMERICSERV);
+      
+      return (undef,$addr);
    }else{ # IPv4
-      return (gethostbyname($host))[4];
+      return inet_ntoa((gethostbyname($host))[4]);
    }
 }
 
-## Figures out if it's IPv4 or IPv6 and makes a human readable IP address
-sub net_ntoa {
-   my($n) = @_;
-   return inet_ntoa($n) if length $n == 4;
-   return inet_ntop(AF_INET6, $n) if length $n > 4 && $::IPV6;
-   0;
-}
-
 ## Connects a tcp socket and returns the file handle
-## inet_addr should be the output of net_gethostbyname, family is either
-## AF_INET or AF_INET6. 1 on sucess, 0 on failure
+## inet_addr should be the output of net_gethostbyname
 sub net_tcpconnect {
-   my($inet_addr, $port, $family) = @_;
+   my($inet_addr, $port) = @_;
    my $fh = Symbol::gensym;
    
-   socket($fh, $family, SOCK_STREAM, getprotobyname('tcp')) or return(0, $!);
+   socket($fh, ($inet_addr !~ /:/ ? AF_INET : AF_INET6), SOCK_STREAM,
+         getprotobyname('tcp')) or return(0, $!);
    setsockopt($fh, SOL_SOCKET, SO_KEEPALIVE, pack("l", 1)) or return(0, $!);
 
    my $saddr;
-   if($family == AF_INET) {
-	  $saddr = sockaddr_in($port, $inet_addr);
+   if($inet_addr !~ /:/) {
+	  $saddr = sockaddr_in($port, inet_aton($inet_addr));
      if(config_set('vhost')) {
         (my $vhost) = $config->{vhost} =~ /([^ ]+)/;
         bind($fh, pack_sockaddr_in(0, inet_aton($vhost)));
      }else{
         bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
      }
-   }elsif($family == AF_INET6) {
-	  $saddr = sockaddr_in6($port, $inet_addr);
+   }else{
+	  $saddr = sockaddr_in6($port, inet_pton($inet_addr));
      if(config_set('vhost6')) {
         # this needs testing...
         (my $vhost) = $config->{vhost6} =~ /([^ ]+)/;
         bind($fh, pack_sockaddr_in6(0, inet_pton($vhost)));
      }
-   }else{
-	  return 0;
    }
 
    my($localport,$localip) = sockaddr_in getsockname $fh;
-   irc_write_server(inet_ntoa($localip), $localport, inet_ntoa($inet_addr), $port);
+   irc_write_server(inet_ntoa($localip), $localport, $inet_addr, $port);
 
    connect($fh, $saddr) or return (0,$!);
 
@@ -694,9 +681,8 @@ sub irc_connect {
       ? ($ipv6 ? $ipv6 : $ipv4) 
       : ($ipv4 ? $ipv4 : $ipv6);
 
-   message('connecting', $server, net_ntoa($ip), $port);
-   my($fh,$error) = net_tcpconnect($ip, $port, 
-         length $ip == 4 ? AF_INET : AF_INET6);
+   message('connecting', $server, $ip, $port);
+   my($fh,$error) = net_tcpconnect($ip, $port);
    
    error("Connecting to IRC: $error") unless ref $fh;
    
