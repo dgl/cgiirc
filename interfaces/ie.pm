@@ -510,8 +510,12 @@ function channeladdusers(channel, users) {
 
 function channeladduser(channel, user) {
    var o = user.substr(0,1);
-   if(prefixchars.lastIndexOf(o) != -1)
+   if(prefixchars.lastIndexOf(o) != -1) {
       user = user.substr(1);
+      while(var status = user.substr(0, 1)
+        && prefixchars.lastIndexOf(status) != -1)
+         user = user.substr(1); 
+   }
 
    if(!Witems[channel] && !(channel = findwin(channel))) return;
 
@@ -1014,7 +1018,7 @@ function statushtml(status) {
    }else if(status == "%") {
       return '<div class="userlist-halfop">%</div>';
    }else{
-      return '';
+      return '<div class="userlist-other">' + status + '</div>';
    }
 }
 

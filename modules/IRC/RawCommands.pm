@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.23 2003/10/27 17:18:52 dgl Exp $
+# $Id: RawCommands.pm,v 1.24 2003/10/29 01:12:53 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -472,11 +472,11 @@ my %raw = (
 	  if(exists $self->{_channels}->{$channel} && ref $self->{_channels}->{$channel}) {
 	     for(split / /,$params->{text}) {
 	        my ($op,$halfop,$voice) = 0;
-		    $op = 1 if s/^\@//;
-		    $voice = 1 if s/^\+//;
-		    $halfop = 1 if s/^\%//;
+		    $op = 1 if s/\@//;
+		    $voice = 1 if s/\+//;
+		    $halfop = 1 if s/\%//;
           if(exists $self->{prefixchars} && $self->{prefixchars}) {
-             my $prefix = "[" . quotemeta($self->{prefixchars}) . "]";
+             my $prefix = "[" . quotemeta($self->{prefixchars}) . "]+";
              s/^$prefix//;
           }
 			

@@ -78,7 +78,7 @@ EOF
 if($interface eq 'default') {
 print <<EOF;
 function setjs() {
- if(navigator.product == 'Gecko') {
+ if(navigator.product == 'Gecko' || (window.opera && document.childNodes)) {
    document.loginform["interface"].value = 'mozilla';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
     navigator.userAgent.indexOf("Mac_PowerPC") > 0) {
