@@ -235,6 +235,23 @@ my %commands = (
      $interface->help($config);
      return 0;
   },
+  charset => sub {
+     if(!$::ENCODE) {
+	     message('default', 'Encode module is not loaded, character set conversion not available');
+	  }else{
+	     if(!$params) {
+		     message('default', "Current encoding is: " . $config->{'irc charset'});
+		  }else{
+		     if(Encode::find_encoding($params)) {
+			     message('default', "Encoding changed to $params");
+				  $config->{'irc charset'} = $params;
+			  }else{
+			     message('default', 'Encoding not found');
+			  }
+		  }
+	  }
+	  return 0;
+  },
 );
 
 my %lcs;
