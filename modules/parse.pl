@@ -1,4 +1,5 @@
 #### Parsing Functions
+use strict;
 
 ## Reads a config file from the filename passed to it, returns a reference to
 ## a hash containing the name=value pairs in the file.
@@ -19,7 +20,7 @@ sub parse_config {
 
 sub make_utf8 {
 	# Use perl's unicode support assuming we have 5.6 and Encode
-	return pack("U", hex($_[0])) if $] >= 5.006 && $INC{'Encode.pm'};
+	return pack("U", hex($_[0])) if $] >= 5.006 && $::ENCODE;
 	# From http://www1.tip.nl/~t876506/utf8tbl.html
    my $chr = unpack("n", pack("H*", shift));
    return chr $chr if $chr < 0x7F;
@@ -49,17 +50,22 @@ sub parse_query {
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
 	     $key =~ s/[\r\n\0\001]//g;
 
-	     $val =~ s/\%u([A-F0-9]{4})/make_utf8($1)/ge;
-	     $val =~ s{%([A-Fa-f0-9]{2})((?=%[A-Fa-f0-9]{2}))?}{
-	        my $x = hex($1);
-		
-		if($x >= 0x7F &&
-		    (not defined $2 || (defined $2 && hex($2) < 0x7F))) {
-		   make_utf8("00$1");
-		}else{
-		  pack("C",hex($1))
-		}
-             }gex;
+        # Modified from unescape as found in CGI::Util
+		  # (can't use CGI::Util due to + oddity from XMLHTTP).
+		  $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))}
+		    {
+				 if(defined($1)) {
+					 if(hex($1) > 0x7F && exists $ENV{CONTENT_TYPE}
+							 && $ENV{CONTENT_TYPE} =~ /utf-8/) {
+						 make_utf8("00$1");
+					 }else{
+						 pack("C", hex($1));
+					 }
+				 }else{
+					 make_utf8($2);
+				 }
+			}ge;
+
         if(defined $ext and $ext & 1) {
            $val =~ s/[\0\001]//g;
         }else{
