@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.44 2002/05/04 20:16:28 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.45 2002/05/05 12:30:34 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -522,6 +522,8 @@ sub unix_in {
 
 
    if($input->{cmd}) {
+     my $now = time;
+     utime($now, $now, "$config->{socket_prefix}$cgi->{R}/sock");
 	  input_command($input->{cmd}, $input, $fh);
    }
 
