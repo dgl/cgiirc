@@ -923,6 +923,7 @@ function witemredraw() {
    }
    if(!currentwindow) currentwindow = 'Status';
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
+   if(Witems[currentwindow].info == 1) return;
 `;
 if($browser eq 'ie') {
 print q`

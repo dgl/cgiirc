@@ -901,6 +901,7 @@ function witemredraw() {
    }
    if(!currentwindow) currentwindow = 'Status';
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
+   if(Witems[currentwindow].info == 1) return;
 
    var doc = parent.frames.fmain.window;
    var scroll = -1;
