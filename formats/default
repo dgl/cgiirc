@@ -1,7 +1,7 @@
 looking up = {prefix-client} Looking up {server $0}
 connecting = {prefix-client} Connecting to {server $0} [$1] port {hilight $2}
 
-access denied = {prefix-client} Access from your IP address is blocked
+access denied = {prefix-client} Access Denied: $0
 access server denied = {prefix-client} Access to that server is blocked
 access channel denied = {prefix-client} Access to that channel is blocked
 command denied = {prefix-client} Access to that command is blocked

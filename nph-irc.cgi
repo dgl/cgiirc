@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.8 2002/03/10 22:35:23 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.9 2002/03/12 00:02:24 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -395,7 +395,7 @@ sub load_socket {
    mkdir($config->{socket_prefix}.$cgi->{R}, 0700) or error("Mkdir error");
 
    open(IP, ">$config->{socket_prefix}$cgi->{R}/ip") or error("Open error");
-   print IP "$ENV{REMOTE_ADDR}:$ENV{REMOTE_PORT}\n$ENV{HTTP_X_FORWARDED_FOR}\n";
+   print IP "$ENV{REMOTE_ADDR}\n$ENV{HTTP_X_FORWARDED_FOR}\n";
    close(IP);
 
    my($socket,$error) = 
@@ -469,27 +469,63 @@ sub say_command {
 
 #### Access Checking Functions
 
+sub config_set {
+   my($option) = @_;
+   return 1 if defined $config->{$option} && $config->{$option};
+   0;
+}
+
 sub access_ipcheck {
-   my($ip) = @_;
-   open(IP, "<ipaccess") or return 1;
+   my($ip) = $ENV{REMOTE_ADDR};
+   return  1 unless config_set('ip_access_file');
+
+   open(IP, "<$config->{ip_access_file}") or return 1;
+   my %ips = list_connected_ips();
    while(<IP>) {
 	  next if /^#/;
-	  s/\./\\./g;
-	  s/\*/.*/g;
-	  return 0 if $ip =~ /^$_$/;
+	  my($check,$limit) = split(' ', $_, 2);
+	  $check =~ s/\./\\./g;
+	  $check =~ s/\*/.*/g;
+	  if($ip =~ /^$check$/) {
+		 return 1 unless defined $limit;
+		 if($limit == 0) {
+		    message('access denied', 'No connections allowed');
+			exit;
+		 }elsif($ips{$ip} >= $limit) {
+		    message('access denied', 'Too many connections');
+			exit;
+		 }
+		 return 1;
+	  }
    }
    close(IP);
    return 1;
 }
 
+sub list_connected_ips {
+   my %ips = ();
+   (my $dir, my $prefix) = $config->{socket_prefix} =~ /^(.*\/)([^\/]+)$/;
+   opendir(TMPDIR, "$dir") or return ();
+   for(readdir TMPDIR) {
+	  next unless /^\Q$prefix\E/;
+	  next unless -o $dir . $_ && -d $dir . $_;
+	  open(TMP, "<$dir$_/ip") or next;
+	  chomp(my $tmp = <TMP>);
+	  $ips{$tmp}++;
+	  close(TMP);
+   }
+   closedir(TMPDIR);
+   return %ips;
+}
+
 sub access_configcheck { 
    my($type, $check) = @_;
-   if(exists $config->{"default_$type"}) {
+   if(config_set("default_$type")) {
 	  my %tmp;
 	  @tmp{split /,\s*/, lc $config->{"default_$type"}} = 1;
 	  return 1 if exists $tmp{lc $check};
    }
-   return 0 unless $config->{allow_non_default} && $config->{"access_$type"};
+   return 0 unless config_set('allow_non_default') &&config_set("access_$type");
 
    return 1 if $check =~ /^$config->{"access_$type"}$/i;
 
@@ -498,7 +534,7 @@ sub access_configcheck {
 
 sub access_command {
    my($command) = @_;
-   return 1 unless defined $config->{access_command};
+   return 1 unless config_set('access_command');
    for(split / /, $config->{access_command}) {
 	  if(/^!(.*)/) {
 		 return 0 if $command =~ /^$1/i;
@@ -539,6 +575,34 @@ sub irc_out {
    $data = $fh, $fh = $event if !$data;
 #message('default', "-> Server: $data");
    net_send($fh, $data . "\r\n");
+}
+
+sub irc_close {
+   exit unless ref $unixfh;
+   close($unixfh);
+   my $t = $config->{socket_prefix} . $cgi->{R};
+   unlink("$t/sock", "$t/ip", "$t/server");
+   exit unless rmdir($t);
+   exit unless ref $ircfh;
+   net_send($ircfh, "QUIT :CGI:IRC $VERSION [EOF]\r\n");
+   format_out('irc close', { target => '-all', activity => 1 });
+   sleep 1;
+   close($ircfh);
+   exit;
+}
+
+sub irc_connected {
+   my($event, $self, $server, $nick) = @_;
+   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file");
+   print S "$server\n";
+   close(S);
+   my $key;
+   $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
+   unless(access_configcheck('channel', $cgi->{chan})) {
+	  message('access channel denied', $cgi->{chan});
+	  $cgi->{chan} = (split /,/, $config->{default_channel})[0];
+   }
+   $irc->join($cgi->{chan} . (defined $key ? ' ' . $key : ''));
 }
 
 sub irc_send_message {
@@ -612,33 +676,6 @@ sub irc_ctcp {
    }
 }
 
-sub irc_close {
-   exit unless ref $unixfh;
-   close($unixfh);
-   unlink($config->{socket_prefix}.$cgi->{R}.'/sock');
-   unlink($config->{socket_prefix}.$cgi->{R}.'/ip');
-   rmdir($config->{socket_prefix}.$cgi->{R});
-   exit unless ref $ircfh;
-   syswrite($ircfh, "QUIT :CGI:IRC $VERSION [EOF]\r\n", length "QUIT :CGI:IRC $VERSION [EOF]\r\n");
-   format_out('irc close', { target => '-all', activity => 1 });
-   sleep 1;
-   close($ircfh);
-   exit;
-}
-
-sub irc_connected {
-   my($event, $self, $server, $nick) = @_;
-   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file");
-   print S "$server\n";
-   close(S);
-   my $key;
-   $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
-   unless(access_configcheck('channel', $cgi->{chan})) {
-	  message('access channel denied', $cgi->{chan});
-	  $cgi->{chan} = (split /,/, $config->{default_channel})[0];
-   }
-   $irc->join($cgi->{chan} . (defined $key ? ' ' . $key : ''));
-}
 
 #### prints a very simple header
 sub header {
@@ -687,15 +724,15 @@ sub init {
 
    $interface = load_interface();
    $format = load_format($cgi->{format});
-
-   message('access denied'),exit unless access_ipcheck($ENV{REMOTE_ADDR});
+ 
+   access_ipcheck();
 
    unless(access_configcheck('server', $cgi->{serv})) {
 	  message('access server denied', $cgi->{serv});
 	  $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
 
-   if($config->{encoded_ip}) {
+   if(config_set('encoded_ip')) {
 	  $cgi->{name} = '[' . encode_ip($ENV{REMOTE_ADDR}) . '] ' . $cgi->{name};
    }
 
@@ -710,9 +747,9 @@ sub init {
 		 fh => $ircfh,
 		 nick => $cgi->{nick},
 		 server => $cgi->{serv},
-		 password => defined $cgi->{pass} ? $cgi->{pass} : (defined $config->{server_password} ? $config->{server_password} : ''),
+		 password => defined $cgi->{pass} ? $cgi->{pass} : (config_set('server_password') ? $config->{server_password} : ''),
 		 realname => $cgi->{name},
-		 user => exists $config->{encoded_ip} && $config->{encoded_ip} > 1 ? encode_ip($ENV{REMOTE_ADDR}) : (exists $config->{default_user} ? $config->{default_user} : 'cgiirc'),
+		 user => config_set('encoded_ip') && $config->{encoded_ip} > 1 ? encode_ip($ENV{REMOTE_ADDR}) : (config_set('default_user') ? $config->{default_user} : 'cgiirc'),
    );
 }
 

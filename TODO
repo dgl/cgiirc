@@ -25,6 +25,7 @@ Commands:
 + don't send blank lines
 + /nick doesn't work?
 + /part
+- quit seperate from version
 
 Interfaces:
 - hilight text targeted at nickname
