@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.22 2002/04/03 23:52:42 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.23 2002/04/05 22:02:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -101,17 +101,24 @@ sub net_tcpconnect {
    my($inet_addr, $port, $family) = @_;
    my $fh = Symbol::gensym;
    
+   socket($fh, $family, SOCK_STREAM, getprotobyname('tcp')) or return(0, $!);
+   setsockopt($fh, SOL_SOCKET, SO_KEEPALIVE, pack("l", 1)) or return(0, $!);
+
    my $saddr;
    if($family == AF_INET) {
 	  $saddr = sockaddr_in($port, $inet_addr);
+     if(config_set('vhost')) {
+        bind($fh, pack_sockaddr_in(0, $config->{vhost}));
+     }
    }elsif($family == AF_INET6) {
 	  $saddr = sockaddr_in6($port, $inet_addr);
+     if(config_set('vhost6')) {
+        bind($fh, pack_sockaddr_in6(0, $config->{vhost6}));
+     }
    }else{
 	  return 0;
    }
 
-   socket($fh, $family, SOCK_STREAM, getprotobyname('tcp')) or return(0, $!);
-   setsockopt($fh, SOL_SOCKET, SO_KEEPALIVE, pack("l", 1)) or return(0, $!);
    connect($fh, $saddr) or return (0,$!);
 
    select($fh);

@@ -12,37 +12,21 @@ IRC Module:
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
 
 Commands:
-- commands that will call to interface: help
+= commands that will call to interface: help
 
 Interfaces:
-Javascript Interface:
-- options for userlist
 - right click context menus
-- pop-out needs to work in mozilla too
-= tab completeion in mozilla?
-- key worded channels / nick in use text entry?
+- pop-out/userlist needs to work in mozilla too
+- dblclick == query in userlist.
 = better handling of stream disconnections (also config option to go to page)
-= channel part
-- close windows
--? quit in more than one channel
-- configurable things : timestamps - fonts and so on...
-
-NonJS Interface:
-+ do this :)
-+ auto detection of browser
-
+= close windows
 - selecting colour in interfaces?
-
-irc.cgi:
-= how does login work with multiple channels and keys?
+- configurable things : timestamps - fonts and so on...
 
 nph-irc.cgi:
 - config fonts
 - config timestamps
 - config vhost
-+ random value via http referer problem (needs adding to client.c and doing in
-  nph-irc.cgi) cookie read on frameset load
-= session timeout if no data sent (set optionally)
 
 Abuse:
 - ctcp kill/ban
