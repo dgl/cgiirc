@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.6 2002/04/16 22:36:26 dgl Exp $
+ * $Id: client.c,v 1.7 2002/05/02 18:57:09 dgl Exp $
  */
 
 #include <stdio.h>
@@ -53,7 +53,6 @@ int main(void) {
 int error(char *error) {
    printf("Content-type: text/html\n\n");
    printf("An error occured: %s\n",error);
-   fwrite(error, strlen(error), 1, stderr);
    exit(1);
 }
 

@@ -59,6 +59,7 @@ print <<EOF;
 $standardheader
 <html>
 <head>
+<link rel="SHORTCUT ICON" href="$config->{image_path}/favicon.ico">
 <script language="JavaScript"><!--
 EOF
 if($interface eq 'default') {

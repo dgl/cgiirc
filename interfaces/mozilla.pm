@@ -198,6 +198,7 @@ $standardheader
 <html>
 <head>
 <title>CGI:IRC</title>
+<link rel="SHORTCUT ICON" href="$config->{image_path}/favicon.ico">
 <script language="JavaScript"><!--
 function form_focus() {
    if(document.frames && document.frames.fform)
