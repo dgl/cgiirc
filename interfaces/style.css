@@ -205,5 +205,13 @@
 .options-select {}
 .options-option {}
 .options-input {}
-.options-close {}
+
+.options-close { /* http://www.tom.me.uk/scripting/links.asp */
+   text-decoration: underline;
+   text-align: right;
+   color: #00f;
+   cursor: pointer;
+   cursor: hand;
+}
+
 

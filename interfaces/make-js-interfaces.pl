@@ -30,7 +30,7 @@ my %colours = (
 
 my %options = (
    timestamp => { type => 'toggle', info => 'Display a timestamp next to each message', img => 'time.gif' },
-   font => { type => 'select', options => [qw/serif sans-serif fantasy monospace/], info => 'The font that messages are displayed in', img => 'font.gif' },
+   font => { type => 'select', options => [qw/serif sans-serif fantasy cursive monospace/, 'Arial Black', 'Comic Sans MS', 'Fixedsys', 'Tahoma', 'Verdana'], info => 'The font that messages are displayed in', img => 'font.gif' },
    shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box', img => 'entry.gif' },
    smilies => { type => 'toggle', info => 'Convert smilies into pictures', img => 'smile.gif' },
 );
@@ -535,7 +535,8 @@ function keypress(srcEl, keyCode, event) {
 		  if(!tabtmp[0]) {
 		     for(var i in parent.frames.fwindowlist.Witems) {
 			    if(i.substr(0, tabStr.length).toLowerCase() == tabStr) {
-				   tabtmp[tabtmp.length] = i;
+               if(parent.frames.fwindowlist.Witems[i].speak)
+				      tabtmp[tabtmp.length] = i;
 				}   
 			 }
 		  }
