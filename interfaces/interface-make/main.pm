@@ -283,12 +283,35 @@ function form_focus() {
 //-->
 </script>
 </head>
+$.just konqueror
+<frameset rows="40,*,30,0" framespacing="0" border="0" frameborder="0"
+onfocus="form_focus()" onload="form_focus()">
+<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
+scrolling="no">
+<frameset cols="*,120" framespacing="0" border="0" frameborder="0">
+<frame name="fmain"
+src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes">
+<frame name="fuserlist"
+src="$scriptname?item=fuserlist&interface=$interface&style=$style"
+scrolling="yes">
+</frameset>
+<frame name="fform"
+src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no"
+framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="hiddenframe" src="$scriptname?item=blank&style=$style"
+scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<noframes>
+This interface requires a browser that supports frames and javascript.
+</noframes>
+</frameset>
+$.else
 <body onload="form_focus()" onfocus="form_focus()" class="frame-body">
-<iframe name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no" class="frame-windowlist"></iframe>
-<iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main"></iframe>
-<iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist"></iframe>
+<iframe name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no" class="frame-windowlist" frameborder="0"></iframe>
+<iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main" frameborder="0"></iframe>
+<iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist" frameborder="0"></iframe>
 <iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
 </body>
+$.end
 </html>
 EOF
 }
