@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# (C) 2000 David Leadbeater (cgiirc@dgl.cx)
+# (C) 2000 David Leadbeater (http://contact.dgl.cx/)
 # cgi-irc comes with ABSOLUTELY NO WARRANTY
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; read the file COPYING for details

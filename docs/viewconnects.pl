@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+# Copyright (C) 2000-2002 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use vars qw($VERSION);
 use Socket;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.2 2003/10/27 17:18:49 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.3 2004/02/03 14:36:35 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
