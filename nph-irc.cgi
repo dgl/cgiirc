@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.77 2002/11/23 22:07:08 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.78 2002/11/23 22:40:25 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -1048,9 +1048,9 @@ sub init {
       
    my $resolved = '';
    my $resolvedip = '';
+   ($resolved, $resolvedip) = client_hostname();
    
    if(config_set('encoded_ip')) {
-      ($resolved, $resolvedip) = client_hostname() if $config->{encoded_ip} > 2;
       $cgi->{name} = '[' .
          ($config->{encoded_ip} <= 2 
           ? encode_ip($resolvedip)
@@ -1061,7 +1061,6 @@ sub init {
    }
 
    if(config_set('realhost_as_password')) {
-      $resolved = client_hostname() unless $resolved;
       $cgi->{pass} = "CGIIRC_${resolvedip}_${resolved}";
    }
 
