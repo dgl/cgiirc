@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.106 2005/02/14 14:36:05 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.107 2005/02/15 22:31:05 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -887,7 +887,7 @@ sub irc_close {
    exit unless rmdir($t);
    
    exit unless ref $ircfh;
-   irc_out("QUIT :$message\r\n");
+   net_send($ircfh, "QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
 
    flushoutput();
@@ -975,7 +975,7 @@ sub irc_ctcp {
          
          if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
             message('kill ok', $nick, $reason);
-            irc_out("QUIT :Killed ($nick ($reason))\r\n");
+            irc_out($ircfh, "QUIT :Killed ($nick ($reason))");
             irc_close();
          }else{
             message('kill wrong', $nick, $reason);
