@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.9 2002/05/21 14:48:17 dgl Exp $
+# $Id: IRC.pm,v 1.10 2002/07/03 18:03:31 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -128,6 +128,7 @@ sub unignore {
 
 sub join {
    my($self, $channel, $key) = @_;
+   return unless $channel;
    $self->out('JOIN ' . (ref $channel ? $channel->{name} : $channel) . ($key ? ' ' . $key : ''));
 }
 
