@@ -1,17 +1,17 @@
 TODO
 ----
 
-- topic bar
-
 bugs:
--? why does mozilla not tab complete with >1 char
-- pop-out needs to work in mozilla too
 - ; in smilies
 
-Abuse:
-- admin interface?
-
 --- Release 0.5 here.
+
+- pop-out needs to work in mozilla too
+  mozilla seems to be being typically braindead about this
+- topic bar
+  this is going to be difficult as it comes along with wanting to reposition
+  the tab bar as well, i'm not sure of the best way of doing this (and
+  interfaces are already too messy).
 
 Might be done one day:
 - right click context menus

@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.51 2002/05/06 14:04:17 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.52 2002/05/06 15:37:33 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -809,6 +809,8 @@ sub irc_ctcp {
 	  }elsif(uc($command) eq 'ACTION') {
         format_out('action private', $info, $nick, $host, $params);
         return;
+     }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
+        format_out('not supported', $info, $nick, $host, $params, "DCC");
 	  }else{
 	     format_out('ctcp msg', $info, $to, $nick, $host, $command, $params);
 	  }
@@ -831,7 +833,11 @@ sub irc_ctcp {
 	  }elsif(uc($command) eq 'TIME') {
 		 $irc->ctcpreply($nick, $command,
 			   scalar localtime());
-	  }
+	  }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
+        my($type) = split ' ', $params;
+        $type = substr($type, 0, 20);
+        $irc->ctcpreply($nick, $command, "REJECT $type Not Supported");
+     }
    }else{
 	  if(uc($command) eq 'PING') {
 		 $params = time - $params . " seconds";
