@@ -160,6 +160,7 @@ my %commands = (
   },
   notice => sub {
      my($target, $text) = split(' ', $params, 2);
+     $target =~ s/^[@+]+//;
      $event->handle('notice ' .
 	    ($irc->is_channel($target) ? 'public' : 'private') . ' own',
 		{ target => $target }, $irc->{nick}, $irc->{myhost}, $text);

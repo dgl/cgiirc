@@ -1,15 +1,7 @@
 TODO
 ----
 
-done but need testing:
-- messages appearing in status rather than query
-- formats could be made more user friendly, allow selection of them on login
-  form?
-- form_redirect optional.
-- ping via image.
-
 bugs:
-- problems with the smilie regexps
 - horzontal scrolling with really long lines
 
 features:
@@ -39,10 +31,8 @@ features:
 - trusted proxies
 - title
 - maxlength in input field
-21:36:01 <@tom> onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
+- (tom) onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
                 
-21:57:43 <@tom> if (!document.getElementById && document.all) document.getElementById = function(idStr) { return var tempEl=document.all[idStr]; return tempEl[0] || tempEl; }
-Can't use string ("<font color="#ff0000">***</font>") as a HASH ref while "strict refs" in use at ./interfaces/nonjs.pm line 90.
 docs:
 - admin password
 - remember to update cgiirc-form.txt
