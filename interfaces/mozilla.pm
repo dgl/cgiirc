@@ -649,6 +649,8 @@ function witemaddtext(name, text, activity, redraw) {
   
    if(options["scrollback"] == 0)
       Witems[name].text = Witems[name].text.slice(Witems[name].text.length - 200);
+   if(!Witems[name].info)
+      text = "<div class='main-item'>" + text + "</div>";
    Witems[name].text[Witems[name].text.length] = text;
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);
