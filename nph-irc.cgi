@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.59 2002/07/01 19:54:11 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.60 2002/07/01 20:04:25 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -895,8 +895,8 @@ sub irc_ctcp {
 
 #### prints a very simple header
 sub header {
+   print "HTTP/1.0 200 OK\r\n" if $0 =~ /nph-/;
    print join("\r\n",
-     'HTTP/1.0 200 OK',
      'Content-type: text/html',
      'Pragma: no-cache',
      'Cache-control: must-revalidate, no-cache, no-store',
