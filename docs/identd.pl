@@ -1,4 +1,4 @@
-#!/usr/bin/perl -wT
+#!/usr/bin/perl -T
 # You'll need to add this line to /etc/inetd.conf and change the line that is
 # already there to begin with ident2 then edit /etc/services and add port 114
 # as ident2 (for example), this means the idents can be forwarded.
@@ -13,12 +13,15 @@ my $cgiircprefix="/tmp/cgiirc-";
 # nouser reply with NO-USER
 # reply:text reply with USERID 'text'
 # linuxproc use /proc/net/tcp on linux to do 'real' identd relies 
+# forward:port forward to a real identd
 my $reply = "nouser";
 
 # Taken from midentd
 my $in = '';
 ret(0,0, "ERROR : NO-USER") unless sysread STDIN, $in, 128;
 my($local, $remote) = $in =~ /^\s*(\d+)\s*,\s*(\d+)/;
+
+ret(0,0, "ERROR : INVALID-PORT") unless defined $local && defined $remote;
 
 $remote = 0 if $remote !~ /^([ \d])+$/;
 $local = 0 if $local !~ /^([ \d])+$/;
@@ -35,10 +38,13 @@ if(defined $randomvalue) {
 }else{
    if($reply eq 'nouser') {
       ret($local, $remote, "ERROR : NO-USER");
-   }elsif($reply =~ /reply:(.*)/) {
+   }elsif($reply =~ /reply:\s*(.*)/) {
       ret($local, $remote, "USERID : UNIX : $1");
    }elsif($reply eq 'linuxproc') {
       ret($local, $remote, linuxproc($local, $remote));
+   }elsif($reply =~ /forward:\s*(.*)/) {
+      print forward($1, $local, $remote);
+      exit;
    }
    
    ret($local, $remote, "ERROR : INVALID-PORT");
@@ -83,5 +89,41 @@ sub encode_ip {
    return join('',map(sprintf("%0.2x", $_), split(/\./, $ip)));
 }
 
-sub linuxproc { 'TODO' }
+sub linuxproc {
+   my($l, $r) = @_;
+   open(PNT,"</proc/net/tcp") or return "ERROR : NO-USER";
+   $_=<PNT>;
+   while(<PNT>) {
+      s/^\s+//;
+      s/\s+/ /g;
+      my($sl,$local,$remote,$st,$queue,$tr,$retrnsmt,$uid,$timeout,$inode) = split(/\s/);
+      next unless decode_port($local) == $l && decode_port($remote) == $r;
+      return "USERID : UNIX : " . getusername($uid);
+   }
+   close(PNT);
+   return "ERROR : NO-USER";
+   
+}
+
+sub decode_port{
+   return hex((split(/:/,shift,2))[1]);
+}
+
+sub getusername{
+   my $uid = shift;
+   if($_=(getpwuid($uid))[0]) {
+      return $_;
+   } else {
+      return $uid;
+   }
+}  
+
+sub forward {
+   my($where, $l, $r) = @_;
+   eval("use IO::Socket;");
+   my $forward = IO::Socket::INET->new($where =~ /:/ ? $where : '127.0.0.1:' . $where);
+   return "$l , $r : ERROR : NO-USER\r\n" unless ref $forward;
+   print $forward "$l , $r\r\n";
+   return scalar <$forward>;
+}
 
