@@ -1394,12 +1394,18 @@ function keypress(srcEl, keyCode, event) {
 
 function pastedata(text) {
    var paste = text.split("\\n");
-   if(paste.length > 20)
+   if(paste.length == 1)
+      return true;
+   if(paste.length > 20) {
       alert("You can't paste more than 20 lines");
+      return false;
+   }
 
    if(paste.length < 5 ||
-     confirm("Are you sure you want to paste " + paste.length + " lines?"))
+     confirm("Are you sure you want to paste " + paste.length + " lines?")) {
       parent.fwindowlist.sendcmd_real('paste', text, parent.fwindowlist.currentwindow);
+      return false;
+   }
 }
 
 //-->
@@ -1410,7 +1416,7 @@ function pastedata(text) {
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
 <input type="text" class="form-say" name="say" autocomplete="off"
-  onpaste="pastedata(window.clipboardData.getData('Text',''));return false;"
+  onpaste="return pastedata(window.clipboardData.getData('Text',''));"
 >
 </form>
 EOF
