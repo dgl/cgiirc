@@ -7,16 +7,14 @@ use vars qw(
 	  $unixfh $ircfh
 	  $timer $event $config $cgi $irc $format $interface
    );
-use Socket; # various socket functions
+
+($VERSION =
+'$Name:  $ $Id: nph-irc.cgi,v 1.2 2002/03/05 16:43:11 dgl Exp $'
+) =~ s/^.*?(\d\S+) .*$/$1/;
+
+use Socket;
 use Symbol; # gensym
 $|++;
-my $needtodie = 0;
-
-($VERSION = '$Id: nph-irc.cgi,v 1.1 2002/03/05 16:34:19 dgl Exp $') =~
-     s/^.*?(\d\S+) .*$/$1/;
-
-$SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
-
 # Check for IPV6. Bit yucky but avoids errors when module isn't present
 BEGIN {
    eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
@@ -32,6 +30,9 @@ use Event;
 use IRC;
 use Command;
 require 'parse.pl';
+
+my $needtodie = 0;
+$SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
 
 #### Network Functions
 

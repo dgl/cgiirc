@@ -1,11 +1,19 @@
 #!/usr/bin/perl
 use strict;
-use vars qw/$VERSION/;
-($VERSION = '$Name:  $ $Revision: 1.1 $') =~
-     s/^.*?(\d\S+) .*/$1/;
+use vars qw($VERSION);
 use lib qw/modules interfaces/;
+
+($VERSION =
+ '$Name:  $ $Id: irc.cgi,v 1.2 2002/03/05 16:43:11 dgl Exp $'
+) =~ s/^.*?(\d\S+) .*$/$1/;
+
 require 'parse.pl';
-print "Content-type: text/html\nPragma: no-cache\nCache-control: must-revalidate, no-cache\nExpires: -1\n\n";
+
+print "Content-type: text/html
+Pragma: no-cache
+Cache-control: must-revalidate, no-cache
+Expires: -1\n\n";
+
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
 &copy;David Leadbeater 2000-2002
