@@ -61,7 +61,7 @@ socket_prefix = /tmp/cgiirc-
 # -----
 # Access related settings
 
-# encoded_ip, set to 3 to send real IP in username, 
+# encoded_ip, set to 3 to send real IP in realname and encoded in username
 # set to 2 to send hex encoded IP address in username  
 # and in realname, set to 1 to send only in realname and 0 to 
 # disable.
