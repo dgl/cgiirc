@@ -239,7 +239,8 @@ sub active {
 
 sub smilie { # js runs in fmain.
    shift; # object
-   return '<img src="'.$_[0].'" alt="" />';
+   return '<img src="'.$_[0].'" alt="' . $_[2] . '" style="display:none"
+   onload="this.nextSibling.style.display=\'none\';this.style.display=\'inline\'" /><span>'. $_ .'</span>';
 }
 
 sub link {
