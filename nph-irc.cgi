@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.93 2004/02/03 17:32:13 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.94 2004/02/03 17:41:25 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -298,7 +298,7 @@ sub format_colourhtml {
    $line =~ s/"/$tok\&quot;$tok/g;
 
    $line =~ s{((https?|ftp):\/\/[^$ ]+)(?![^<]*>)}{$interface->link(format_remove($1), format_linkshorten($1))}gie;
-   $line =~ s{(?:^|\s)(www\..*?)([\.,]?($|\s)|\)|\002)(?![^<]*>)}{$interface->link(format_remove("http://$1"), $1) . $2}gie;
+   $line =~ s{(^|\s)(www\..*?)([\.,]?($|\s)|\)|\002)(?![^<]*>)}{"$1" . $interface->link(format_remove("http://$2"), $2) . $3}gie;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
       $line =~ s{(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
