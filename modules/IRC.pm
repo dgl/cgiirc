@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.3 2002/03/08 18:06:20 dgl Exp $
+# $Id: IRC.pm,v 1.4 2002/03/10 14:35:26 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -65,6 +65,7 @@ sub find_nick_channels {
    my($self,$nick) = @_;
    my @tmp;
    for my $channel(keys %{$self->{_channels}}) {
+      next unless ref $self->{_channels}->{$channel};
       push @tmp, $channel if $self->{_channels}->{$channel}->nick($nick);
    }
    return @tmp;
@@ -106,12 +107,12 @@ sub sync_channel {
 
 sub join {
    my($self, $channel, $key) = @_;
-   $self->out("JOIN " . (ref $channel ? $channel->{name} : $channel) . ($key ? ' ' . $key : ''));
+   $self->out('JOIN ' . (ref $channel ? $channel->{name} : $channel) . ($key ? ' ' . $key : ''));
 }
 
 sub part {
-   my($self,$channel,$reason) = @_;
-   $self->out("PART " . ref $channel ? $channel->{name} : $channel . ($reason ? " :$reason" : ''));
+   my($self, $channel, $reason) = @_;
+   $self->out('PART ' . $channel . ($reason ? " :$reason" : ''));
 }
 
 sub nick {
@@ -120,7 +121,7 @@ sub nick {
 }
 
 sub quit {
-   my($self,$reason, $priority) = @_;
+   my($self,$reason) = @_;
    $self->out("QUIT :$reason");
 }
 
@@ -133,7 +134,7 @@ sub mode {
 sub topic {
    my($self, $channel, $message) = @_;
    $channel = $channel->{name} if ref $channel;
-   $self->out("TOPIC $channel :$message");
+   $self->out("TOPIC $channel" . (defined $message ? " :$message" : ''));
 }
 
 sub invite {

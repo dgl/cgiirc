@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.2 2002/03/05 20:31:06 dgl Exp $
+ * $Id: client.c,v 1.3 2002/03/10 14:35:26 dgl Exp $
  */
 
 #include <stdio.h>
@@ -102,7 +102,7 @@ int unix_connect(char *where) {
 
    len = strlen(TMPLOCATION) + strlen(where);
    if(len > 100) return;
-   snprintf(filename, 100, "%s%s", TMPLOCATION, where);
+   snprintf(filename, 100, "%s%s/sock", TMPLOCATION, where);
    filename[len] = 0;
 
    sock = socket(AF_UNIX, SOCK_STREAM, 0);

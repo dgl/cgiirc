@@ -11,9 +11,12 @@ my %commands = (
   },
   m => 'msg',
   privmsg => 'msg',
+  wi => 'whois',
   whois => sub {
+     $params = $irc->{nick} unless $params;
      $irc->out("WHOIS $params");
   },
+  j => 'join',
   'join' => sub {
      my @channels = (split(/,/, (split(' ', $params, 2))[0]));
 	 for(@channels) {
@@ -21,15 +24,65 @@ my %commands = (
 		message('access channel denied', $_);
 		return;
 	 }
-     $irc->out("JOIN $params");
+     $irc->join($params);
   },
-  j => 'join',
+  l => 'part',
   part => sub {
      if(!$params) {
 	    $irc->part($target);
 	 }else{
-	    my($target, $text) = split(' ', $params, 2);
-		$irc->part($target, $text);
+	    my($atarget, $text) = split(' ', $params, 2);
+		if($irc->is_channel($atarget)) {
+		   $irc->part($atarget, $text);
+		}else{
+		   $irc->part($target, $atarget . ' ' . $text);
+		}
+	 }
+  },
+  nick => sub {
+     $irc->nick($params);
+  },
+  quit => sub {
+     $irc->quit($params ? $params : "CGI:IRC $main::VERSION");
+  },
+  mode => sub {
+    my($atarget, $text) = split(' ', $params, 2);
+	if($atarget =~ /^[+-]/) {
+	   $irc->mode($target, $params);
+	}else{
+	   $irc->mode($atarget, $text);
+	}
+  },
+  umode => sub {
+     $irc->mode($irc->{nick}, $params);
+  },
+  usermode => 'umode',
+  t => 'topic',
+  topic => sub {
+     my($atarget, $text) = split(' ', $params, 2);
+     if(!$params) {
+	    $irc->topic($target);
+	 }elsif($irc->is_channel($atarget)) {
+	    $irc->topic($atarget, $text);
+	 }else{
+	    $irc->topic($target, $params);
+	 }
+  },
+  invite => sub {
+     my($atarget, $text) = split(' ', $params, 2);
+	 if($text) {
+	    $irc->invite($atarget, $text);
+	 }else{
+	    $irc->invite($target, $params);
+	 }
+  },
+  k => 'kick',
+  kick => sub {
+     my($atarget, $tnick, $text) = split(' ', $params, 3);
+	 if($irc->is_channel($atarget)) {
+	    $irc->kick($atarget, $tnick, $text);
+	 }else{
+	    $irc->kick($target, $atarget, $tnick .(defined $text ? " $text" : ''));
 	 }
   },
   notice => sub {
@@ -69,6 +122,14 @@ my %commands = (
   quote => sub {
      $irc->out($params);
   },
+  version => sub {
+     if($params) {
+	    $irc->out("VERSION $params");
+	 }else{
+	    message('default',"CGI:IRC $main::VERSION by David Leadbeater (dgl\@dgl.cx)");
+		$irc->out('VERSION');
+	 }
+  },
 );
 
 sub expand {
@@ -88,7 +149,7 @@ sub run {
       my $error = $commands{$command}->();
 	  return $error ? $error : 100;
    }else{
-      $irc->out(uc $command . ' ' . ($params =~ / / ? ':' : '') . $params);
+      $irc->out(uc($command) . ' ' . ($params =~ / / ? ':' : '') . $params);
       return 100;
    }
 

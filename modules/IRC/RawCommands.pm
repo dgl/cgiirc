@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.3 2002/03/08 18:06:20 dgl Exp $
+# $Id: RawCommands.pm,v 1.4 2002/03/10 14:35:26 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -10,6 +10,8 @@ my %raw = (
    'nick' => sub {
       my($event,$self,$params) = @_;
 	  my $newnick = $params->{params}->[1] || $params->{text};
+	  if(lc $params->{nick} eq lc $self->{nick}) { $self->{nick} = $newnick }
+
 	  my @channels = $self->find_nick_channels($params->{nick});
 	  for my $channel(@channels) {
 		 $self->{_channels}->{$channel}->chgnick($params->{nick},$newnick);
@@ -123,7 +125,7 @@ my %raw = (
 		    for(keys %tmpevents) {
 			   for my $who(keys %{$tmpevents{$_}}) {
 			      next unless defined $tmpevents{$_}{$who};
-				  $self->{event}->handle('user change', $who, $channel->{name}, $tmpevents{$_}{$who}, ({'h' => 'halfop','o' => 'op', 'v' => 'voice'}->{$_}));
+				  $self->{event}->handle('user change', $who, $channel->{name}, $tmpevents{$_}{$who} eq '+' ? '-' : '+', ({'h' => 'halfop','o' => 'op', 'v' => 'voice'}->{$_}));
 			   }
 			}
 		 }

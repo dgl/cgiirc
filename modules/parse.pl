@@ -34,4 +34,15 @@ sub parse_query {
    };
 }
 
+sub parse_cookie {
+   if(exists $ENV{HTTP_COOKIE} && $ENV{HTTP_COOKIE} =~ /cgiircauth/) {
+	  for(split /;/, $ENV{HTTP_COOKIE}) {
+		 s/^\s+//;
+		 my($name,$value) = split(/=/,$_,2);
+		 return $value if $name eq "cgiircauth";
+	  }
+   }
+   return 0;
+}
+
 1;

@@ -36,6 +36,8 @@ Javascript Interface:
 - tab completeion in mozilla?
 - key worded channels / nick in use text entry?
 - better handling of stream disconnections (also config option to go to page)
+- channel part
+- close windows
 
 NonJS Interface:
 - do this :)
@@ -58,6 +60,7 @@ nph-irc.cgi:
 - random value via http referer problem
   cookie read on frameset load, if set write to ^^cookie file and check
   future requests
+- session timeout if no data sent (set optionally)
 
 Abuse:
 - multiple connects from the same IP

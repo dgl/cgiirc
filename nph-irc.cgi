@@ -16,18 +16,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# Uncomment this if the server doesn't chdir (Boa).
+# BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
+
 require 5.004;
 use strict;
 use lib qw/modules interfaces/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
-	  $unixfh $ircfh
+	  $unixfh $ircfh $cookie
 	  $timer $event $config $cgi $irc $format $interface
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.5 2002/03/08 18:06:20 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.6 2002/03/10 14:35:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
+$VERSION =~ s/_/./g;
 
 use Socket;
 use Symbol; # gensym
@@ -50,6 +54,7 @@ require 'parse.pl';
 
 my $needtodie = 0;
 $SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
+$SIG{__DIE__} = sub { return unless ref $interface; $interface->error(@_); };
 
 #### Network Functions
 
@@ -388,8 +393,16 @@ sub load_socket {
       if !$cgi->{R} or $cgi->{R} =~ /[^A-Za-z0-9]/;
    error('Communication socket already exists')
       if -e $config->{socket_prefix}.$cgi->{R};
-   
-   my($socket,$error) = net_unixconnect($config->{socket_prefix}.$cgi->{R});
+
+   mkdir($config->{socket_prefix}.$cgi->{R}, 0700) or error("Mkdir error");
+
+   open(IP, ">$config->{socket_prefix}$cgi->{R}/ip") or error("Open error");
+   print IP "$ENV{REMOTE_ADDR}:$ENV{REMOTE_PORT}\n$ENV{HTTP_X_FORWARDED_FOR}\n";
+   close(IP);
+
+   my($socket,$error) = 
+	  net_unixconnect($config->{socket_prefix}.$cgi->{R}.'/sock');
+
    error("Error opening socket: $error") unless ref $socket;
 
    select_add($socket);
@@ -429,7 +442,7 @@ sub say_command {
 	  if($say =~ s!^/ /!/!) {
 		 irc_send_message($target, $say);
 	  }else{
-		 (my $command, my $params) = $say =~ m:^/([^ ]+)( (.+))?$:;
+		 (my $command, my $params) = $say =~ m|^/([^ ]+)(?: (.+))?$|;
 		 unless(defined $command && length $command) {
 			return;
 		 }
@@ -511,6 +524,7 @@ sub irc_connect {
 sub irc_out {
    my($event,$fh,$data) = @_;
    $data = $fh, $fh = $event if !$data;
+   message('default', "-> Server: $data");
    net_send($fh, $data . "\r\n");
 }
 
@@ -545,7 +559,9 @@ sub irc_event {
 sub irc_close {
    exit unless ref $unixfh;
    close($unixfh);
-   unlink($config->{socket_prefix}.$cgi->{R});
+   unlink($config->{socket_prefix}.$cgi->{R}.'/sock');
+   unlink($config->{socket_prefix}.$cgi->{R}.'/ip');
+   rmdir($config->{socket_prefix}.$cgi->{R});
    exit unless ref $ircfh;
    syswrite($ircfh, "QUIT :CGI:IRC $VERSION [EOF]\r\n", length "QUIT :CGI:IRC $VERSION [EOF]\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
@@ -597,6 +613,7 @@ sub init {
    header();
 
    $cgi = parse_query($ENV{QUERY_STRING});
+   $cookie = parse_cookie();
 
    error('No CGI Input') unless keys %$cgi;
    $cgi->{serv} ||= (split /,/, $config->{default_server})[0];
@@ -620,7 +637,7 @@ sub init {
    if($config->{encoded_ip}) {
 	  $cgi->{name} = '[' . encode_ip($ENV{REMOTE_ADDR}) . '] ' . $cgi->{name};
    }
-   
+
    $unixfh = load_socket();
 
    message('cgiirc welcome') if exists $format->{'cgiirc welcome'};

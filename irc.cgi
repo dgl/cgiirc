@@ -16,16 +16,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# Uncomment this if the server doesn't chdir (Boa).
+# BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
+
 use strict;
 use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ $Id: irc.cgi,v 1.4 2002/03/08 18:06:20 dgl Exp $'
+ '$Name:  $ $Id: irc.cgi,v 1.5 2002/03/10 14:35:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
+$VERSION =~ s/_/./g;
 
 require 'parse.pl';
 
+if(!parse_cookie()) {
+   print "Set-cookie: cgiircauth=". random(25) .";path=/\n";
+}
 print "Content-type: text/html
 Pragma: no-cache
 Cache-control: must-revalidate, no-cache
@@ -51,7 +58,7 @@ if(ref $cgi && defined $cgi->{item}) {
    exit unless $interface->exists($name);
    $interface->$name($cgi, $config, 0);
 }elsif(ref $cgi && defined $cgi->{Nickname}) {
-   my $r = join('',map(('a'..'z','0'..'9')[int rand 62], 0..15));
+   my $r = random();
 
    my %p = ( Nickname => 'nick', 
 	         Channel => 'chan',
@@ -96,6 +103,10 @@ if(ref $cgi && defined $cgi->{item}) {
 	  }
    }
    $interface->login($scriptname, $copy, $config, \@order, \%items);
+}
+
+sub random {
+   return join('',map(('a'..'z','0'..'9')[int rand 62], 0..($_[0] || 15)));
 }
 
 sub dolist {
