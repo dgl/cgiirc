@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.17 2002/03/17 18:08:28 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.18 2002/03/17 19:20:10 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 

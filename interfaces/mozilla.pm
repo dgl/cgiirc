@@ -115,6 +115,11 @@ sub del {
    _func_out('witemdel', $del);
 }
 
+sub active {
+   my($self, $window) = @_;
+   _func_out('witemchg', $window);
+}
+
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface) = @_;
 print <<EOF;

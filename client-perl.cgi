@@ -24,7 +24,7 @@ use vars qw($VERSION $PREFIX);
 $PREFIX = "/tmp/cgiirc-";
 
 ($VERSION =
-'$Name:  $ $Id: client-perl.cgi,v 1.2 2002/03/17 01:14:00 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.3 2002/03/17 19:20:10 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
