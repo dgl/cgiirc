@@ -1,68 +1,71 @@
-RawCommand stuff: each handler needs to be more consistant
-some sort of hash with, activity, target(s) (use an array ref maybe), also some
-sort of type, so for example creation of new windows only on 'message private'
-and 'channel join' or something.
-these todo items are related:
-- formats?
-- sort out targets
-- activity levels
+TODO
+----
+KEY:
+- TODO
+= semi-done
++ done
+? not sure
+! important
 
-----
-+++do form, commands, and so on
-rather important, we send a cmd=bleh back into the client.cgi, to start with
-say will be a command and will do parsing of commands on the server side.
-commands that will call interface: help, (un)query
-----
-clean up irc.cgi, some sort of order for commands, let the options that are
-displayed be optionally set in the config.
-how does login work with multiple channels and keys?
-- joining channels with keys?
-show browser button in advanced, with (automatic)
-----
+IRC Module:
+= RawCommand stuff: each handler needs to be more consistant
+= formats
+= sort out targets
+= activity levels
 - ctcp (userinfo, version, ping)
-- ctcp kill/ban
-- admin interface?
-- rmstale
-- usermode
-
-----
-config options:
-fonts
-timestamps
-vhost
-
-----
-multiple connects from the same IP
--- change tmp file name to PREFIX-random-$ENV{REMOTE_ADDR}
--- what about proxies - many users could be behind 1 IP
-                      - some have multiple outbound IPs
-some way of limiting the number of connections to a server?
-what about ipv6 REMOTE_ADDR? :(
-random value via http referer problem (use cookie?)
-
-key worded channels / nick in use text entry?
+- use 005 numeric if possible (mode can use PREFIX and CHANMODES)
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
-(ouch!)
 
+Commands:
+= pass params
+- add commands
+- default pass through
+- access commands
+- commands that will call to interface: help, (un)query
 
+Interfaces:
+Javascript Interface:
+- userlist: need to sort mode changes
+- right click context menus
+- pop-out needs to work in mozilla too
+- tab completeion in mozilla?
+- key worded channels / nick in use text entry?
+- better handling of stream disconnections (also config option to go to page)
 
-IE:
-right click context menus
-
-non-IE interface DO!
-
---auto detection of browser
+NonJS Interface:
+- do this :)
+= auto detection of browser
 - selecting colour in interfaces?
 
-default.pm use @ISA to override it
+= default.pm holds login with @ISA
 
+irc.cgi:
+- how does login work with multiple channels and keys?
+-? show browser button in advanced, with (automatic)
+
+
+nph-irc.cgi:
+- config fonts
+- config timestamps
+- config vhost
+- change tmp file system
+  directory prefix/rand/,  sock, ip, server, cookie
+- random value via http referer problem
+  cookie read on frameset load, if set write to ^^cookie file and check
+  future requests
+
+Abuse:
+- multiple connects from the same IP
+- ctcp kill/ban
+- limiting the number of connections to a server? (^^^ sock/server)
+- admin interface?
 
 ----
 design for website:
-- Home
-- Demo
-- Download
-- Mailing List
+ - Home
+ - Demo
+ - Download
+ - Mailing List
 
 docs:
 install guide
