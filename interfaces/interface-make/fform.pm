@@ -21,7 +21,8 @@ function t(item,text) {
    if(item.style.display == 'none') {
       item.style.display = 'inline';
 	  text.value = '>>';
-	  document.myform.say.style.width='40%'
+	  document.myform.say.style.width='10%' // For IE
+     document.myform.say.style.width = document.body.offsetWidth - document.getElementById('excont').offsetWidth - 20
    }else{
       item.style.display = 'none';
 	  text.value = '<<';
@@ -206,24 +207,23 @@ function pastedata(text) {
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
 <input type="text" class="form-say" name="say" autocomplete="off"
-  onpaste="return pastedata(window.clipboardData.getData('Text',''));"
 .$just konqueror
- size="100"
+ size="150"
 .$end
->
+  onpaste="return pastedata(window.clipboardData.getData('Text',''));">
 </form>
 EOF
-.$not opera7
+.$not konqueror
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/ && (!exists $config->{disable_format_input} || !$config->{disable_format_input})) {
 print <<EOF;
-<span class="form-econtain">
+<span class="form-econtain" id="excont">
 <input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;&lt;">
 <span id="extra" class="form-extra">
 <input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
 <input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF
 for(sort {$a <=> $b} keys %colours) {
-   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;&nbsp;\" onclick=\"append('\%C$_')\">\n";
+   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;\" onclick=\"append('\%C$_')\">\n";
 }
 print <<EOF;
 </span>

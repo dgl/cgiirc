@@ -792,31 +792,30 @@ function sendcmd_userlist(action, user) {
 }
 
 function sendcmd_real(type, say, target) {
-   document.hsubmit.item.value = 'say';
-   document.hsubmit.cmd.value = type;
-   document.hsubmit.say.value = say;
-   document.hsubmit.target.value = target;
-   document.hsubmit.submit();
+   send_make({ item: 'say', cmd: type, say: say, target: target })
 }
 
 function senditem(item) {
-   document.hsubmit.item.value = item;
-   document.hsubmit.cmd.value = '';
-   document.hsubmit.say.value = '';
-   document.hsubmit.target.value = '';
-   document.hsubmit.submit();
+   send_make({ item: item })
 }
 
 function send_option(name, value) {
-   document.hsubmit.item.value = '';
-   document.hsubmit.cmd.value = 'options';
-   document.hsubmit.say.value = '';
-   document.hsubmit.target.value = '';
-   document.hsubmit.name.value = name;
-   document.hsubmit.value.value = value;
-   document.hsubmit.submit();
-   document.hsubmit.name.value = '';
-   document.hsubmit.value.value = '';
+   send_make({ cmd: 'options', name: name, value: value })
+}
+
+function send_make(data) {
+   var xmlhttp = xmlhttp_new()
+   if(!xmlhttp) {
+      for(var i in data) {
+         document.hsubmit[i].value = data[i]
+      }
+      document.hsubmit.submit();
+      for(var i in data) {
+         document.hsubmit[i].value = ""
+      }
+   }else{
+      xmlhttp_send(xmlhttp, data)
+   }
 }
 
 function userlist() {
@@ -895,7 +894,37 @@ function do_quit() {
    var i = new Image();
    i.src = "$config->{script_form}?R=$cgi->{R}&cmd=quit";
 }
+function xmlhttp_new() {
+   if(window.XMLHttpRequest)
+      xmlhttp = new XMLHttpRequest()
+   else if (window.ActiveXObject)
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP")
+   return xmlhttp
+}
 
+function xmlhttp_send(xmlhttp, data) {
+   var send = "";
+   xmlhttp.open("POST", "$config->{script_form}", 1)
+   xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+   xmlhttp.onreadystatechange = post_results
+   data.R = "$cgi->{R}";
+   for(var i in data)
+      send += i + "=" + escape(data[i]) + "&"
+   xmlhttp.send(send)
+   return false
+}
+
+function post_results() {
+   if(xmlhttp.readyState < 4)
+      return
+
+   if(xmlhttp.status != 200) {
+      var w = window.open()
+      w.document.write(xmlhttp.responseText)
+      w.document.close()
+      return
+   }
+}
 // -->
 </script>
 <link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
@@ -928,6 +957,7 @@ function do_quit() {
 </form>
 </body></html>
 EOF
+
 }
 sub fmain {
    my($self, $cgi, $config) = @_;
@@ -1061,7 +1091,8 @@ function t(item,text) {
    if(item.style.display == 'none') {
       item.style.display = 'inline';
 	  text.value = '>>';
-	  document.myform.say.style.width='40%'
+	  document.myform.say.style.width='10%' // For IE
+     document.myform.say.style.width = document.body.offsetWidth - document.getElementById('excont').offsetWidth - 20
    }else{
       item.style.display = 'none';
 	  text.value = '<<';
@@ -1242,20 +1273,19 @@ function pastedata(text) {
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
 <input type="text" class="form-say" name="say" autocomplete="off"
-  onpaste="return pastedata(window.clipboardData.getData('Text',''));"
->
+  onpaste="return pastedata(window.clipboardData.getData('Text',''));">
 </form>
 EOF
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/ && (!exists $config->{disable_format_input} || !$config->{disable_format_input})) {
 print <<EOF;
-<span class="form-econtain">
+<span class="form-econtain" id="excont">
 <input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;&lt;">
 <span id="extra" class="form-extra">
 <input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
 <input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF
 for(sort {$a <=> $b} keys %colours) {
-   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;&nbsp;\" onclick=\"append('\%C$_')\">\n";
+   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;\" onclick=\"append('\%C$_')\">\n";
 }
 print <<EOF;
 </span>

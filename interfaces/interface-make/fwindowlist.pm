@@ -295,14 +295,14 @@ function witemredraw() {
    var scrollok = 1;
    if(!currentwindow) currentwindow = 'Status';
 .$just ie
-   if(doc.scrollTop < doc.scrollHeight - doc.clientHeight - 5)
+   if(doc.scrollTop < (doc.scrollHeight - doc.clientHeight - 5))
       scrollok = 0;
 .$end
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
    if(Witems[currentwindow].info == 1) return;
 .$just ie
    var count = 0;
-   if(scrollok)
+   if(scrollok == 1)
       while(doc.scrollTop < doc.scrollHeight && count < 20) {
          doc.scrollTop = doc.scrollHeight;
          count++;
@@ -378,31 +378,34 @@ function sendcmd_userlist(action, user) {
 }
 
 function sendcmd_real(type, say, target) {
-   document.hsubmit.item.value = 'say';
-   document.hsubmit.cmd.value = type;
-   document.hsubmit.say.value = say;
-   document.hsubmit.target.value = target;
-   document.hsubmit.submit();
+   send_make({ item: 'say', cmd: type, say: say, target: target })
 }
 
 function senditem(item) {
-   document.hsubmit.item.value = item;
-   document.hsubmit.cmd.value = '';
-   document.hsubmit.say.value = '';
-   document.hsubmit.target.value = '';
-   document.hsubmit.submit();
+   send_make({ item: item })
 }
 
 function send_option(name, value) {
-   document.hsubmit.item.value = '';
-   document.hsubmit.cmd.value = 'options';
-   document.hsubmit.say.value = '';
-   document.hsubmit.target.value = '';
-   document.hsubmit.name.value = name;
-   document.hsubmit.value.value = value;
-   document.hsubmit.submit();
-   document.hsubmit.name.value = '';
-   document.hsubmit.value.value = '';
+   send_make({ cmd: 'options', name: name, value: value })
+}
+
+function send_make(data) {
+.$just ie mozilla
+   var xmlhttp = xmlhttp_new()
+.$else
+   var xmlhttp = 0
+.$end
+   if(!xmlhttp) {
+      for(var i in data) {
+         document.hsubmit[i].value = data[i]
+      }
+      document.hsubmit.submit();
+      for(var i in data) {
+         document.hsubmit[i].value = ""
+      }
+   }else{
+      xmlhttp_send(xmlhttp, data)
+   }
 }
 
 function userlist() {
@@ -487,7 +490,39 @@ function do_quit() {
    var i = new Image();
    i.src = "$config->{script_form}?R=$cgi->{R}&cmd=quit";
 }
+.$just ie mozilla
+function xmlhttp_new() {
+   if(window.XMLHttpRequest)
+      xmlhttp = new XMLHttpRequest()
+   else if (window.ActiveXObject)
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP")
+   return xmlhttp
+}
 
+function xmlhttp_send(xmlhttp, data) {
+   var send = "";
+   xmlhttp.open("POST", "$config->{script_form}", 1)
+   xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+   xmlhttp.onreadystatechange = post_results
+   data.R = "$cgi->{R}";
+   for(var i in data)
+      send += i + "=" + escape(data[i]) + "&"
+   xmlhttp.send(send)
+   return false
+}
+
+function post_results() {
+   if(xmlhttp.readyState < 4)
+      return
+
+   if(xmlhttp.status != 200) {
+      var w = window.open()
+      w.document.write(xmlhttp.responseText)
+      w.document.close()
+      return
+   }
+}
+.$end
 // -->
 </script>
 <link rel="stylesheet" href="$config->{script_login}?interface=**BROWSER&item=style&style=$cgi->{style}" />
@@ -537,3 +572,4 @@ function enable_sounds() {
 .$end
 </body></html>
 EOF
+
