@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.6 2002/03/14 00:11:26 dgl Exp $
+# $Id: RawCommands.pm,v 1.7 2002/03/17 00:56:51 dgl Exp $
 package IRC::RawCommands;
 use strict;
 my $ctcptime = 0;
@@ -307,7 +307,7 @@ my %raw = (
    },
    317 => sub { # RPL_WHOISIDLE
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply whois idle', _info($params->{params}->[2], 1), @{$params->{params}}[3..4], $params->{text});
+	  $self->{event}->handle('reply whois idle', _info($params->{params}->[2], 1), $params->{params}->[3], scalar gmtime($params->{params}->[4]), $params->{text});
    },
    319 => sub { # RPL_WHOISCHANNELS
       my($event,$self,$params) = @_;

@@ -29,7 +29,7 @@ default_user=cgiirc
 # You can change the default locations of the scripts with these
 # settings, generally they don't need to be changed
 script_nph = nph-irc.cgi
-script_form = client.cgi
+script_form = client-perl.cgi
 script_login = irc.cgi
 
 # The place where tmp. files should be stored

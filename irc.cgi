@@ -24,7 +24,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ $Id: irc.cgi,v 1.5 2002/03/10 14:35:26 dgl Exp $'
+ '$Name:  $ $Id: irc.cgi,v 1.6 2002/03/17 00:56:51 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -102,7 +102,7 @@ if(ref $cgi && defined $cgi->{item}) {
 		 @order = qw/Nickname Server Channel/;
 	  }
    }
-   $interface->login($scriptname, $copy, $config, \@order, \%items);
+   $interface->login($scriptname, $interface, $copy, $config, \@order, \%items);
 }
 
 sub random {

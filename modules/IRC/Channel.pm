@@ -1,4 +1,4 @@
-# $Id: Channel.pm,v 1.1 2002/03/05 16:34:19 dgl Exp $
+# $Id: Channel.pm,v 1.2 2002/03/17 00:56:51 dgl Exp $
 package IRC::Channel;
 use strict;
 use IRC::UniqueHash;
@@ -70,6 +70,19 @@ sub is_op {
    my($self, $nick) = @_;
    return 1 if $self->{_nicks}->{$nick}->{op};
    0;
+}
+
+sub get_umode {
+   my($self, $nick) = @_;
+   if($self->{_nicks}->{$nick}->{op}) {
+      return '@';
+   }elsif($self->{_nicks}->{$nick}->{halfop}) {
+      return '%';
+   }elsif($self->{_nicks}->{$nick}->{voice}) {
+      return '+';
+   }else{
+      return ' ';
+   }
 }
 
 sub has_mode {

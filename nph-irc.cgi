@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.14 2002/03/16 00:39:29 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.15 2002/03/17 00:56:51 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -372,7 +372,7 @@ sub load_interface {
    my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
    $name =~ s/[^a-z]//gi;
    require('interfaces/' . $name . '.pm');
-   $interface = $name->new($event);
+   $interface = $name->new($event,$timer);
    $interface->header($config, $cgi);
 
    return $interface;
@@ -623,7 +623,7 @@ sub irc_connected {
 sub irc_send_message {
    my($target, $text) = @_;
    $event->handle('message ' .
-		($irc->is_channel($target) ? 'public' : 'private') . ' own', 
+		($irc->is_channel($target) ? 'public' : 'private' . ($interface->query ? ' window ' : '')) . ' own', 
 		{ target => $target }, $irc->{nick}, $irc->{myhost}, $text);
    $irc->msg($target,$text);
 }
@@ -643,6 +643,7 @@ sub irc_event {
    }elsif($name =~ /^ctcp/) {
 	  return irc_ctcp($name, $info, @params);
    }elsif($name eq 'message public' && $params[2] =~ /^\Q$irc->{nick}\E\W/i) {
+	  $info->{activity} = 3;
 	  $name = 'message public hilight';
    }elsif($name eq 'message private' && $interface->query) {
 	  $name = 'message private window';
@@ -680,13 +681,16 @@ sub irc_ctcp {
 	  
 	  if(uc($command) eq 'VERSION') {
 		 $irc->ctcpreply($nick, $command,
-			 "CGI:IRC $VERSION - David Leadbeater - http://cgiirc.sf.net/");
+			 "CGI:IRC $VERSION - http://cgiirc.sf.net/");
 	  }elsif(uc($command) eq 'PING') {
 		 return if $params =~ /[^0-9 ]/ || length $params > 50;
 		 $irc->ctcpreply($nick, $command, $params);
 	  }elsif(uc($command) eq 'USERINFO') {
 		 $irc->ctcpreply($nick, $command,
 			 "$ENV{REMOTE_ADDR} - $ENV{HTTP_USER_AGENT}");
+	  }elsif(uc($command) eq 'TIME') {
+		 $irc->ctcpreply($nick, $command,
+			   scalar localtime());
 	  }
    }else{
 	  if(uc($command) eq 'PING') {

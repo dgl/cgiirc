@@ -6,10 +6,7 @@ my %commands = (
   msg => sub {
      my($target, $text) = split(' ', $params, 2);
 	 return 2 unless(defined $text && defined $target);
-     $event->handle('message ' .
-	    ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-		{ target => $target, create => 1 }, $irc->{nick}, $irc->{myhost}, $text);
-	 $irc->msg($target,$text);
+	 main::irc_send_message($target, $text);
   },
   m => 'msg',
   privmsg => 'msg',

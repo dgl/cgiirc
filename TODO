@@ -15,25 +15,25 @@ Commands:
 - commands that will call to interface: help, (un)query, clear
 
 Interfaces:
-- hilight text targeted at nickname
+= hilight text targeted at nickname
 Javascript Interface:
 - make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
 - right click context menus
 - pop-out needs to work in mozilla too
-- tab completeion in mozilla?
+= tab completeion in mozilla?
 - key worded channels / nick in use text entry?
 - better handling of stream disconnections (also config option to go to page)
-- channel part
+= channel part
 - close windows
 - quit in more than one channel
 
 NonJS Interface:
 = do this :)
-= auto detection of browser
++ auto detection of browser
 - selecting colour in interfaces?
 
 irc.cgi:
-- how does login work with multiple channels and keys?
+= how does login work with multiple channels and keys?
 
 nph-irc.cgi:
 - config fonts

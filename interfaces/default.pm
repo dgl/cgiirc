@@ -31,7 +31,7 @@ sub error {
 }
 
 sub login {
-   my($self, $this, $copy, $config, $order, $items) = @_;
+   my($self, $this, $interface, $copy, $config, $order, $items) = @_;
    my $notsupported = 0;
    if($ENV{HTTP_USER_AGENT} =~ /opera|kde|konqueror/i) {
       $notsupported++;
@@ -39,6 +39,9 @@ sub login {
 print <<EOF;
 <html>
 <head>
+EOF
+if($interface eq 'default') {
+print <<EOF;
 <script><!--
 function setjs() {
  if(navigator.product == 'Gecko') {
@@ -49,6 +52,9 @@ function setjs() {
 }
 //-->
 </script>
+EOF
+}
+print <<EOF;
 <title>CGI:IRC Login</title>
 </head>
 <body bgcolor="#ffffff" text="#000000" onload="setjs()">
@@ -58,7 +64,10 @@ if($notsupported) {
 }
 print <<EOF;
 <form method="post" action="$this" name="loginform">
-<input type="hidden" name="interface" value="nonjs">
+EOF
+print "<input type=\"hidden\" name=\"interface\" value=\"" . 
+   ($interface eq 'default' ? 'nonjs' : $interface) . "\">\n";
+print <<EOF;
 <table border="0" cellpadding="5" cellspacing="0">
 <tr><td colspan="2" align="center" bgcolor="#c0c0dd"><b>CGI:IRC
 Login</b></td></tr>
