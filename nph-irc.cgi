@@ -27,11 +27,11 @@ use vars qw(
       $VERSION @handles %inbuffer $select_bits @output
       $unixfh $ircfh $cookie $ctcptime $intime $pingtime
       $timer $event $config $cgi $irc $format $interface $ioptions
-      $regexpicon %regexpicon
+      $regexpicon %regexpicon $iconv_out $iconv_in
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.92 2004/02/03 15:58:50 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.93 2004/02/03 17:32:13 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -46,6 +46,10 @@ BEGIN {
       $::IPV6 = 0;
       eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
+   # then check for Text::Iconv
+   $::ICONV = 0;
+   eval("use Text::Iconv;");
+   $::ICONV = 1 unless $@;
 }
 
 # My own Modules
@@ -175,10 +179,16 @@ sub net_autoflush {
    select STDOUT;
 }
 
-## Send data to specific filehandle
+## Send data to specific filehandle (and deal with encodings for irc)..
 sub net_send {
    my($fh,$data) = @_;
-   syswrite($fh, $data, length $data);
+   if(defined $iconv_out && $fh == $ircfh) {
+      my $output = $iconv_out->convert($data);
+      $output = $data unless defined $output;
+      syswrite($fh, $output, length $output);
+   }else{
+      syswrite($fh, $data, length $data);
+   }
 }
 
 #### Select Helper Functions
@@ -512,7 +522,7 @@ sub load_socket {
 sub unix_in {
    my($fh, $line) = @_;
 
-   my $input = parse_query($line);
+   my $input = parse_query($line, ($line =~ /&xmlhttp/ ? 2 : 0));
    
    if($cookie && (!defined $input->{COOKIE} || $input->{COOKIE} ne $cookie)) {
       net_send($fh, "Content-type: text/html\r\n\r\nInvalid cookie\r\n");
@@ -544,7 +554,7 @@ sub input_command {
    if($command eq 'say') {
       say_command($params->{say}, $params->{target});
    }elsif($command eq 'paste') {
-      $params = parse_query($line, 1);
+      $params = parse_query($line, 1 + ($line =~ /&xmlhttp/ ? 2 : 0));
       for(split /\n/, $params->{say}) {
          irc_send_message($params->{target}, $_);
       }
@@ -824,6 +834,10 @@ sub irc_write_server {
 sub irc_out {
    my($event,$fh,$data) = @_;
    $data = $fh, $fh = $event if !$data;
+   if(defined $iconv_out) {
+      my $output = $iconv_out->convert($data);
+      $data = $output if defined $output;
+   }
 #message('default', "-> Server: $data");
    net_send($fh, $data . "\r\n");
 }
@@ -844,7 +858,7 @@ sub irc_close {
    exit unless rmdir($t);
    
    exit unless ref $ircfh;
-   net_send($ircfh, "QUIT :$message\r\n");
+   irc_out("QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
 
    flushoutput();
@@ -932,7 +946,7 @@ sub irc_ctcp {
          
          if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
             message('kill ok', $nick, $reason);
-            net_send($ircfh, "QUIT :Killed ($nick ($reason))\r\n");
+            irc_out("QUIT :Killed ($nick ($reason))\r\n");
             irc_close();
          }else{
             message('kill wrong', $nick, $reason);
@@ -1048,13 +1062,12 @@ sub init {
 
    $timer->addforever(interval => 30, code => \&session_timeout);
 
-
    $cgi = parse_query($ENV{QUERY_STRING});
    format_init_smilies();
    $format = load_format($cgi->{format});
    $cookie = parse_cookie();
 
-   header($format->{charset} ? $format->{charset} : undef);
+   header();
 
    error('No CGI Input') unless keys %$cgi;
    $cgi->{serv} ||= (split /,/, $config->{default_server})[0];
@@ -1070,7 +1083,15 @@ sub init {
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
    $interface = load_interface();
- 
+
+   # Here so errors are shown.
+   if($::ICONV && config_set('irc charset')
+         && $config->{"irc charset"} !~ /^utf-?8$/i) {
+      $iconv_in  = Text::Iconv->new($config->{"irc charset"}, "UTF-8");
+      $iconv_out = Text::Iconv->new("UTF-8", $config->{"irc charset"});
+      Text::Iconv->raise_error(0);
+   }
+
    my($resolved, $resolvedip) = access_check_host($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
@@ -1174,6 +1195,10 @@ sub main_loop {
                $theline =~ s/\r$//;
                
                if($fh == $ircfh) {
+                  if(defined $iconv_in) {
+                     my $input = $iconv_in->convert($theline);
+                     $theline = $input if defined $input;
+                  }
                   $irc->in($theline);
                }else{
                   unix_in($fh,$theline);

@@ -33,13 +33,15 @@ sub make_utf8 {
 ## Parses a CGI input, returns a hash reference to the value within it.
 ## The clever regexp bit is from cgi-lib.pl
 ## This now also removes certain characters that might not be a good idea.
+## $ext (bitmask): 1 to *NOT* remove \n etc, 2 to treat input as xmlhttp
+## (different encoding for +).
 sub parse_query {
-   my($query, $allow) = @_;
+   my($query, $ext) = @_;
    return {} unless defined $query and length $query;
 
    return {
 	  map {
-	     s/\+/ /g;
+	     s/\+/ /g unless defined $ext and $ext & 2;
 	     my($key, $val) = split(/=/,$_,2);
 	     $val = "" unless defined $val;
 
@@ -47,7 +49,7 @@ sub parse_query {
 	     $key =~ s/[\r\n\0\001]//g;
 
 	     $val =~ s/\%u([A-F0-9]{4})/make_utf8($1)/ge;
-	     $val =~ s{%([A-Fa-f0-9]{2})((?=%[A-Fa-f0-9]{2})?)}{
+	     $val =~ s{%([A-Fa-f0-9]{2})((?=%[A-Fa-f0-9]{2}))?}{
 	        my $x = hex($1);
 		
 		if($x >= 0x7F &&
@@ -57,7 +59,7 @@ sub parse_query {
 		  pack("c",hex($1))
 		}
              }gex;
-        if(defined $allow and $allow) {
+        if(defined $ext and $ext & 1) {
            $val =~ s/[\0\001]//g;
         }else{
            $val =~ s/[\r\n\0\001]//g;

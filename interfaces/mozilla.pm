@@ -911,8 +911,9 @@ function xmlhttp_send(xmlhttp, data) {
    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=utf-8")
    xmlhttp.onreadystatechange = post_results
    data.R = "$cgi->{R}";
+   data.xmlhttp = 1; // should be header (needs client.cgi proto changes...)
    for(var i in data)
-      send += i + "=" + (escape(data[i]).replace(/\\+/g, "\%2B")) + "&"
+      send += i + "=" + escape(data[i]) + "&"
    xmlhttp.send(send)
    return false
 }

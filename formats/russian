@@ -1,32 +1,31 @@
-charset = windows-1251
-looking up = {prefix-client} Резолвим {server $0}
-connecting = {prefix-client} Соединяемся с {server $0} [$1] port {hilight $2}
+looking up = {prefix-client} Р РµР·РѕР»РІРёРј {server $0}
+connecting = {prefix-client} РЎРѕРµРґРёРЅСЏРµРјСЃСЏ СЃ {server $0} [$1] port {hilight $2}
 
-access denied = {prefix-client} Доступ закрыт: $0
-access server denied = {prefix-client} Доступ к серверу блокирован
-access channel denied = {prefix-client} Доступ к каналу блокирован
-command denied = {prefix-client} Использование данной команды запрещено
-session timeout = {prefix-client} Таймаут - ваша сессия была слишком долго не активна
+access denied = {prefix-client} Р”РѕСЃС‚СѓРї Р·Р°РєСЂС‹С‚: $0
+access server denied = {prefix-client} Р”РѕСЃС‚СѓРї Рє СЃРµСЂРІРµСЂСѓ Р±Р»РѕРєРёСЂРѕРІР°РЅ
+access channel denied = {prefix-client} Р”РѕСЃС‚СѓРї Рє РєР°РЅР°Р»Сѓ Р±Р»РѕРєРёСЂРѕРІР°РЅ
+command denied = {prefix-client} РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ РґР°РЅРЅРѕР№ РєРѕРјР°РЅРґС‹ Р·Р°РїСЂРµС‰РµРЅРѕ
+session timeout = {prefix-client} РўР°Р№РјР°СѓС‚ - РІР°С€Р° СЃРµСЃСЃРёСЏ Р±С‹Р»Р° СЃР»РёС€РєРѕРј РґРѕР»РіРѕ РЅРµ Р°РєС‚РёРІРЅР°
 
-kill ok = {prefix-error} Вы получили kill от $1 ($2)
-kill wrong = {prefix-error} $1 Вам пытались сделать kill но ввели неверный пароль! ($2)
+kill ok = {prefix-error} Р’С‹ РїРѕР»СѓС‡РёР»Рё kill РѕС‚ $1 ($2)
+kill wrong = {prefix-error} $1 Р’Р°Рј РїС‹С‚Р°Р»РёСЃСЊ СЃРґРµР»Р°С‚СЊ kill РЅРѕ РІРІРµР»Рё РЅРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ! ($2)
 
-command notparams = {prefix-client} Не достаточно параметров для команды
-command error = {prefix-client} Ошибка выполнения команды
-error = {prefix-error} Ошибка: $0
-not supported = {prefix-client} $0 пытается $3 к вам но CGI:IRC не поддерживает етой возможности ($2)
+command notparams = {prefix-client} РќРµ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РєРѕРјР°РЅРґС‹
+command error = {prefix-client} РћС€РёР±РєР° РІС‹РїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
+error = {prefix-error} РћС€РёР±РєР°: $0
+not supported = {prefix-client} $0 РїС‹С‚Р°РµС‚СЃСЏ $3 Рє РІР°Рј РЅРѕ CGI:IRC РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РµС‚РѕР№ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё ($2)
 
-cgiirc welcome = {prefix-client} Добро пожаловать в CGI:IRC - $VERSION
+cgiirc welcome = {prefix-client} Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ РІ CGI:IRC - $VERSION
 
-join = {prefix-user} $0 {host $1} зашёл на канал {channel $T}
-nick = {prefix-user} $0 сменил(а) ник на $2
-quit = {prefix-user} $0 {host $1} покинул(а) канал {reason $2}
-part = {prefix-user} $0 покинул(а) {channel $T} {reason $2}
+join = {prefix-user} $0 {host $1} Р·Р°С€С‘Р» РЅР° РєР°РЅР°Р» {channel $T}
+nick = {prefix-user} $0 СЃРјРµРЅРёР»(Р°) РЅРёРє РЅР° $2
+quit = {prefix-user} $0 {host $1} РїРѕРєРёРЅСѓР»(Р°) РєР°РЅР°Р» {reason $2}
+part = {prefix-user} $0 РїРѕРєРёРЅСѓР»(Р°) {channel $T} {reason $2}
 user mode = {prefix-user} usermode/$0 $2
 mode = {prefix-user} mode/$T [$2] by $0
-topic = {prefix-user} $0 тема изменена на: $2
-invite = {prefix-user} $0 приглашает тебя присоединиться $2
-kick = {prefix-user} $2 выкинут с канала $T $0 {reason $3}
+topic = {prefix-user} $0 С‚РµРјР° РёР·РјРµРЅРµРЅР° РЅР°: $2
+invite = {prefix-user} $0 РїСЂРёРіР»Р°С€Р°РµС‚ С‚РµР±СЏ РїСЂРёСЃРѕРµРґРёРЅРёС‚СЊСЃСЏ $2
+kick = {prefix-user} $2 РІС‹РєРёРЅСѓС‚ СЃ РєР°РЅР°Р»Р° $T $0 {reason $3}
 
 prefix-error = %04***%n
 prefix-info = %03***%n
@@ -66,9 +65,9 @@ action private = {action-nick $0} {text $2}
 action public own = {action-nick $0} {text $2}
 action private own = {action-nick $0} {text $2}
 
-ctcp own msg = {prefix-user} CTCP к $T: $1
-ctcp msg = {prefix-user} $1 запрос CTCP %_$3%_ от $0: $4
-ctcp reply = {prefix-user} CTCP %_$2%_ ответ от $0: $3
+ctcp own msg = {prefix-user} CTCP Рє $T: $1
+ctcp msg = {prefix-user} $1 Р·Р°РїСЂРѕСЃ CTCP %_$3%_ РѕС‚ $0: $4
+ctcp reply = {prefix-user} CTCP %_$2%_ РѕС‚РІРµС‚ РѕС‚ $0: $3
 
 text = $0
 channel = %_$0%_
@@ -80,32 +79,32 @@ host = [$0]
 
 default = {prefix-server} $0-
 
-ignore list = {prefix-client} Ignore-список: $0-
-ignored = {prefix-client} Игнорирован: $0-
-unignored = {prefix-client} Деигнорирован: $0-
+ignore list = {prefix-client} Ignore-СЃРїРёСЃРѕРє: $0-
+ignored = {prefix-client} РРіРЅРѕСЂРёСЂРѕРІР°РЅ: $0-
+unignored = {prefix-client} Р”РµРёРіРЅРѕСЂРёСЂРѕРІР°РЅ: $0-
 
-reply away = {prefix-user} $T Отсутствует: $0
-reply nowaway = {prefix-server} Вы сейчас помечены как "отсутствует"
-reply unaway = {prefix-server} Вы больше не помечены как "отсутствует"
+reply away = {prefix-user} $T РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚: $0
+reply nowaway = {prefix-server} Р’С‹ СЃРµР№С‡Р°СЃ РїРѕРјРµС‡РµРЅС‹ РєР°Рє "РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚"
+reply unaway = {prefix-server} Р’С‹ Р±РѕР»СЊС€Рµ РЅРµ РїРѕРјРµС‡РµРЅС‹ РєР°Рє "РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚"
 
-reply channel time = {prefix-server} Канал создан $0
-reply notopic = {prefix-server} Нет темы канала
-reply topic = {prefix-server} Тема канала: $0
-reply topicwhotime = {prefix-server} Тема установлена $0 [$1]
+reply channel time = {prefix-server} РљР°РЅР°Р» СЃРѕР·РґР°РЅ $0
+reply notopic = {prefix-server} РќРµС‚ С‚РµРјС‹ РєР°РЅР°Р»Р°
+reply topic = {prefix-server} РўРµРјР° РєР°РЅР°Р»Р°: $0
+reply topicwhotime = {prefix-server} РўРµРјР° СѓСЃС‚Р°РЅРѕРІР»РµРЅР° $0 [$1]
 
 reply whois user = {prefix-user} $T [$0@$1]: $2
 reply whowas user = {prefix-user} $T [$0@$1]: $2
-reply whois channel = {prefix-user} каналов: $0
-reply whois regnick = {prefix-user} зарегистрирован: $0
+reply whois channel = {prefix-user} РєР°РЅР°Р»РѕРІ: $0
+reply whois regnick = {prefix-user} Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ: $0
 reply whois operator = {prefix-user} ircop: $0
-reply whois idle = {prefix-user} время: $0 с момента входа: $1
-reply whois server = {prefix-user} сервер: $0 [$1]
+reply whois idle = {prefix-user} РІСЂРµРјСЏ: $0 СЃ РјРѕРјРµРЅС‚Р° РІС…РѕРґР°: $1
+reply whois server = {prefix-user} СЃРµСЂРІРµСЂ: $0 [$1]
 reply whois end = {prefix-user} $0
 
-error nosuchnick = {prefix-server} %_$0%_ Нет такого ника/канала
-error nickinuse = {prefix-server} Ник $0 уже используется, наберите /nick новый_ник для смены ника.
+error nosuchnick = {prefix-server} %_$0%_ РќРµС‚ С‚Р°РєРѕРіРѕ РЅРёРєР°/РєР°РЅР°Р»Р°
+error nickinuse = {prefix-server} РќРёРє $0 СѓР¶Рµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅР°Р±РµСЂРёС‚Рµ /nick РЅРѕРІС‹Р№_РЅРёРє РґР»СЏ СЃРјРµРЅС‹ РЅРёРєР°.
 
-irc close = {prefix-error} Потеря связи с IRC
+irc close = {prefix-error} РџРѕС‚РµСЂСЏ СЃРІСЏР·Рё СЃ IRC
 
 bg = 00
 fg = 01

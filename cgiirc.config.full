@@ -38,7 +38,19 @@ script_nph = nph-irc.cgi
 script_form = client-perl.cgi
 script_login = irc.cgi
 
+# The path to images for the browser (a URL!)
+# In script aliased directories (cgi-bin) the default will *not* work,
+# you need to move the directory elsewhere and change this to something
+# like /images.
 image_path = images
+
+# The charset to send to IRC, to send anything other than UTF-8 you will
+# need the Text::Iconv perl module installed. Any character set supported
+# by your system iconv should work here.
+# If you see the wrong characters in CGI:IRC or with a normal IRC client
+# you probably need to change this.
+# Extended ASCII:
+#irc charset = iso-8859-1
 
 # The location to *append* before the location of the socket directory
 # (don't change this unless you understand it - and then think about it again).
