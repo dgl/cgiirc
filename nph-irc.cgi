@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.99 2005/01/05 23:15:29 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.100 2005/01/05 23:50:10 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -796,9 +796,9 @@ sub session_timeout {
          (time - $config->{session_timeout}) > $intime) {
       message('session timeout');
       irc_close('Session timeout');
-   }elsif($interface->ping && $pingtime < time - 900) {
+   }elsif($interface->ping && $pingtime < time - 300) {
       irc_close('Ping timeout');
-   }elsif($interface->ping && $pingtime < time - 600) {
+   }elsif($interface->ping && $pingtime < time - 240) {
       $interface->sendping;
    }
 }
