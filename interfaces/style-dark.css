@@ -143,7 +143,13 @@
 }
 
 .form-form {
-   float: left;
+   display: inline;
+}
+
+.form-econtain {
+   display: inline;
+   position: absolute;
+   right: 0;
 }
 
 .form-say {
@@ -157,10 +163,6 @@
    padding-left: 4px;
    background-color: #303030;
    color: #303030;
-}
-
-.form-econtain {
-   float: right;
 }
 
 .form-extra { 

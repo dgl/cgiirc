@@ -144,9 +144,15 @@
 }
 
 .form-form {
-   float: left;
+   display: inline;
 }
 
+.form-econtain {
+   display: inline;
+   position: absolute;
+   right: 0;
+}  
+   
 .form-say {
    border: 0;
    width: 90%;
@@ -157,10 +163,6 @@
    padding-left: 4px;
    background: #c0c0c0;
      font-family: Fixedsys,fixed,system,monospace;
-}
-
-.form-econtain {
-   float: right;
 }
 
 .form-extra { 

@@ -150,7 +150,13 @@
 }
 
 .form-form {
-   float: left;
+   display: inline;
+}
+
+.form-econtain {
+   display: inline;
+   position: absolute;
+   right: 0;
 }
 
 .form-say {
@@ -162,10 +168,6 @@
 .form-nickname {
    padding-left: 4px;
    background: #c0c0c0;
-}
-
-.form-econtain {
-   float: right;
 }
 
 .form-extra { 

@@ -134,9 +134,15 @@
 }
 
 .form-form {
-   float: left;
+   display: inline;
 }
 
+.form-econtain {
+   display: inline;
+   position: absolute;
+   right: 0;
+}  
+   
 .form-say {
    border: 0;
    width: 90%;
@@ -153,10 +159,6 @@
    color: gray;
    font-family: verdana,tahoma;
    font-size: 12px;
-}
-
-.form-econtain {
-   float: right;
 }
 
 .form-extra { 
