@@ -132,12 +132,12 @@ sub active {
 
 sub error {
    my($self,$message) = @_;
-   $self->line({ target => 'Status'}, $message);
+   $self->lines({ target => 'Status'}, $message);
 }
 
 sub help {
    my($self) = shift;
-   $self->line({ target => 'Status'}, "Help!");
+   $self->lines({ target => 'Status'}, "Full help can be found at http://cgiirc.sourceforge.net/docs/usage.php");
 }
 
 sub frameset {
@@ -153,7 +153,7 @@ $standardheader
 <frameset rows="*,60" framespacing="0" border="0" frameborder="0">
 <frameset cols="*,120" framespacing="0" border="0" frameborder="0">
 <frame name="fmain" src="$config->{script_nph}?$out" scrolling="yes">
-<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&R=$random" scrolling="no">
+<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&R=$random" scrolling="yes">
 </frameset>
 <frame name="fform" src="$scriptname?item=fform&interface=$interface&R=$random" scrolling="no">
 <noframes>

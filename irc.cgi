@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.15 2002/05/22 11:36:23 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.16 2002/05/27 19:37:39 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -112,7 +112,7 @@ if(ref $cgi && defined $cgi->{item}) {
    closedir(FORMATS);
 
    %items = (
-      Nickname => $config->{default_nick},
+      Nickname => $ENV{REMOTE_USER} || $config->{default_nick},
       Channel => $channel,
       Server => $server,
       Port => $port,

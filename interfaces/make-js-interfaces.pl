@@ -773,8 +773,10 @@ function channelsusernick(olduser, newuser) {
 function channelusermode(channel, user, action, type) {
    if(!Witems[channel] && !(channel = findwin(channel))) return;
    if(!Witems[channel].users[user]) return;
+   //alert(channel + ' ' + user + ' ' + type + ' ' + action);
 
    if(type == 'op') {
+      //alert("op");
       Witems[channel].users[user].op = (action == '+' ? 1 : 0);
    }else if(type == 'voice') {
       Witems[channel].users[user].voice = (action == '+' ? 1 : 0);
@@ -791,9 +793,9 @@ function channellist(channel) {
    for (var i in Witems[channel].users) {
       var user = Witems[channel].users[i];
       if(user.other) i = user.other + i;
-     else if(user.op) i = '@' + i
-	  else if(user.halfop) i = '%' + i;
-	  else if(user.voice) i = '+' + i;
+     else if(user.op == 1) i = '@' + i
+	  else if(user.halfop == 1) i = '%' + i;
+	  else if(user.voice == 1) i = '+' + i;
      else   i = ' ' + i;
 
       users[users.length] = i;

@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.55 2002/05/22 11:23:36 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.56 2002/05/27 19:37:39 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -736,6 +736,11 @@ sub irc_close {
    $message = (config_set('quit_prefix') ? $config->{quit_prefix} : "CGI:IRC $VERSION") .
       ($message ? " ($message)" : '');
    
+   if(@output) {
+      $interface->lines(@output);
+      @output = ( );
+   }
+
    exit unless ref $unixfh;
    close($unixfh);
    
@@ -746,10 +751,12 @@ sub irc_close {
    exit unless ref $ircfh;
    net_send($ircfh, "QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
+
    if(@output) {
       $interface->lines(@output);
       @output = ( );
    }
+
    $interface->end if ref $interface;
    
    sleep 1;
@@ -970,6 +977,13 @@ sub init {
    }
 
    $unixfh = load_socket();
+
+   if(exists $ENV{REMOTE_USER}) {
+      open(IDENT, ">$config->{socket_prefix}$cgi->{R}/ident")
+         or error("Ident file: $!");
+      print IDENT "$ENV{REMOTE_USER}\n";
+      close(IDENT);
+   }
 
    message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
 

@@ -1,14 +1,16 @@
 TODO
 ----
 
-bugs:
-- problems with the smilie regexps
-- horzontal scrolling with really long lines
+done but need testing:
 - messages appearing in status rather than query
-- ctcp kill format.
 - remove ban code.
 - ctrl+c in main frame
 - altgr
+
+bugs:
+- problems with the smilie regexps
+- horzontal scrolling with really long lines
+- ctcp kill format.
 
 features:
 - form_redirect optional.
@@ -28,6 +30,7 @@ features:
 - format selection
 - right click context menus
 - admin interface?
+- whois in active window
 
 docs:
 - admin password

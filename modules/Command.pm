@@ -71,27 +71,27 @@ my %commands = (
   usermode => 'umode',
   op => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '+' . ('o' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '+' . ('o' x scalar @{[split ' ', $params]}) ." $params");
   },
   halfop => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) ." $params");
   },
   voice => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '+' . ('v' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '+' . ('v' x scalar @{[split ' ', $params]}) ." $params");
   },
   deop => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '-' . ('o' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '-' . ('o' x scalar @{[split ' ', $params]}) ." $params");
   },
   dehalfop => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) ." $params");
   },
   devoice => sub {
      return 2 unless defined $params;
-	 $irc->mode($target, '-' . ('v' x scalar @{[split ' ', $params]}) . $params);
+	 $irc->mode($target, '-' . ('v' x scalar @{[split ' ', $params]}) ." $params");
   },
   t => 'topic',
   topic => sub {
