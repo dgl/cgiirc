@@ -1121,7 +1121,7 @@ function do_quit() {
 <tr><td width="1">
 <iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
 
-<iframe src="$config->{script_login}?item=blank&style=$style" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()" name="hiddenframe"></iframe>
+<iframe src="$config->{script_login}?interface=ie&item=blank" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()" name="hiddenframe"></iframe>
 document.onselectstart = function() { return false; }
 // -->
 </script>

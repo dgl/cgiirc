@@ -855,7 +855,7 @@ function do_quit() {
 <tr><td width="1">
 <iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="border:0"></iframe>
 
-<iframe src="$config->{script_login}?item=blank&style=$style" id="iframe" width="1" height="1" style="border:0" name="hiddenframe"></iframe>
+<iframe src="$config->{script_login}?interface=mozillaitem=blank" id="iframe" width="1" height="1" style="border:0" name="hiddenframe"></iframe>
 </td>
 <td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
