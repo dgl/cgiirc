@@ -20,6 +20,8 @@
 /* The body in the 'frameset' (it's really a set of iframes) */
 .frame-body {
     margin: 0;
+	 scroll: 0;
+	 overflow: none;
 }
 
 /* windowlist is the frame which holds the window buttons and 'toolbar' */

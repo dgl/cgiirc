@@ -1,4 +1,77 @@
 /* Thanks to Veritas - northstar networks for this style */
+/* Copyright David Leadbeater 2002, Licensed under the GPL */
+
+/* This CSS File controls nearly all the layout related options
+ * and colours in CGI:IRC.
+ * The exceptions are the main frame - where background colour is set
+ * in formats.
+ *
+ * Also note this only affects decently javascript enabled browsers
+ * for older browsers the nonjs.pm is used which has hardlu any style
+ * settings
+ */
+
+
+/* --- Frames
+ * The positions of the iframes that hold each part of CGI:IRC,
+ * If you radically change these you'll want to adjust where borders
+ * and so on are placed too.
+ */
+
+/* The body in the 'frameset' (it's really a set of iframes) */
+.frame-body {
+    margin: 0;
+	 scroll: 0;
+	 overflow: none;
+}
+
+/* windowlist is the frame which holds the window buttons and 'toolbar' */
+.frame-windowlist {
+   position: absolute;
+   top: 0px;
+   width: 100%;
+   height: 40px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* main - where all talk goes */
+.frame-main {
+   position: absolute;
+   top: 40px;
+   bottom: 25px;
+   left: 0px;
+   right: 120px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* userlist - the list of users */
+.frame-userlist {
+   position: absolute;
+   top: 40px;
+   right: 0px;
+   bottom: 25px;
+   width: 120px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* userlist when it is inactive */
+.frame-userlist-inact {
+   display: none;
+}
+/* form - text entry form */
+.frame-form {
+   position: absolute;
+   bottom: 0px;
+   width: 100%;
+   height: 25px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+
 
 .userlist-body {
    margin: 0;
