@@ -17,9 +17,11 @@ sub parse_config {
    return \%config;
 }
 
-# From http://www1.tip.nl/~t876506/utf8tbl.html, yes i'm sure there's a better
-# way, but I'd prefer to use a module anyway..
 sub make_utf8 {
+	# pack("U") works fine since 5.6
+	return pack("U", $_[0]) if $] >= 5.006;
+
+	# From http://www1.tip.nl/~t876506/utf8tbl.html so we still support <5.6
    my $chr = unpack("n", pack("H*", shift));
    return chr $chr if $chr < 0x7F;
    return chr(192 + int($chr / 64)) . chr(128 + $chr % 64) if $chr <= 0x7FF;
@@ -27,7 +29,7 @@ sub make_utf8 {
       chr(128 + $chr % 64) if $chr <= 0xFFFF;
    return chr(240 + int($chr / 262144)) . chr(128 + int($chr / 4096) % 64) .
       chr(128 + int($chr / 64) % 64) . chr(128 + $chr % 64) if $chr <= 0x1FFFFF;
-   return ""; # Deal with this..
+   return "";
 }
 
 ## Parses a CGI input, returns a hash reference to the value within it.
