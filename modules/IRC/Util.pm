@@ -1,4 +1,4 @@
-# $Id: Util.pm,v 1.1 2002/03/05 16:34:19 dgl Exp $
+# $Id: Util.pm,v 1.2 2002/10/02 16:14:29 dgl Exp $
 package IRC::Util;
 use Exporter;
 @ISA = qw(Exporter);
@@ -22,7 +22,8 @@ sub is_vaild_nickname {
 
 sub is_vaild_server {
    return 0 if $_[0] !~ /\./;
-   return 0 if $_[0] =~ /[^A-Za-z0-9\.-_]/;
+   return 0 if $_[0] =~ /[!@]/;
+   return 0 if $_[0] =~ /[^-A-Za-z0-9\*\._]/;
    return 1;
 }
 

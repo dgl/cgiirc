@@ -59,7 +59,7 @@ message public own = {message-nick-own $0} {text $2}
 message private window own = {message-nick-own $0} {text $2}
 message private own = [msg->$T] {text $2}
 
-action-nick = %_*%_ $0
+action-nick = %06%_*%_ $0
 action public = {action-nick $0} {text $2}
 action private = {action-nick $0} {text $2}
 
@@ -104,10 +104,11 @@ reply whois server = {prefix-user} server: $0 [$1]
 reply end whois = $0
 reply end whowas = $0
 
-error nosuchnick = {prefix-server} {hilight $0} No such nick/channel
+error nosuchnick = {prefix-server} {hilight $T} No such nick/channel
 error nickinuse = {prefix-server} Nickname $0 is already in use, type /nick newnick to use another.
 
 irc close = {prefix-error} Disconnected from IRC
+
 
 bg = 00
 fg = 01
@@ -128,3 +129,4 @@ fg = 01
 14 = #808080
 15 = #c0c0c0
 
+style = mirc

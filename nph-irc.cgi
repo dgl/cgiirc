@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.66 2002/08/07 12:16:17 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.67 2002/10/02 16:14:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -77,8 +77,12 @@ sub net_hostlookup {
       getaddrinfo($host, undef, AF_UNSPEC, SOCK_STREAM);
       return undef unless $family;
       my($addr, $port) = getnameinfo($saddr, NI_NUMERICHOST | NI_NUMERICSERV);
-      
-      return (undef,$addr);
+=pod
+      my $ip = config_set('prefer_v6') 
+         ? ($ipv6 ? $ipv6 : $ipv4) 
+         : ($ipv4 ? $ipv4 : $ipv6);
+=cut
+      return $addr;
    }else{ # IPv4
       my $ip = (gethostbyname($host))[4];
       return $ip ? inet_ntoa($ip) : undef;
@@ -122,7 +126,17 @@ sub net_tcpconnect {
       irc_write_server(inet_pton(AF_INET6, $localip), $localport, $inet_addr, $port);
    }
 
-   connect($fh, $saddr) or return (0,$!);
+   $SIG{ALRM} = sub { die "timeout" };
+   eval {
+      local $SIG{__DIE__} = undef;
+      alarm 60;
+      connect($fh, $saddr) or return (0,$!);
+   };
+   alarm 0;
+
+   if($@ =~ /timeout/) {
+      return(0, "Connection timed out (60 seconds)");
+   }
 
    net_autoflush($fh);
 
@@ -261,22 +275,23 @@ sub format_colourhtml {
    $line =~ s/</\&lt;/g;
    $line =~ s/>/\&gt;/g;
    $line =~ s/"/\&quot;/g;
-   $line =~ s/( {2,})/'&nbsp;' x (length $1)/eg;
 
-   $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>!gi;
-   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($2)]}</a>$3!gi;
+   $line =~ s!((https?|ftp):\/\/[^$ ]+)!$interface->link(format_remove($1), format_linkshorten($1))!gie;
+   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1 . $interface->link(format_remove("http://$1", $1)) . $3!gie;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
-      $line =~ s{(?<![^\.a-zA-Z ])$regexpicon(?![^<]*>)}{
+      $line =~ s{(?:(?<!\&\w{4};)|(?<!\&\w{2};))(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
          my($sm, $tmp) = ($1, $1);
          for(keys %regexpicon) {
             next unless $sm =~ /^$_$/;
-            $tmp = "<img src=\"$config->{image_path}/$regexpicon{$_}.gif\" alt=\"$sm\">";
+            $tmp = $interface->smilie("$config->{image_path}/$regexpicon{$_}.gif", $regexpicon{$_}, $sm);
             last;
          }
          $tmp
       }ge;
    }
+
+   $line =~ s/( {2,})/'&nbsp;' x (length $1)/eg;
 
    return format_remove($line) if $config->{removecolour};
 
@@ -303,8 +318,8 @@ sub format_colourhtml {
 
 sub format_init_smilies {
    %regexpicon = (
-      '\;-\)'         => 'wink',
-#      '\;-?D'         => 'grin',
+      '\;-?\)'         => 'wink',
+      '\;-?D'         => 'grin',
       ':\'\(?'        => 'cry',
       ':-?/(?!\S)'    => 'notsure',
       ':-?[xX]'       => 'confused',
@@ -610,6 +625,18 @@ sub access_ipcheck {
    irc_close();
 }
 
+sub access_dnsbl {
+   return unless config_set('dnsbl');
+   my $arpa  = join '.', reverse split /\./, shift;
+
+   for my $zone(split ' ', $config->{dnsbl}) {
+      if(defined net_hostlookup("$arpa.$zone")) {
+         message('access denied', "Found in DNS black list $zone");
+         irc_close();
+      }
+   }
+}
+
 sub list_connected_ips {
    my %ips = ();
    (my $dir, my $prefix) = $config->{socket_prefix} =~ /^(.*\/)([^\/]+)$/;
@@ -671,6 +698,22 @@ sub client_hostname {
       return $ip;
    }
 
+   if(exists $ENV{HTTP_X_FORWARDED_FOR}
+         && $ENV{HTTP_X_FORWARDED_FOR} =~ /^((\d{1,3}\.){3}\d{1,3})/
+         && !defined $_[0]) { # check proxy but only once
+      my $proxyip = $1;
+      return $hostname if $proxyip =~ /^(192\.168\.|127\.|10\.|172\.16\.)/;
+      access_dnsbl($proxyip);
+      open(TRUST, "<trusted-proxy") or return $hostname;
+      while(<TRUST>) {
+         chomp;
+         s/\*/.*/g;
+         s/\?/./g;
+         return client_hostname($proxyip, 1) if $hostname =~ /^$_$/i;
+      }
+      close TRUST;
+   }
+
    return $hostname;
 }
 
@@ -697,14 +740,10 @@ sub irc_connect {
    message('looking up', $server);
    flushoutput(); # this stuff can block - keep the user informed
 
-   my($ipv4,$ipv6) = net_hostlookup($server);
-   unless(defined $ipv4 or defined $ipv6) {
+   my $ip = net_hostlookup($server);
+   unless(defined $ip) {
       error("Looking up address: $!");
    }
-
-   my $ip = config_set('prefer_v6') 
-      ? ($ipv6 ? $ipv6 : $ipv4) 
-      : ($ipv4 ? $ipv4 : $ipv6);
 
    message('connecting', $server, $ip, $port);
    flushoutput();
@@ -918,6 +957,7 @@ sub error {
    my $message = "@_";
    header() unless $config;
    if(defined $interface && ref $interface) {
+     flushoutput();
      if(ref $format) {
         my $format = format_parse($format->{error}, {}, [$message]);
         $format = format_colourhtml($format);
@@ -927,8 +967,8 @@ sub error {
      }
    }else{
       print "An error occured: $message\n";
-      print STDERR "[" . scalar localtime() . "] CGI:IRC Error: $message (" . join(' ',(caller(1))[3,2]) . ")";
    }
+   print STDERR "[" . scalar localtime() . "] CGI:IRC Error: $message (" . join(' ',(caller(1))[3,2]) . ")";
    irc_close("Error");
 }
 
@@ -966,6 +1006,10 @@ sub init {
 
    ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
 
+   if($cgi->{serv} =~ s/:(\d+)$//) {
+      $cgi->{port} = $1;
+   }
+
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
@@ -974,12 +1018,13 @@ sub init {
    $interface = load_interface();
  
    access_ipcheck();
+   access_dnsbl($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
       message('access server denied', $cgi->{serv});
       $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
-   ($cgi->{serv}) = $cgi->{serv} =~ /(.*)/; # untaint hack.
+   ($cgi->{serv}) = $cgi->{serv} =~ /([^ ]+)/; # untaint hack.
       
    my $resolved = '';
    

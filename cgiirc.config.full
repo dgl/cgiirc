@@ -40,10 +40,13 @@ script_login = irc.cgi
 
 image_path = images
 
-# The location to append before the location of the socket directory
+# The location to *append* before the location of the socket directory
 # (don't change this unless you understand it - and then think about it again).
 # Remember you will need to either edit client-perl.cgi or
 # client.c and recompile client.cgi if you change this
+
+# IF YOU CHANGE THIS AND HAVE ANY PROBLEMS TRY THE DEFAULT BEFORE ASKING FOR
+# HELP
 socket_prefix = /tmp/cgiirc-
 
 # Virtual Host - Bind to a specific IP address

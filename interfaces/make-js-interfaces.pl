@@ -35,7 +35,6 @@ my %options = (
    font => { type => 'select', options => [qw/serif sans-serif fantasy cursive monospace/, 'Arial Black', 'Comic Sans MS', 'Fixedsys', 'Tahoma', 'Verdana'], info => 'The font that messages are displayed in', img => 'font.gif' },
    shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box', img => 'entry.gif' },
    smilies => { type => 'toggle', info => 'Convert smilies into pictures', img => 'smile.gif' },
-   scrollback => { type => 'toggle', info => 'Save complete scrollback (uses more memory)' },
 );
 
 sub new {
@@ -141,7 +140,7 @@ sub style {
    my($self, $cgi, $config) = @_;
    my $style = $cgi->{style} || 'default';
    $cgi->{style} =~ s/[^a-z]//gi;
-   open(STYLE, "<interfaces/style-$style.css") or die("Error opening stylesheet $style: $!");
+   open(STYLE, '<interfaces/style-$style.css') or die("Error opening stylesheet $style: $!");
    print <STYLE>;
    close(STYLE);
 }
@@ -220,6 +219,11 @@ sub clear {
 sub active {
    my($self, $window) = @_;
    _func_out('witemchg', $window);
+}
+
+sub smilie {
+# calls in fmain.
+   return '<script>smilie(' . _jsp($_[0], "sm" . int(rand(200000)), $_[2]) . ');</script>';
 }
 
 sub frameset {
@@ -444,9 +448,20 @@ print <<EOF;
 $standardheader
 <html><head>
 <link rel="stylesheet" href="$config->{script_login}?interface=`;print $browser;print q`&item=style&style=$cgi->{style}" />
+<script>
+var smilies = { };
+function smilie(path, name, text) {
+   if(!smilies[path]) {
+      smilies[path] = new Image();
+      smilies[path].src = path;
+   }
+   document.write('<img name="' + name + '">');
+   document.images[name].src = smilies[path].src;
+}
 </head>
 <body class="main-body"
-onkeydown="if((event && ((event.keyCode < 30 || event.keyCode > 40) && !event.ctrlKey)) && parent.fform.location) parent.fform.fns();">
+onkeydown="if((event && !event.ctrlKey) && parent.fform.location) 
+   parent.fform.fns();">
 <span class="main-span" id="text"></span>
 </body></html>
 EOF
@@ -458,14 +473,14 @@ sub say {
 }
 
 sub fform {
-   my($self, $cgi, $config) = @_;
+   my($self, $name, $config) = @_;
 print <<EOF;
 $standardheader
 <html>
 <head>
 <html><head>
 <script language="JavaScript"><!--
-var shistory = [ ];
+var history = [ ];
 var hispos;
 var tabtmp = [ ];
 var tabpos;
@@ -480,11 +495,11 @@ function fns(){
 function t(item,text) {
    if(item.style.display == 'none') {
       item.style.display = 'inline';
-	  text.value = '>>';
-	  document.myform.say.style.width='`;print $browser eq "mozilla" ? 40 : 60;print q`%'
+	  text.value = '>';
+	  document.myform.say.style.width='60%'
    }else{
       item.style.display = 'none';
-	  text.value = '<<';
+	  text.value = '<';
 	  document.myform.say.style.width='90%'
    }
    fns();
@@ -492,9 +507,15 @@ function t(item,text) {
 
 function load() {
    fns();
-   document.onkeypress = enter_key_trap;
 `;
-if($browser eq 'ie') {
+if($browser eq 'mozilla' || $browser eq 'konqueror') {
+print q`
+   if(document.captureEvents) {
+      document.captureEvents(Event.KEYPRESS);
+      document.onkeypress = enter_key_trap;
+   }
+`;
+}else{
    print "document.getElementById('extra').style.display = 'none';\n";
 }
 print q`
@@ -521,26 +542,32 @@ function nickchange(nick) {
 }
 
 function hisadd() {
-   shistory[shistory.length] = document.myform["say"].value;
-   hispos = shistory.length;
+   history[history.length] = document.myform["say"].value;
+   hispos = history.length;
 }
 
 function hisdo() {
-   if(shistory[hispos]) {
-      document.myform["say"].value = shistory[hispos];
+   if(history[hispos]) {
+      document.myform["say"].value = history[hispos];
    }else{
       document.myform["say"].value = '';
    }
 }
-
-function enter_key_trap(e) {
-   if(e == null) {
-      return keypress(event.srcElement, event.keyCode, event);
-   }else{
-      // mozilla dodginess
-      return keypress(e.target, e.keyCode == 0 ? e.which : e.keyCode, e);
-   }
+`;
+if($browser eq 'ie') {
+print q`
+document.onkeydown = function() {
+   return keypress(event.srcElement, event.keyCode, event);
 }
+`;
+}else {
+print q`
+function enter_key_trap(e) {
+   return keypress(e.target, e.keyCode, e);
+}
+`;
+}
+print q`
 
 function keypress(srcEl, keyCode, event) {
    if (srcEl.tagName != 'INPUT' || srcEl.name.toLowerCase() != 'say')
@@ -589,14 +616,14 @@ function keypress(srcEl, keyCode, event) {
 		  tabinc = 1;
 	   }
    }else if(keyCode == 38) { // UP
-       if(!shistory[hispos]) {
+       if(!history[hispos]) {
 	      if(document.myform["say"].value) hisadd();
-		  hispos = shistory.length;
+		  hispos = history.length;
 	   }
 	   hispos--;
 	   hisdo();
    }else if(keyCode == 40) { // DOWN
-       if(!shistory[hispos]) {
+       if(!history[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  document.myform["say"].value = '';
 		  return false;
@@ -622,23 +649,22 @@ function keypress(srcEl, keyCode, event) {
 <body onload="load()" onfocus="fns()" class="form-body">
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
-<input type="text" class="form-say" name="say" autocomplete="off" `;
-
-if($browser eq 'konqueror'){print q` size="100"`};
-print q`>
+<input type="text" class="form-say" name="say" autocomplete="off" `;if($browser eq 'konqueror'){print q` size="100"`};print q`>
 </form>
+`;
+if($browser eq 'ie') {
+print q`
 EOF
-
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/) {
 print <<EOF;
 <span class="form-econtain">
-<input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;&lt;">
+<input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;">
 <span id="extra" class="form-extra">
 <input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
 <input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF
 for(sort {$a <=> $b} keys %colours) {
-   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;&nbsp;\" onclick=\"append('\%C$_')\">\n";
+   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\" \" onclick=\"append('\%C$_')\">\n";
 }
 print <<EOF;
 </span>
@@ -646,6 +672,9 @@ print <<EOF;
 EOF
 }
 print <<EOF;
+`;
+}
+print q`
 </body>
 </html>
 EOF
@@ -928,9 +957,7 @@ function witemaddtext(name, text, activity, redraw) {
       var D = new Date();
       text = '[' + (D.getHours() < 10 ? '0' + D.getHours() : D.getHours()) + ':' + (D.getMinutes() < 10 ? '0' + D.getMinutes() : D.getMinutes()) + '] ' + text;
    }
-  
-   if(options["scrollback"] == 0)
-      Witems[name].text = Witems[name].text.slice(Witems[name].text.length - 200);
+   
    Witems[name].text[Witems[name].text.length] = text;
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);

@@ -62,6 +62,16 @@ sub query {
    return 0;
 }
 
+sub smilie {
+   shift;
+   return "<img src=\"$_[0]\" alt=\"$_[2]\">";
+}
+
+sub link {
+   shift;
+   return "<a href=\"$_[0]\" target=\"cgiirc". int(rand 10000) ."\">$_[1]</a>";
+}
+
 sub header {
    my($self, $config, $cgi, $bg, $fg) = @_;
    print <<EOF;
@@ -113,7 +123,7 @@ sub lines {
 
 sub line {
    my($self, $line) = @_;
-   $self->_out($self->makeline($line));
+   $self->_out($self->makeline({}, $line));
 }
 
 sub add {

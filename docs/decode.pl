@@ -16,7 +16,7 @@ my($input,$output);
 
 print "Type the Hex IP to decode into a normal IP address\n";
 $input=<>;
-chomp;
+$input =~ s/[^a-z0-9]//gi;
 
 $output = pack "H*", $input;
 

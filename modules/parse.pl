@@ -31,9 +31,9 @@ sub parse_query {
         $val = "" unless defined $val;
 
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
-        $key =~ s/[\r\n\0]//g;
+        $key =~ s/[\r\n\0\001]//g;
 	     $val =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
-        $val =~ s/[\r\n\0]//g;
+        $val =~ s/[\r\n\0\001]//g;
 
 	     $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)

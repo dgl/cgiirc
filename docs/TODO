@@ -3,21 +3,14 @@ TODO
 
 done but need testing:
 - messages appearing in status rather than query
-- remove ban code.
-- ctrl+c in main frame
-- altgr
-- ctcp kill format.
 - formats could be made more user friendly, allow selection of them on login
   form?
-- weird 2 in /part etc
 - form_redirect optional.
-- format selection
 - ping via image.
 
 bugs:
 - problems with the smilie regexps
 - horzontal scrolling with really long lines
-- /deop
 
 features:
 - adding code to check for op to add op/voice/deop/devoice/ban/kick to userlist
@@ -37,7 +30,19 @@ features:
 - whois in active window
 - nonjs interface needs a few more features...
 - /server command, /reconnect command
-
+- @ prefix
+- make sure scrollback option is done
+- http://dgl.otherwize.co.uk/o/macos-screen.gif
+- fix nonjs - setbackground colour
+- css for login?
+- /quit window.close
+- trusted proxies
+- title
+- maxlength in input field
+21:36:01 <@tom> onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
+                
+21:57:43 <@tom> if (!document.getElementById && document.all) document.getElementById = function(idStr) { return var tempEl=document.all[idStr]; return tempEl[0] || tempEl; }
+Can't use string ("<font color="#ff0000">***</font>") as a HASH ref while "strict refs" in use at ./interfaces/nonjs.pm line 90.
 docs:
 - admin password
 - remember to update cgiirc-form.txt
