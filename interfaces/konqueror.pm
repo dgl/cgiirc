@@ -47,15 +47,18 @@ my %options = (
    },
    scrollback => {
       type => 'toggle',
-      info => 'Store all scrollback data (uses more memory)'
+      info => 'Store all scrollback data (uses more memory)',
+		img => 'scrollback.gif',
    },
    'actsound' => {
       type => "toggle",
       info => "Play a sound when activity directed at you occurs",
+		img => 'actsound.gif',
    },
    'joinsound' => {
       type => "toggle",
       info => "Play a sound when some one joins a channel",
+		img => 'joinsound.gif',
    },
 );
 
