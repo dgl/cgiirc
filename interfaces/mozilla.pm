@@ -444,7 +444,8 @@ $standardheader
 <link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
 </head>
 <body class="main-body"
-onkeydown="if(parent.fform.location) parent.fform.fns();">
+onkeydown="if((event && !event.ctrlKey) && parent.fform.location) 
+   parent.fform.fns();">
 <span class="main-span" id="text"></span>
 </body></html>
 EOF
@@ -597,7 +598,7 @@ function keypress(srcEl, keyCode, event) {
 	   }
 	   hispos++;
 	   hisdo();
-   }else if(event.altKey && keyCode > 47 && keyCode < 58) {
+   }else if(event.altKey && !event.ctrlKey && keyCode > 47 && keyCode < 58) {
        var num = keyCode - 48;
 	   if(num == 0) num = 10;
 

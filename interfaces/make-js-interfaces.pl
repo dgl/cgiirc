@@ -584,7 +584,7 @@ function keypress(srcEl, keyCode, event) {
 	   }
 	   hispos++;
 	   hisdo();
-   }else if(event.altKey && keyCode > 47 && keyCode < 58) {
+   }else if(event.altKey && !event.ctrlKey && keyCode > 47 && keyCode < 58) {
        var num = keyCode - 48;
 	   if(num == 0) num = 10;
 
