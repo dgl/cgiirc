@@ -78,7 +78,7 @@ EOF
 if($interface eq 'default') {
 print <<EOF;
 function setjs() {
- if(navigator.product == 'Gecko' || (window.opera && document.childNodes)) {
+ if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
  }else if(window.opera && document.childNodes) {
    document.loginform["interface"].value = 'opera7';

@@ -298,8 +298,8 @@ function form_focus() {
 </script>
 </head>
 <frameset
-.$just konqueror
-rows="40,*,50,0"
+.$just konqueror opera7
+rows="40,*,60,0"
 .$else
 rows="40,*,25,0"
 .$end

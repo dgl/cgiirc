@@ -296,7 +296,7 @@ function form_focus() {
 </script>
 </head>
 <frameset
-rows="40,*,25,0"
+rows="40,*,60,0"
 framespacing="0" border="0" frameborder="0" onfocus="form_focus()" onload="form_focus()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
 scrolling="no">
