@@ -200,7 +200,7 @@ function append(a) {
 }
 
 function cmd() {
-   if(document.myform.say.length < 1) return;
+   if(document.myform.say.value.length < 1) return false;
    hisadd();
    tabpos = 0;
    tabtmp = [];

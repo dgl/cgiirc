@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.6 2002/03/10 14:35:26 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.7 2002/03/10 14:58:54 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -438,6 +438,7 @@ sub input_command {
 
 sub say_command {
    my($say, $target) = @_;
+   return unless length $say;
    if($say =~ m!^/!) {
 	  if($say =~ s!^/ /!/!) {
 		 irc_send_message($target, $say);
