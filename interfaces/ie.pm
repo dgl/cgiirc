@@ -499,11 +499,11 @@ function fns(){
 function t(item,text) {
    if(item.style.display == 'none') {
       item.style.display = 'inline';
-	  text.value = '>';
+	  text.value = '>>';
 	  document.myform.say.style.width='60%'
    }else{
       item.style.display = 'none';
-	  text.value = '<';
+	  text.value = '<<';
 	  document.myform.say.style.width='90%'
    }
    fns();
@@ -640,18 +640,18 @@ function keypress(srcEl, keyCode, event) {
 <span id="nickname" class="form-nickname"></span>
 <input type="text" class="form-say" name="say" autocomplete="off" >
 </form>
-
 EOF
+
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/) {
 print <<EOF;
 <span class="form-econtain">
-<input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;">
+<input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;&lt;">
 <span id="extra" class="form-extra">
 <input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
 <input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF
 for(sort {$a <=> $b} keys %colours) {
-   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\" \" onclick=\"append('\%C$_')\">\n";
+   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\"&nbsp;&nbsp;\" onclick=\"append('\%C$_')\">\n";
 }
 print <<EOF;
 </span>
@@ -659,7 +659,6 @@ print <<EOF;
 EOF
 }
 print <<EOF;
-
 </body>
 </html>
 EOF

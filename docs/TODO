@@ -9,14 +9,17 @@ done but need testing:
 - ctcp kill format.
 - formats could be made more user friendly, allow selection of them on login
   form?
+- weird 2 in /part etc
+- form_redirect optional.
+- format selection
+- ping via image.
 
 bugs:
 - problems with the smilie regexps
 - horzontal scrolling with really long lines
-- weird 2 in /part etc
+- /deop
 
 features:
-- form_redirect optional.
 - adding code to check for op to add op/voice/deop/devoice/ban/kick to userlist
 - /ban
 - scrolling locks if the window is scrolled upwards
@@ -29,12 +32,10 @@ features:
 - 0.4 had a status bar in text-* themes, make shownick into something better?
 - who list format
 - icons in userlist for 005 prefix.
-- format selection
 - right click context menus
 - admin interface?
 - whois in active window
 - nonjs interface needs a few more features...
-- ping via image.
 
 docs:
 - admin password

@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.63 2002/08/06 23:42:36 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.64 2002/08/07 01:45:06 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -383,8 +383,9 @@ sub format_varexpand {
    if(s/^\$//) {
       if(ref $params && /^(\d+)\-$/) {
          return join(' ', @$params[$1 .. @$params - 1]);
-      }elsif(ref $params && !/\D/ && defined $params->[$_]) { # Normal Params
-         return $params->[$_];
+      }elsif(!/\D/) {
+         return $params->[$_] if ref $params && defined $params->[$_];
+         return '';
       }elsif(/^VERSION$/) {
          return $VERSION;
       }elsif(/^T$/ && exists $info->{target}) {
