@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.9 2002/04/14 22:18:00 dgl Exp $
+# $Id: RawCommands.pm,v 1.10 2002/04/26 23:00:37 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -96,18 +96,19 @@ my %raw = (
 		 for(split //, $mode) {
 		    if(/([+-])/) {
 			   $action = $1;
-			}elsif($action eq '-' && /[ilkmnpst]/) {
+			}elsif($action eq '-' && /[ilkmnpst$self->{modes}->{toggle}]/) {
 			   $channel->{mode} = del_mode($channel->{mode}, $_);
 			   $channel->{ {k => 'key',l => 'limit'}->{$_} } = undef if /[lk]/;
 			   $num++ if $_ eq 'k';
-			}elsif($action eq '+' && /[ilkmnpst]/) {
+			}elsif($action eq '+' && /[ilkmnpst$self->{modes}->{toggle}]/) {
 			   $channel->{mode} = add_mode($channel->{mode}, $_);
 			   $channel->{ {k => 'key',l => 'limit'}->{$_} } = $params->{params}->[$num] if /[lk]/;
 			   $num++;
-			}elsif(/[hov]/) {
+			}elsif(/[hov$self->{prefixmode}]/) {
 			   my $nick = $params->{params}->[$num];
 			   $channel->nick($nick)->{
-			        {o => 'op',h => 'halfop', v => 'voice'}->{$_}
+			        ($_ =~ /[hov]/ ? {o => 'op',h => 'halfop', v => 'voice'}->{$_}
+                 : $_)
 			   } = ($action eq '+' ? 1 : 0);
 			   $tmpevents{$_}{$nick} = (defined $tmpevents{$_}{$nick} && $tmpevents{$_}{$nick} eq '+') ? undef : '-' if $action eq '+';
 			   $tmpevents{$_}{$nick} = (defined $tmpevents{$_}{$nick} && $tmpevents{$_}{$nick} eq '-') ? undef : '+' if $action eq '-';
@@ -252,6 +253,16 @@ my %raw = (
 		 $value ||= 1;
 		 $self->{capab}->{lc $key} = $value;
 	  }
+
+     if(exists $self->{capab}->{prefix} && $self->{capab}->{prefix} =~ /^\(([^\)]+)\)(.*)$/) {
+        $self->{prefixmodes} = $1;
+        $self->{prefixchars} = $2;
+     }
+
+     if(exists $self->{capab}->{chanmodes}) {
+        my @modes = split /,/, $self->{capab}->{chanmodes};
+        @{$self->{modes}}{qw/masks param param_add toggle/} = @modes;
+     }
 
       $self->{event}->handle('reply protoctl', _info('Status', 1),
 	    join(' ',@{$params->{params}}[2.. @{$params->{params}} - 1], defined $params->{text} ? $params->{text} : ''));
@@ -460,6 +471,10 @@ my %raw = (
 		    $op = 1 if s/^\@//;
 		    $halfop = 1 if s/^\%//;
 		    $voice = 1 if s/^\+//;
+          if(exists $self->{prefixchars} && $self->{prefixchars}) {
+             my $prefix = "[" . quotemeta($self->{prefixchars}) . "]";
+             s/^$prefix//;
+          }
 			
 		    $self->{_channels}->{$channel}->addnick($_,
 		       op => $op,
