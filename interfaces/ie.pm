@@ -401,7 +401,7 @@ sub say {
 }
 
 sub fform {
-   my($self,$config) = @_;
+   my($self, $name, $config) = @_;
 print <<EOF;
 $standardheader
 <html>

@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.40 2002/05/02 17:57:23 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.41 2002/05/02 19:46:57 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -536,6 +536,7 @@ sub input_command {
    if($command eq 'say') {
       say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
+      net_send($fh, "Content-type: text/html\r\n\r\nquit\r\n"); # avoid errors
       irc_close();
    }elsif($command eq 'options' && length $params->{name} && length $params->{value}) {
       $ioptions->{$params->{name}} = $params->{value};
