@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.32 2002/04/25 16:51:15 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.33 2002/04/25 17:34:51 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -280,21 +280,23 @@ sub format_colourhtml {
 
    return format_remove($line) if $config->{removecolour};
 
-   $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^\003\017]*|.*?$)/
-      my $me = "<font ";
-      my $fg = sprintf("%0.2d",$1);
-      my $bg = length $3 ? sprintf("%0.2d",$3) : '';
+   if($line =~ /[\002\003\017\022\037]/) {
+      $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^\003\017]*|.*?$)/
+         my $me = "<font ";
+         my $fg = sprintf("%0.2d",$1);
+         my $bg = length $3 ? sprintf("%0.2d",$3) : '';
 
-      if(length $bg) {
-         $me .= "style=\"background: ".$format->{$bg}."\" "
-      }
+         if(length $bg) {
+            $me .= "style=\"background: ".$format->{$bg}."\" "
+         }
 
-	  $me .= "color=\"$format->{$fg}\">$4<\/font>";
-	  $me
-   /eg;
-   $line=~ s/\002(.*?)(\002|\017|$)/<b>$1<\/b>/g;
-   $line=~ s/\022(.*?)(\022|\017|$)/<u>$1<\/u>/g;
-   $line=~ s/\037(.*?)(\037|\017|$)/<u>$1<\/u>/g; 
+	      $me .= "color=\"$format->{$fg}\">$4<\/font>";
+	      $me
+      /eg;
+      $line =~ s/\002(.*?)(\002|\017|$)/<b>$1<\/b>/g;
+      $line =~ s/\022(.*?)(\022|\017|$)/<u>$1<\/u>/g;
+      $line =~ s/\037(.*?)(\037|\017|$)/<u>$1<\/u>/g;
+   }
 
    return format_remove($line);
 }
