@@ -232,6 +232,7 @@ function fsubmit(form) {
       alert("No user or action selected");
       return false;
    }
+   user = user.replace(/^[@%+]/, '');
    parent.fwindowlist.sendcmd_userlist(action, user);
    return false;
 }
