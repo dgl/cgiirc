@@ -4,7 +4,7 @@
 ## a hash containing the name=value pairs in the file.
 sub parse_config {
    my %config;
-   open(CONFIG, '<' . shift) or error("opening config: $!");
+   open(CONFIG, "<$_[0]") or error("Opening config file '$_[0]': $!");
    while(<CONFIG>) {
 	  s/(\015\012|\012)$//; # Be forgiving for poor windows users
       next if /^\s*[#;]/; # Comments

@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.14 2002/04/27 20:07:32 dgl Exp $
+# $Id: RawCommands.pm,v 1.15 2002/05/01 18:49:32 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -481,18 +481,18 @@ my %raw = (
 	     for(split / /,$params->{text}) {
 	        my ($op,$halfop,$voice) = 0;
 		    $op = 1 if s/^\@//;
-		    $halfop = 1 if s/^\%//;
 		    $voice = 1 if s/^\+//;
+		    $halfop = 1 if s/^\%//;
           if(exists $self->{prefixchars} && $self->{prefixchars}) {
              my $prefix = "[" . quotemeta($self->{prefixchars}) . "]";
              s/^$prefix//;
           }
 			
 		    $self->{_channels}->{$channel}->addnick($_,
-		       op => $op,
-			   halfop => $halfop,
-			   voice => $voice,
-	        );
+            op => $op,
+            halfop => $halfop,
+            voice => $voice,
+	       );
 	     }
 	     $self->{event}->handle('user add', [split(/ /, $params->{text})], $channel);
 	  }
