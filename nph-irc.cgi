@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.39 2002/05/02 17:24:07 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.40 2002/05/02 17:57:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -280,7 +280,7 @@ sub format_colourhtml {
          my($sm, $tmp) = ($1, $1);
          for(keys %regexpicon) {
             next unless $sm =~ /^$_$/;
-            $tmp = "<img src=\"images/$regexpicon{$_}.gif\" alt=\"$sm\">";
+            $tmp = "<img src=\"$config->{image_path}/$regexpicon{$_}.gif\" alt=\"$sm\">";
             last;
          }
          $tmp
