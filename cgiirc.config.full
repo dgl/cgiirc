@@ -35,6 +35,8 @@ script_nph = nph-irc.cgi
 script_form = client-perl.cgi
 script_login = irc.cgi
 
+image_path = images
+
 # The place where tmp. files should be stored
 socket_prefix = /tmp/cgiirc-
 
