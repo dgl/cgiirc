@@ -8,8 +8,10 @@ bugs:
 - ctcp kill format.
 - remove ban code.
 - ctrl+c in main frame
+- altgr
 
 features:
+- form_redirect optional.
 - adding code to check for op to add op/voice/deop/devoice/ban/kick to userlist
 - scrolling locks if the window is scrolled upwards
 - pop-out needs to work in mozilla too

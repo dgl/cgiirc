@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.13 2002/05/19 11:04:57 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.14 2002/05/22 11:23:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -70,7 +70,8 @@ if(ref $cgi && defined $cgi->{item}) {
          Server => 'serv',
          Realname => 'name',
          interface => 'interface',
-         Password => 'pass'
+         Password => 'pass',
+         Format => 'format'
       );
    my $out;
    for(keys %p) {
@@ -98,7 +99,19 @@ if(ref $cgi && defined $cgi->{item}) {
    }elsif(!defined $config->{access_server} || !$config->{access_server}) {
        $server = "-DISABLED- $server" unless ref $server;
    }
-   
+
+   opendir(FORMATS, "formats");
+   my @formats;
+   for(readdir FORMATS) {
+      next unless !/^\./ && -f "formats/$_";
+      if($_ eq ($config->{format} || 'default')) {
+         unshift(@formats, $_);
+      }else{
+         push(@formats, $_);
+      }
+   }
+   closedir(FORMATS);
+
    %items = (
       Nickname => $config->{default_nick},
       Channel => $channel,
@@ -106,6 +119,7 @@ if(ref $cgi && defined $cgi->{item}) {
       Port => $port,
       Password => '-PASSWORD-',
       Realname => $config->{default_name},
+      Format => \@formats,
    );
 
    $items{Nickname} =~ s/\?/int rand 10/eg;
@@ -114,7 +128,7 @@ if(ref $cgi && defined $cgi->{item}) {
 	  if($config->{'login advanced'}) {
 		 @order = split(' ', $config->{'login advanced'});
 	  }else{
-		 @order = qw/Nickname Realname Server Port Channel Password/;
+		 @order = qw/Nickname Realname Server Port Channel Password Format/;
 	  }
    }else{
 	  if($config->{'login basic'}) {

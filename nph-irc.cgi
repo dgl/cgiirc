@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.54 2002/05/10 21:09:59 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.55 2002/05/22 11:23:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -664,6 +664,23 @@ sub encode_ip {
    return join('',map(sprintf("%0.2x", $_), split(/\./,shift)));
 }
 
+sub client_hostname {
+   my $ip = $ENV{REMOTE_ADDR};
+
+   my($hostname) = gethostbyaddr(inet_aton($ip), AF_INET);
+   unless(defined $hostname && $hostname) {
+      return $ip;
+   }
+
+   my $ip_check = scalar gethostbyname($hostname);
+
+   if(inet_aton($ip) ne $ip_check) {
+      return $ip;
+   }
+
+   return $hostname;
+}
+
 sub session_timeout {
    return unless defined $intime;
    if((time - $config->{session_timeout}) > $intime) {
@@ -869,7 +886,7 @@ sub header {
 
 #### Error Reporting
 sub error {
-   my $message = "@_";
+   my $message = "@_ (" . join(' ',(caller(1))[3,2]) . ")";
    header() unless $config;
    if(defined $interface && ref $interface) {
      if(ref $format) {
@@ -881,7 +898,7 @@ sub error {
      }
    }else{
       print "An error occured: $message\n";
-      print STDERR "[" . scalar localtime() . "] CGI:IRC Error (" . join(" ", caller) . "): $message\n";
+      print STDERR "[" . scalar localtime() . "] CGI:IRC Error: $message\n";
    }
    irc_close("Error");
 }
@@ -936,11 +953,20 @@ sub init {
    }
    ($cgi->{serv}) = $cgi->{serv} =~ /(.*)/; # untaint hack.
 
+   my $resolved = '';
+   
    if(config_set('encoded_ip')) {
+     $resolved = client_hostname() if $config->{encoded_ip} > 2;
 	  $cgi->{name} = '[' .
-        ($config->{encoded_ip} <= 2 ? # The real IP in realname if set to 3.
-          encode_ip($ENV{REMOTE_ADDR}) : $ENV{REMOTE_ADDR})
+        ($config->{encoded_ip} <= 2 
+         ? # The real IP in realname if set to 3.
+           encode_ip($ENV{REMOTE_ADDR}) : $resolved)
        . '] ' . $cgi->{name};
+   }
+
+   if(config_set('realhost_as_password')) {
+      $resolved = client_hostname() unless $resolved;
+      $cgi->{pass} = "CGIIRC_$ENV{REMOTE_ADDR}_$resolved";
    }
 
    $unixfh = load_socket();
