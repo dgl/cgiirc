@@ -1,0 +1,12 @@
+# default: on
+# description: identd.pl for CGI:IRC
+service auth
+{
+        disable = no
+        socket_type     = stream
+        wait            = no
+        user            = nobody
+        server          = /usr/local/sbin/identd.pl
+        log_on_success  =
+}
+
