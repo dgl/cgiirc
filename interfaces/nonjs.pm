@@ -1,4 +1,6 @@
 package nonjs;
+use strict;
+use vars qw/@ISA/;
 
 use default;
 @ISA = qw/default/;
@@ -9,35 +11,53 @@ sub new {
 }
 
 sub _out {
-   print "<script>$_[0]</script>\r\n";
+   print "$_[0]<script>s();</script>\r\n";
 }
 
 sub exists {
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
+sub header {
+   my($self, $config, $cgi) = @_;
+   print <<EOF;
+<html><head>
+<title>CGI:IRC</title>
+<script><!--
+function s() {
+   window.scrollBy(0,2000);
+}
+function u() {
+   parent.fuserlist.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&s=userlist";
+}
+function f() {
+   parent.fform.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&s=form";
+}
+//-->
+</script>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+EOF
+}
+
 sub line {
    my($self, $info, $html) = @_;
-   my $target = defined $info->{target} ? $info->{target} : 'Status';
-
-   if(ref $target eq 'ARRAY') {
-      my %tmp = %$info;
-	  for(@$target) {
-	     $tmp{target} = $_;
-         $self->line(\%tmp, $html);
-	  }
-	  return;
-   }
-
+   my $target = $info->{target};
+   $target ||= 'Status';
    if(not exists $self->{lc $target}) {
-      if(defined $info && ref $info && defined $info->{type} &&
-	    $info->{type} =~ /^(join|message private)$/) {
+      if(defined $info && ref $info && exists $info->{create} &&
+	    $info->{create}) {
 	     $self->add($target, $info->{type} eq 'join' ? 1 : 0);
-	  }elsif($target ne '-all') {
-         $target = 'Status';
-	  }
+      }
    }
-   _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0);
+	  
+   _out($html . '<br>');
+}
+
+sub add {
+   my($self, $name, $param) = @_;
+   $self->{lc $name} = $param;
+   _out('<script>u();f();</script>');
 }
 
 sub error {
@@ -54,16 +74,15 @@ print <<EOF;
 <title>CGI:IRC</title>
 </head>
 
-<frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0">
-<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
+<frameset rows="*,40" framespacing="0" border="0" frameborder="0">
 <frameset cols="*,100" framespacing="0" border="0" frameborder="0">
-<frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
-<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="no">
+<frame name="fmain" src="$config->{script_nph}?$out" scrolling="yes">
+<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&R=$random" scrolling="no">
 </frameset>
-<frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no">
-<frame name="hiddenframe" src="about:blank" scrolling="no">
+<frame name="fform" src="$scriptname?item=fform&interface=$interface&R=$random" scrolling="no">
 <noframes>
-This interface requires a browser that supports frames and javascript.
+This interface requires a browser that supports frames such as internet
+explorer, netscape or mozilla.
 </noframes>
 
 </frameset>
@@ -72,36 +91,33 @@ EOF
 }
 
 sub fuserlist {
+   my($self, $cgi, $config) = @_;
 print <<EOF;
-<html>
-<head>
-<style><!--
-BODY { border-left: 1px solid #999999; margin: 0; }
-SELECT { border: 0; padding: 0;width: 100%; height: 100%; }
-// -->
-</style>
-</head>
-<body>
-<form name="mform">
-<select size="2" name="userlist">
-</select>
-</form>
-</body>
-</html>
-EOF
-}
-
-sub fmain {
-print <<EOF;
-<html><head></head>
-<body>
-<span id="text"></span>
+<html><head>
+<noscript><meta http-equiv="Refresh" content="15;URL=$config->{script_form}?R=$cgi->{R}&s=userlist"></noscript>
+</head><body bgcolor="#ffffff" text="#000000">
+Loading..
 </body></html>
 EOF
 }
 
+sub userlist {
+   return 'moo';
+}
+
 sub fform {
-print <<EOF;
+   my($self, $cgi, $config) = @_;
+   print _form_out($cgi->{R}, $config->{script_form}, []);
+}
+
+sub form {
+   my($self, $cgi, $irc, $config) = @_;
+   return _form_out($cgi->{R}, $config->{script_form}, [keys %$self]);
+}
+
+sub _form_out {
+   my($rand, $script, $targets) = @_;
+my $out = <<EOF;
 <html>
 <head>
 <html><head>
@@ -112,31 +128,31 @@ function fns(){
 }
 //-->
 </script>
-<style><!--
-BODY { border-top: 1px solid #999999;margin: 0; }
-.say { border: 0; width: 80%; padding-left: 4px; }
-// -->
-</style>
 </head>
-<body onload="fns()" onfocus="fns()">
+<body onload="fns()" onfocus="fns()" bgcolor="#ffffff" text="#000000">
 
-<form name="myform" class="myform">
-<input type="text" class="say" name="say" autocomplete="off">
+<form name="myform" method="post" action="$script">
+<input type="hidden" name="R" value="$rand">
+<input type="hidden" name="s" value="form">
+<input type="hidden" name="cmd" value="say">
+<select name="target">
+EOF
+if(ref $targets eq 'ARRAY') {
+   for(@$targets) {
+      $out .= "<option>$_</option>\n";
+   }
+}
+$out .= <<EOF;
+</select>
+<input type="text" class="say" name="say" autocomplete="off" size="60">
+<input type="submit" value=" Say ">
 </form>
 
 </body>
 </html>
 EOF
-}
 
-sub fwindowlist {
-   my($self, $cgi, $config) = @_;
-   my $string;
-   for(keys %$cgi) {
-      next if $_ eq 'item';
-	  $string .= main::cgi_encode($_) . '=' . main::cgi_encode($cgi->{$_}).'&';
-   }
-   $string =~ s/\&$//;
+return $out;
 }
 
 1;

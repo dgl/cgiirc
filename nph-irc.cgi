@@ -21,7 +21,7 @@
 
 require 5.004;
 use strict;
-use lib qw/modules/;
+use lib qw/modules interfaces/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
 	  $unixfh $ircfh $cookie $ctcptime
@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.12 2002/03/14 17:11:56 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.13 2002/03/15 22:05:27 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -54,7 +54,15 @@ require 'parse.pl';
 
 my $needtodie = 0;
 $SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
-$SIG{__DIE__} = sub { return unless ref $interface; $interface->error(@_); };
+
+$SIG{__DIE__} = sub { 
+   error("Program ending: @_");
+   irc_close();
+};
+
+# DEBUG
+#use Carp;
+#$SIG{__DIE__} = \&confess;
 
 #### Network Functions
 
@@ -206,7 +214,7 @@ sub load_format {
    if($cgi->{format} && $cgi->{format} !~ /[^A-Za-z0-9]/) {
 	  $formatname = $cgi->{format};
    }
-   $format = parse_config('formats/' . $formatname);
+   return parse_config('formats/' . $formatname);
 }
 
 ## Prints a nicely formatted line
@@ -365,6 +373,9 @@ sub load_interface {
    $name =~ s/[^a-z]//gi;
    require('interfaces/' . $name . '.pm');
    $interface = $name->new($event);
+   $interface->header($config, $cgi);
+
+   return $interface;
 }
 
 sub interface_show {
@@ -392,10 +403,11 @@ sub load_socket {
    error('Communication socket already exists')
       if -e $config->{socket_prefix}.$cgi->{R};
 
-   mkdir($config->{socket_prefix}.$cgi->{R}, 0700) or error("Mkdir error");
+   mkdir($config->{socket_prefix}.$cgi->{R}, 0700) or error("Mkdir error: $!");
 
-   open(IP, ">$config->{socket_prefix}$cgi->{R}/ip") or error("Open error");
-   print IP "$ENV{REMOTE_ADDR}\n$ENV{HTTP_X_FORWARDED_FOR}\n";
+   open(IP, ">$config->{socket_prefix}$cgi->{R}/ip") or error("Open error: $!");
+   print IP "$ENV{REMOTE_ADDR}\n";
+   print IP "$ENV{HTTP_X_FORWARDED_FOR}\n" if exists $ENV{HTTP_X_FORWARDED_FOR};
    close(IP);
 
    my($socket,$error) = 
@@ -486,7 +498,7 @@ sub access_ipcheck {
 	  s/\s+#.*$//g;
 	  my($check,$limit) = split(' ', $_, 2);
 	  $check =~ s/\./\\./g;
-	  $check =~ s/\*/\d+/g;
+	  $check =~ s/\*/\\d+/g;
 	  if($ip =~ /^$check$/) {
 		 return 1 unless defined $limit;
 		 if($limit == 0) {
@@ -596,7 +608,7 @@ sub irc_close {
 
 sub irc_connected {
    my($event, $self, $server, $nick) = @_;
-   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file");
+   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file: $!");
    print S "$server\n";
    close(S);
    my $key;
@@ -618,6 +630,7 @@ sub irc_send_message {
 
 sub irc_event {
    my($event, $name, $info, @params) = @_;
+   return if $name =~ /^user /;
    $info->{type} = $name;
 
    if($name =~ /^raw/) {

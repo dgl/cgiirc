@@ -17,27 +17,46 @@ sub line {
    print "$html<br>\n";
 }
 
+sub header {
+   print "\n";
+}
+
 sub keepalive {
    print "<!-- nothing comment -->\r\n";
 }
 
+sub error {
+   my($self, $error) = @_;
+   $self->line({}, '', $error);
+}
+
 sub login {
    my($self, $this, $copy, $config, $order, $items) = @_;
+   my $notsupported = 0;
+   if($ENV{HTTP_USER_AGENT} =~ /opera|kde|konqueror/i) {
+      $notsupported++;
+   }
 print <<EOF;
 <html>
 <head>
 <script><!--
 function setjs() {
-if(navigator.appName == 'Netscape' && navigator.appVersion.substr(0,1) == 5) {
-document.loginform["interface"].value = 'mozilla';
-}else if(navigator.appName == 'Microsoft Internet Explorer') {
-document.loginform["interface"].value = 'ie';
-}
+ if(navigator.product == 'Gecko') {
+   document.loginform["interface"].value = 'mozilla';
+ }else if(navigator.appName == 'Microsoft Internet Explorer') {
+   document.loginform["interface"].value = 'ie';
+ }
 }
 //-->
 </script>
 <title>CGI:IRC Login</title>
-</head><body bgcolor="#ffffff" onload="setjs()">
+</head>
+<body bgcolor="#ffffff" text="#000000" onload="setjs()">
+EOF
+if($notsupported) {
+   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur.</font>\n";
+}
+print <<EOF;
 <form method="post" action="$this" name="loginform">
 <input type="hidden" name="interface" value="nonjs">
 <table border="0" cellpadding="5" cellspacing="0">

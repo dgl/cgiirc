@@ -8,30 +8,16 @@ KEY:
 ! important
 
 IRC Module:
-= RawCommand stuff: each handler needs to be more consistant
-= formats
-+ sort out targets
-= activity levels
-= ctcp (userinfo, version, ping)
 - use 005 numeric if possible (mode can use PREFIX and CHANMODES)
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
 
 Commands:
-+ pass params
-= add commands
-+ default pass through
-+ access commands
 - commands that will call to interface: help, (un)query, clear
-+ don't send blank lines
-+ /nick doesn't work?
-+ /part
-+ quit seperate from version
 
 Interfaces:
 - hilight text targeted at nickname
 Javascript Interface:
 - make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
-- userlist: need to sort mode changes
 - right click context menus
 - pop-out needs to work in mozilla too
 - tab completeion in mozilla?
@@ -42,30 +28,23 @@ Javascript Interface:
 - quit in more than one channel
 
 NonJS Interface:
-- do this :)
+= do this :)
 = auto detection of browser
 - selecting colour in interfaces?
 
-= default.pm holds login with @ISA
-
 irc.cgi:
 - how does login work with multiple channels and keys?
--? show browser button in advanced, with (automatic)
-
 
 nph-irc.cgi:
 - config fonts
 - config timestamps
 - config vhost
-= change tmp file system
-  directory prefix/rand/,  sock, ip, server, cookie
 - random value via http referer problem
   cookie read on frameset load, if set write to ^^cookie file and check
   future requests
 - session timeout if no data sent (set optionally)
 
 Abuse:
-= multiple connects from the same IP (use ipaccess file for this)
 - ctcp kill/ban
 - limiting the number of connections to a server? (^^^ sock/server)
 - admin interface?
