@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.24 2003/01/17 16:40:57 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.25 2003/02/19 19:01:03 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;

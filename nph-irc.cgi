@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.82 2002/12/02 23:12:12 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.83 2003/02/19 19:01:01 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
@@ -284,8 +284,8 @@ sub format_colourhtml {
    $line =~ s/>/$tok\&gt;$tok/g;
    $line =~ s/"/$tok\&quot;$tok/g;
 
-   $line =~ s{((https?|ftp):\/\/[^$ ]+)}{$interface->link(format_remove($1), format_linkshorten($1))}gie;
-   $line =~ s{(?<!\/)(www\..*?)([\.,]?($|\s)|\)|\002)}{$interface->link(format_remove("http://$1"), $1) . $2}gie;
+   $line =~ s{((https?|ftp):\/\/[^$ ]+)(?![^<]*>)}{$interface->link(format_remove($1), format_linkshorten($1))}gie;
+   $line =~ s{(?:^|\s)(www\..*?)([\.,]?($|\s)|\)|\002)(?![^<]*>)}{$interface->link(format_remove("http://$1"), $1) . $2}gie;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
       $line =~ s{(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
