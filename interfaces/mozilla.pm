@@ -67,7 +67,8 @@ sub new {
    $event->add('user change', code => \&usermode);
    $event->add('user self', code => \&mynick);
    $event->add('user 005', code => sub { _func_out('prefix',$_[1])});
-   _out('parent.connected = 1;');
+   $event->add('user connected', code => sub { _out('parent.connected = 1;')
+   }); 
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
@@ -1123,6 +1124,17 @@ function keypress(srcEl, keyCode, event) {
    }
    return false;
 }
+
+function pastedata(text) {
+   var paste = text.split("\\n");
+   if(paste.length > 20)
+      alert("You can't paste more than 20 lines");
+
+   if(paste.length < 5 ||
+     confirm("Are you sure you want to paste " + paste.length + " lines?"))
+      parent.fwindowlist.sendcmd_real('paste', text, parent.fwindowlist.currentwindow);
+}
+
 //-->
 </script>
 <link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
@@ -1131,6 +1143,7 @@ function keypress(srcEl, keyCode, event) {
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
 <input type="text" class="form-say" name="say" autocomplete="off"
+  onpaste="pastedata(window.clipboardData.getData('Text',''));return false;"
 >
 </form>
 EOF

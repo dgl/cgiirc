@@ -21,7 +21,7 @@ sub parse_config {
 ## The clever regexp bit is from cgi-lib.pl
 ## This now also removes certain characters that might not be a good idea.
 sub parse_query {
-   my($query) = @_;
+   my($query, $allow) = @_;
    return {} unless defined $query and length $query;
 
    return {
@@ -33,7 +33,11 @@ sub parse_query {
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
         $key =~ s/[\r\n\0\001]//g;
 	     $val =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
-        $val =~ s/[\r\n\0\001]//g;
+        if(defined $allow and $allow) {
+           $val =~ s/[\0\001]//g;
+        }else{
+           $val =~ s/[\r\n\0\001]//g;
+        }
 
 	     $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)

@@ -67,7 +67,8 @@ sub new {
    $event->add('user change', code => \&usermode);
    $event->add('user self', code => \&mynick);
    $event->add('user 005', code => sub { _func_out('prefix',$_[1])});
-   _out('parent.connected = 1;');
+   $event->add('user connected', code => sub { _out('parent.connected = 1;')
+   }); 
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
