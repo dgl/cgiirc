@@ -564,10 +564,7 @@ function witemdel(name) {
    if(!Witems[name] && !(name = findwin(name))) return;
    if(name == 'Status') return;
    delete Witems[name];
-   if(currentwindow == name) currentwindow = lastwindow ? lastwindow : 'Status';
-   wlistredraw();
-   witemredraw();
-   userlist();
+   if(currentwindow == name) witemchg(lastwindow ? lastwindow : 'Status');
 }
 
 function witemclear(name) {
@@ -752,6 +749,7 @@ function witemredraw() {
       setTimeout("witemredraw()", 1000);
 	  return;
    }
+   if(!currentwindow) currentwindow = 'Status';
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
 
    var count = 0;
@@ -849,10 +847,25 @@ function disconnected() {
    }
 }
 
-function do_quit() {
-   var i = new Image();
 ~;
 print qq~
+imghelpdn = new Image();
+imghelpdn.src = "$config->{image_path}/helpdn.gif";
+imghelpup = new Image();
+imghelpup.src = "$config->{image_path}/helpup.gif";
+
+imgoptionsdn = new Image();
+imgoptionsdn.src = "$config->{image_path}/optionsdn.gif";
+imgoptionsup = new Image();
+imgoptionsup.src = "$config->{image_path}/optionsup.gif";
+
+imgclosedn = new Image();
+imgclosedn.src = "$config->{image_path}/closedn.gif";
+imgcloseup = new Image();
+imgcloseup.src = "$config->{image_path}/closeup.gif";
+
+function do_quit() {
+   var i = new Image();
    i.src = "$config->{script_form}?R=$cgi->{R}&cmd=quit";
 }
 
@@ -865,12 +878,14 @@ print qq~
 
 <iframe src="$config->{script_nph}?$string" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
 
-<span class="wlist-container" id="windowlist"></span>
-<span class="wlist-buttons">
-<img src="help.gif" onclick="sendcmd('/help');" class="wlist-button">
-<img src="options.gif" onclick="alert('Not yet done');" class="wlist-button">
-<img src="close.gif" onclick="witemdel(currentwindow);" class="wlist-button">
-</span>
+<table class="wlist-table">
+<tr><td id="windowlist" class="wlist-container">
+</td><td class="wlist-buttons">
+<img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;">
+<img src="$config->{image_path}/optionsup.gif" onclick="alert('Not yet done');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;">
+<img src="$config->{image_path}/closeup.gif" onclick="sendcmd('/winclose');" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;">
+</td></tr></table>
+
 <form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">

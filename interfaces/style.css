@@ -7,7 +7,8 @@
    scrollbar-darkshadow-color: #ccc;
    scrollbar-track-color: #e8e8e8;
    scrollbar-arrow-color: #777;
-   /*background-color: #f1f1f1;*/
+   background-color: #f8f8f8;
+   border-left: 1px solid #999999;
 }
 
 .userlist-div {
@@ -92,23 +93,49 @@
    scrollbar-arrow-color: #777;
 }
 
-.userlist-div {
+.main-span {
 }
-.main-span {}
 
-.form-body { border-top: 1px solid #999999;margin: 0; }
-.form-form { float: left; }
-.form-say { border: 0; width: 90%; padding-left: 4px; }
-.form-nickname { padding-left: 4px; background: #c0c0c0; }
-.form-econtain { float: right; }
-.form-extra { display: none; }
-.form-boldbutton { font-weight: bold; }
-.form-expand { border: 0; background: #ffffff; }
+.form-body {
+   border-top: 1px solid #999999;
+   margin: 0;
+}
+
+.form-form {
+   float: left;
+}
+
+.form-say {
+   border: 0;
+   width: 90%;
+   padding-left: 4px;
+}
+
+.form-nickname {
+   padding-left: 4px;
+   background: #c0c0c0;
+}
+
+.form-econtain {
+   float: right;
+}
+
+.form-extra { 
+   display: none; 
+}
+
+.form-boldbutton { 
+   font-weight: bold;
+}
+
+.form-expand {
+   border: 0;
+   background: #ffffff;
+}
 
 .wlist-body {
    margin: 0px;
    background: #f1f1f1;
-   border-bottom: 1px solid #999999;
    cursor: default;
 }
 
@@ -143,13 +170,23 @@
 }
 
 .wlist-buttons {
+    text-align: right;
+    width: 10%;
 }
 
 .wlist-button {
    border: 0;
-   cursor: hand;
+   cursor: default;
 }
 
 .wlist-container {
+   width: 90%;
 }
+
+.wlist-table {
+   width: 100%;
+   height: 100%;
+   border-bottom: 1px solid #999999;
+}
+
 
