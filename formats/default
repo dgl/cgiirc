@@ -101,7 +101,7 @@ reply whois server = {prefix-user} server: $0 [$1]
 reply end whois = $0
 reply end whowas = $0
 
-error nosuchnick = {prefix-server} %_$0%_ No such nick/channel
+error nosuchnick = {prefix-server} {hilight $0} No such nick/channel
 error nickinuse = {prefix-server} Nickname $0 is already in use, type /nick newnick to use another.
 
 irc close = {prefix-error} Disconnected from IRC

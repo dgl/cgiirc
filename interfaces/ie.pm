@@ -473,8 +473,8 @@ var tablen;
 var tabinc;
 
 function fns(){
-   if(!document.myform["say"]) return;
-   document.myform["say"].focus();
+   if(!document.myform.say) return;
+   document.myform.say.focus();
 }
 
 function t(item,text) {
@@ -558,7 +558,7 @@ function keypress(srcEl, keyCode, event) {
 		  }
 	   }else{
 	      tabtmp = [];
-	      var list = parent.frames.fwindowlist.channellist(parent.frames.fwindowlist.currentwindow);
+	      var list = parent.fwindowlist.channellist(parent.fwindowlist.currentwindow);
 		  for(var i = 0;i < list.length; i++) {
 		     var item = list[i].replace(/^[+%@ ]/,'');
 		     if(item.substr(0, tabStr.length).toLowerCase() == tabStr) {
@@ -566,9 +566,9 @@ function keypress(srcEl, keyCode, event) {
 			 }
 		  }
 		  if(!tabtmp[0]) {
-		     for(var i in parent.frames.fwindowlist.Witems) {
+		     for(var i in parent.fwindowlist.Witems) {
 			    if(i.substr(0, tabStr.length).toLowerCase() == tabStr) {
-               if(parent.frames.fwindowlist.Witems[i].speak)
+               if(parent.fwindowlist.Witems[i].speak)
 				      tabtmp[tabtmp.length] = i;
 				}   
 			 }
@@ -614,7 +614,7 @@ function keypress(srcEl, keyCode, event) {
 <body onload="load()" onfocus="fns()" class="form-body">
 <form name="myform" onSubmit="return cmd();" class="form-form">
 <span id="nickname" class="form-nickname"></span>
-<input type="text" class="form-say" name="say" autocomplete="off">
+<input type="text" class="form-say" name="say" autocomplete="off" >
 </form>
 
 EOF
@@ -781,10 +781,8 @@ function channelsusernick(olduser, newuser) {
 function channelusermode(channel, user, action, type) {
    if(!Witems[channel] && !(channel = findwin(channel))) return;
    if(!Witems[channel].users[user]) return;
-   //alert(channel + ' ' + user + ' ' + type + ' ' + action);
 
    if(type == 'op') {
-      //alert("op");
       Witems[channel].users[user].op = (action == '+' ? 1 : 0);
    }else if(type == 'voice') {
       Witems[channel].users[user].voice = (action == '+' ? 1 : 0);
