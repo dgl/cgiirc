@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.37 2002/05/01 18:48:13 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.38 2002/05/01 19:30:02 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -129,9 +129,7 @@ sub net_tcpconnect {
 
    connect($fh, $saddr) or return (0,$!);
 
-   select($fh);
-   $|++;
-   select(STDOUT);
+   net_autoflush($fh);
 
    return($fh);
 }
@@ -150,7 +148,16 @@ sub net_unixconnect {
    bind($fh, sockaddr_un($local)) or return (0, $!);
    listen($fh, SOMAXCONN) or return (0, $!);
 
+   net_autoflush($fh);
+
    return $fh;
+}
+
+sub net_autoflush {
+   my $fh = shift;
+   select $fh;
+   $| = 1;
+   select STDOUT;
 }
 
 ## Send data to specific filehandle
@@ -166,16 +173,8 @@ sub net_send {
 sub select_add {
    my($fh) = @_;
    my $fileno = select_fileno($fh);
-   
-   if(defined $handles[$fileno]) {
-      $handles[$fileno] = $fh;
-	  return;
-   } else {
-      $handles[$fileno] = $fh;
-   }
-
-   $select_bits = '' unless defined $select_bits;
-   vec($select_bits, $fileno, 1) = 1;
+   $handles[$fileno] = $fh;
+   select_makebits();
 }
 
 ## Deletes the filehandle and fileno
@@ -189,13 +188,21 @@ sub select_del {
    }
    return unless defined $handles[$fileno];
 
-   splice(@handles, $fileno, 1);
-   vec($select_bits, $fileno, 1) = 0;
+   $handles[$fileno] = undef;
+   select_makebits();
 }
 
 ## Returns a fileno
 sub select_fileno {
    fileno(shift);
+}
+
+sub select_makebits {
+   $select_bits = '';
+   for(2 .. $#handles) {
+      next unless defined $handles[$_] && ref $handles[$_];
+      vec($select_bits, select_fileno($handles[$_]), 1) = 1;
+   }
 }
 
 ## Returns list of handles with input waiting
@@ -208,8 +215,6 @@ sub select_canread {
 	  for(0 .. $#handles) {
 		 push(@out, $handles[$_]) if vec($read, $_, 1);
 	  }
-     # Heavy-handed fix for some weird bug (NS4 only?!)
-     if($read && !@out){print "Weird netscape bug found; exiting!<br>\n";irc_close();}
 	  return @out;
    }
    return ();
@@ -954,6 +959,7 @@ sub main_loop {
 		 if($fh == $unixfh) {
 			my $newfh = Symbol::gensym;
 			if(accept($newfh, $fh)) {
+            net_autoflush($newfh);
 			   select_add($newfh);
 			}
 		 }else{
