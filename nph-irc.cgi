@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.9 2002/03/12 00:02:24 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.10 2002/03/12 22:21:46 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -482,10 +482,11 @@ sub access_ipcheck {
    open(IP, "<$config->{ip_access_file}") or return 1;
    my %ips = list_connected_ips();
    while(<IP>) {
-	  next if /^#/;
+	  next if /^(#|\s*$)/;
+	  s/\s+#.*$//g;
 	  my($check,$limit) = split(' ', $_, 2);
 	  $check =~ s/\./\\./g;
-	  $check =~ s/\*/.*/g;
+	  $check =~ s/\*/\d+/g;
 	  if($ip =~ /^$check$/) {
 		 return 1 unless defined $limit;
 		 if($limit == 0) {
@@ -499,7 +500,9 @@ sub access_ipcheck {
 	  }
    }
    close(IP);
-   return 1;
+
+   message('access denied', 'No connections allowed');
+   exit;
 }
 
 sub list_connected_ips {
