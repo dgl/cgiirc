@@ -14,8 +14,13 @@ use strict;
 use Socket;
 my($input,$output);
 
-print "Type the Hex IP to decode into a normal IP address\n";
-$input=<>;
+if($#ARGV >= $[) {
+	$input = shift;
+} else {
+	print "Type the Hex IP to decode into a normal IP address\n";
+	$input=<>;
+}
+
 $input =~ s/[^a-z0-9]//gi;
 
 $output = pack "H*", $input;
