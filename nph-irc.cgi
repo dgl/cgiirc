@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.35 2002/04/27 18:49:42 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.36 2002/04/27 20:07:31 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -319,7 +319,7 @@ sub format_init_smilies {
       ':-?\)'         => 'happy',
       '\:D'           => 'cheesy',
       ':-?\('         => 'unhappy',
-      ':-?[oO]'       => 'surprised',
+      ':-[oO]'        => 'surprised',
       '8-?\)'         => 'cool',
       ':-?\|'         => 'flat',
    );

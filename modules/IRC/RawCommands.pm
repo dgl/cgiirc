@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.13 2002/04/27 19:43:21 dgl Exp $
+# $Id: RawCommands.pm,v 1.14 2002/04/27 20:07:32 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -110,6 +110,7 @@ my %raw = (
 			   $num++;
 			}elsif(/[hov$self->{prefixmode}]/) {
 			   my $nick = $params->{params}->[$num];
+            next unless ref $channel->nick($nick);
 			   $channel->nick($nick)->{
 			        ($_ =~ /[hov]/ ? {o => 'op',h => 'halfop', v => 'voice'}->{$_}
                  : $_)

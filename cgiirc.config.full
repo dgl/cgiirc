@@ -1,5 +1,6 @@
 # This is the full access CGI:IRC 0.5 config file
 # It will allow access to all servers and channels
+# See http://cgiirc.sourceforge.net/docs/config.php for help editing it.
 
 # -----
 # These are the default settings to show on the login form
