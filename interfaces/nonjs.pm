@@ -25,7 +25,9 @@ sub new {
 }
 
 sub _out {
-   print "$_[1]<script>s();</script>\r\n";
+   unless(print "$_[1]<script>s();</script>\r\n") {
+      $::needtodie++;
+   }
 }
 
 sub _reloadreal {

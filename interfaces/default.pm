@@ -24,7 +24,9 @@ sub makeline {
 
 sub lines {
    my($self, @lines);
-   print @lines;
+   unless(print @lines) {
+      $::needtodie++;
+   }
 }
 
 sub header {
@@ -32,7 +34,9 @@ sub header {
 }
 
 sub keepalive {
-   print "<!-- nothing comment -->\r\n";
+   unless(print "<!-- nothing comment -->\r\n") {
+      $::needtodie++;
+   }
 }
 
 sub error {

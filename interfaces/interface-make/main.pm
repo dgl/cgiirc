@@ -80,7 +80,9 @@ sub end {
 }
 
 sub _out {
-   print "<script>$_[0]</script>\r\n";
+   unless(print "<script>$_[0]</script>\r\n") {
+      $::needtodie++;
+   }
 }
 
 sub _func_out {

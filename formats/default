@@ -78,6 +78,7 @@ hilight = %_$0%_
 host = [$0]
 
 default = {prefix-server} $0-
+raw = {prefix-server} $0-
 
 ignore list = {prefix-client} Ignore: $0-
 ignored = {prefix-client} Ignored: $0-
