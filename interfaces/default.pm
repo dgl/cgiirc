@@ -59,10 +59,10 @@ print <<EOF;
 $standardheader
 <html>
 <head>
+<script language="JavaScript"><!--
 EOF
 if($interface eq 'default') {
 print <<EOF;
-<script language="JavaScript"><!--
 function setjs() {
  if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
@@ -81,11 +81,20 @@ function nickvalid() {
    document.loginform.Nickname.value = nick.replace(/[^A-Za-z0-9\\[\\]\\{\\}^\\\\\\|\\_\\-\`]/g, '');
    return false;
 }
-//-->
-</script>
+EOF
+}else{ # dummy functions
+print <<EOF;
+function setjs() {
+   return true;
+}
+function nickvalid() {
+   return true;
+}
 EOF
 }
 print <<EOF;
+//-->
+</script>
 <title>CGI:IRC Login</title>
 </head>
 <body bgcolor="#ffffff" text="#000000" onload="setjs()">
