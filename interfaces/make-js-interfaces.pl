@@ -163,6 +163,11 @@ print "   print \"<!-- padding for mozilla -->\\n\";\n" if $browser eq 'mozilla'
 print q`
 }
 
+sub header {
+   my($self, $cgi, $config, $fg, $bg) = @_;
+   _func_out('maincolor', $fg, $bg);
+}
+
 sub error {
    my($self,$message) = @_;
    $self->line({ target => 'Status'}, $message);
@@ -841,6 +846,13 @@ function mynick(mynick) {
    mynickname = mynick;
    if(options.shownick != 1) return;
    if(parent.fform && parent.fform.nickchange) parent.fform.nickchange(mynick);
+}
+
+function maincolor(bg, fg) {
+   var maindoc = parent.fmain.document;
+   if(!maindoc) return;
+   maindoc.bgColor = bg;
+   maindoc.fgColor = fg;
 }
 
 function prefix(chars) {

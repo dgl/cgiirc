@@ -63,7 +63,7 @@ sub query {
 }
 
 sub header {
-   my($self, $config, $cgi) = @_;
+   my($self, $config, $cgi, $bg, $fg) = @_;
    print <<EOF;
 $standardheader
 <html><head>
@@ -81,7 +81,7 @@ function f() {
 //-->
 </script>
 </head>
-<body bgcolor="#ffffff" text="#000000">
+<body bgcolor="$bg" text="$fg">
 EOF
 }
 
@@ -200,7 +200,7 @@ sub userlist {
 		return $a cmp $b if ($am eq $bm);
 		return index($umap, $am) <=> index($umap, $bm);
       } @users) {
-	  $output .= "<a href=\"$config->{script_form}?R=$input->{R}&item=userlist&cmd=say&say=/query+$_\">$_</a><br>";
+	  $output .= "<a href=\"$config->{script_form}?R=$input->{R}&item=userlist&cmd=say&say=/query+" . substr($_, 1) . "\">$_</a><br>";
    }
 
    return _page($output);
