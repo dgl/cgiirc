@@ -21,14 +21,15 @@ my %commands = (
   },
   j => 'join',
   'join' => sub {
-    my @channels = (split(/,/, (split(' ', $params, 2))[0]));
+    my($channels, $keys) = split(' ', $params, 2);
+    my @channels = split /,/, $channels;
 	 for(@channels) {
-       $_ = "#$_" unless /^\W/;
+       $_ = "#$_" unless $irc->is_channel($_);
 	    next if main::access_configcheck('channel', $_);
 		 message('access channel denied', $_);
 		 return;
 	 }
-     $irc->join($params);
+    $irc->join(join(',', @channels) . (defined $keys ? " $keys" : ''));
   },
   l => 'part',
   part => sub {

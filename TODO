@@ -26,3 +26,9 @@ Might be done one day:
 - config file format?
 -? right click context menus
 - <KingSpence> i wish it had colour nicks ;)
+
+main problems:
+main frame not loading (make sure testing with irc.cgi?interface=nonjs is
+    mentioned).
+setting admin password
+

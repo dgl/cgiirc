@@ -47,6 +47,7 @@ sub new {
    $event->add('user self', code => \&mynick);
    _out('parent.connected = 1;');
    $self->add('Status', 0);
+   _func_out('witemnospeak', 'Status');
    return $self;
 }
 
@@ -62,6 +63,7 @@ sub _func_out {
    my($func,@rest) = @_;
    @rest = map(ref $_ eq 'ARRAY' ? _outputarray($_) : _escapejs($_), @rest);
    _out('parent.' . $func . '(' . _jsp(@rest) . ');');
+   print STDERR 'parent.' . $func . '(' . _jsp(@rest) . ');' . "\n";
 }
 
 sub _escapejs {
@@ -70,6 +72,15 @@ sub _escapejs {
    $in =~ s/\\/\\\\/g;
    $in =~ s/'/\\'/g;
    return '\'' . $in . '\'';
+}
+
+sub _escapehtml {
+   my $in = shift;
+   return "''" unless defined $in;
+   $in =~ s/</&lt;/g;
+   $in =~ s/>/&gt;/g;
+   $in =~ s/"/&quot;/g;
+   return $in;
 }
 
 sub _jsp {
@@ -161,8 +172,8 @@ sub add {
 sub del {
    my($self, $del) = @_;
    return if not defined $del;
-   return if not exists $self->{lc $del};
    _func_out('witemdel', $del);
+   return if not exists $self->{lc $del};
    delete($self->{$del});
 }
 
@@ -199,8 +210,8 @@ onfocus="form_focus()" onload="form_focus()">
 <frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
 <frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="yes">
 </frameset>
-<frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no">
-<frame name="hiddenframe" src="$scriptname?item=blank" scrolling="no">
+<frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="hiddenframe" src="$scriptname?item=blank" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
 <noframes>
 This interface requires a browser that supports frames and javascript.
 </noframes>
@@ -216,11 +227,7 @@ sub blank {
 
 sub help {
    my($self,$config) = @_;
-   _out("window.open('$config->{script_login}?item=uhelp&interface=ie');");
-}
-
-sub uhelp {
-   print <<EOF;
+   my $help = <<EOF;
 <html><head>
 <title>CGI:IRC Help</title>
 </head>
@@ -230,30 +237,56 @@ Work in progress.
 </html>
 
 EOF
+   $help =~ s/[\n\r]//g;
+   _func_out('witemadd', '-Help', 0);
+   _func_out('witemnospeak', '-Help');
+   _func_out('witeminfo', '-Help');
+   _func_out('witemclear', '-Help');
+   _func_out('witemaddtext', '-Help', $help, 0);
+   _func_out('witemchg', '-Help');
+}
+
+sub setoption {
+   my($self, $name, $value) = @_;
+   _func_out('setoption', $name, $value);
 }
 
 sub options {
    my($self, $cgi, $config) = @_;
-   my $icookies = main::parse_interface_cookie();
-   print "<html><head><title>CGI:IRC Options</title></head>
-<body>
-<form>
-<table border=0>
-";
-   for(keys %options) {
-      my $o = $options{$_};
-      print "<tr><td>$_</td><td>";
+   my $ioptions = $main::ioptions;
+
+   my $out = "<html><head><title>CGI:IRC Options</title></head><body><form><table border=0>";
+
+   for my $option(keys %options) {
+      my $o = $options{$option};
+      my $value = defined $ioptions->{$option} ? $ioptions->{$option} : '';
+      
+      $out .= "<tr><td>$option</td><td>";
       if($o->{type} eq 'toggle') {
-         print "<input type=\"radio\" name=\"\">";
+         $out .= "<input type=\"checkbox\" name=\"$option\" value=\"1\"" . 
+            ($value? ' checked=1' : '')."\" onclick=\"parent.fwindowlist.send_option(this.name, this.checked == true ? this.value : 0);return true;\">";
       }elsif($o->{type} eq 'select') {
+         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option(this.name, this.options[this.selectedIndex].value);return true\">";
+         for(@{$o->{options}}) {
+            $out .= "<option name=\"$option\" value=\"$_\"".($_ eq $value ? ' selected=1' : '') . ">$_</option>";
+         }
+         $out .= "</select>";
       }else{
+         $out .= "<input type=\"text\" name=\"$option\" value=\""._escapehtml($value)."\" onChange=\"parent.fwindowlist.send_option(this.name, this.value);return true;\">";
       }
+      $out .= "</td></tr>";
    }
-print "
-</table>
-</form>
-</body></html>
+   
+$out .= "
+</table></form></body></html>
 ";
+   $out =~ s/\n//g;
+   _func_out('witemadd', '-Options', 0);
+   _func_out('witemnospeak', '-Options');
+   _func_out('witeminfo', '-Options');
+   _func_out('witemchg', '-Options');
+   _func_out('witemclear', '-Options');
+   _func_out('witemaddtext', '-Options', $out, 0);
 }
 
 sub fuserlist {
@@ -586,17 +619,31 @@ document.onmouseup = function() {
 document.oncontextmenu = function() {
    return false;
 }
+document.onhelp = function() {
+   sendcmd('/help');
+   return false;
+}
 
 function witemadd(name, channel) {
    if(Witems[name] || findwin(name)) return;
    name = name.replace(/\"/g, '&quot;');
-   Witems[ name ] = { activity: 0, text: new Array, channel: channel };
+   Witems[ name ] = { activity: 0, text: new Array, channel: channel, speak: 1,  info: 0 };
    if(channel) {
       Witems[name].users = {};
 	  Witems[name].topic = '';
    }
    if(!currentwindow) currentwindow = name;
    wlistredraw();
+}
+
+function witemnospeak(name) {
+   if(!Witems[name] && !(name = findwin(name))) return;
+   Witems[name].speak = 0;
+}
+
+function witeminfo(name) {
+   if(!Witems[name] && !(name = findwin(name))) return;
+   Witems[name].info = 1;
 }
 
 function witemdel(name) {
@@ -611,6 +658,7 @@ function witemclear(name) {
    Witems[name].text.length = 0;
    witemredraw();
 }
+
 
 function channeladdusers(channel, users) {
    for(var i = 0;i < users.length;i++) {
@@ -649,12 +697,12 @@ function channeldeluser(channel, user) {
 function channelsusernick(olduser, newuser) {
    for(var channel in Witems) {
       if(!Witems[channel].channel) continue;
-	  for(var nick in Witems[channel].users) {
-	     if(nick == olduser) {
-		    Witems[channel].users[newuser] = Witems[channel].users[olduser];
-			delete Witems[channel].users[olduser];
-		 }
-	  }
+      for(var nick in Witems[channel].users) {
+	      if(nick == olduser) {
+            Witems[channel].users[newuser] = Witems[channel].users[olduser];
+            delete Witems[channel].users[olduser];
+		   }
+	   }
    }
    userlist();
 }
@@ -719,9 +767,9 @@ function usersort(user1,user2) {
 }
 
 function witemchg(name) {
-   if(!Witems[name] && !(name = findwin(name))) return;
+   if(!Witems[name] && !(name = findwin(name))) name = 'Status';
    if(Witems[name].activity > 0) Witems[name].activity = 0;
-   lastwindow = currentwindow;
+   lastwindow = (Witems[currentwindow] ? currentwindow : 'Status');
    currentwindow = name;
    wlistredraw();
    witemredraw();
@@ -732,6 +780,13 @@ function witemchg(name) {
 
 function retitle() {
    parent.document.title = 'CGI:IRC - ' + currentwindow + (Witems[currentwindow].channel == 1 ? ' [' + countit(Witems[currentwindow].users) + '] ' : '');
+}
+
+function setoption(option, value) {
+   options[option] = value;
+   if(option == 'shownick') {
+      mynick(mynickname);
+   }
 }
 
 function mynick(mynick) {
@@ -757,6 +812,7 @@ function countit(obj) {
 function witemaddtext(name, text, activity) {
    if(name == '-all') {
       for(var window in Witems) {
+        if(Witem[window].info) continue;
 	     witemaddtext(window, text, activity);
 	  }
       return;
@@ -803,7 +859,7 @@ function witemredraw() {
 function wlistredraw() {
    var output='';
    for (var i in Witems) {
-      output += '<span class="' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '" style="color: ' + activity[Witems[i].activity] + ';" onclick="witemchg(\'' + (i == currentwindow ? escapejs(lastwindow) : escapejs(i)) + '\')" onmouseover="this.className = \'wlist-mouseover\'" onmouseout="this.className = \'' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '\'">' + escapehtml(i) + '</span>\r\n';
+      output += '<span class="' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '" style="color: ' + activity[Witems[i].activity] + ';" onclick="witemchg(\'' + (i == currentwindow ? escapejs(lastwindow) : escapejs(i)) + '\')" onmouseover="this.className = \'wlist-mouseover\'" onmouseout="this.className = \'' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '\'">' + escapehtml(Witems[i].info ? i.substr(1) : i) + '</span>\r\n';
    }
    document.getElementById('windowlist').innerHTML = output;
 }
@@ -836,16 +892,16 @@ function escapehtml(string) {
 }
 
 function sendcmd(cmd) {
-   if(currentwindow == 'Status' && cmd.substr(0,1) != '/') return;
    if(!connected) {
 	  alert('Not connected to IRC!');
 	  return;
    }
+   if(Witems[currentwindow] && !Witems[currentwindow].speak && cmd.substr(0,1) != '/') return;
    sendcmd_real('say', cmd, currentwindow);
 }
 
 function sendcmd_userlist(action, user) {
-   if(currentwindow == 'Status') return;
+   if(!Witem[currentwindow].channel) return;
    if(!connected) {
       alert('Not connected to IRC!');
       return;
@@ -854,10 +910,31 @@ function sendcmd_userlist(action, user) {
 }
 
 function sendcmd_real(type, say, target) {
+   document.hsubmit.item.value = 'say';
    document.hsubmit.cmd.value = type;
    document.hsubmit.say.value = say;
    document.hsubmit.target.value = target;
    document.hsubmit.submit();
+}
+
+function senditem(item) {
+   document.hsubmit.item.value = item;
+   document.hsubmit.cmd.value = '';
+   document.hsubmit.say.value = '';
+   document.hsubmit.target.value = '';
+   document.hsubmit.submit();
+}
+
+function send_option(name, value) {
+   document.hsubmit.item.value = '';
+   document.hsubmit.cmd.value = 'options';
+   document.hsubmit.say.value = '';
+   document.hsubmit.target.value = '';
+   document.hsubmit.name.value = name;
+   document.hsubmit.value.value = value;
+   document.hsubmit.submit();
+   document.hsubmit.name.value = '';
+   document.hsubmit.value.value = '';
 }
 
 function userlist() {
@@ -924,7 +1001,7 @@ function do_quit() {
 </td><td class="wlist-buttons">
 <img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;" title="Help">
 </td><td class="wlist-buttons">
-<img src="$config->{image_path}/optionsup.gif" onclick="alert('Not yet done');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
+<img src="$config->{image_path}/optionsup.gif" onclick="senditem('options');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
 </td><td class="wlist-buttons">
 <img src="$config->{image_path}/closeup.gif" onclick="if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit()}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;" title="Close">
 </td></tr></table>
@@ -935,6 +1012,8 @@ function do_quit() {
 <input type="hidden" name="item" value="say">
 <input type="hidden" name="say" value="">
 <input type="hidden" name="target" value="">
+<input type="hidden" name="name" value="">
+<input type="hidden" name="value" value="">
 </form>
 </body></html>
 ~;

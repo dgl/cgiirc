@@ -47,6 +47,8 @@ sub end { 'DUMMY' }
 
 sub options { 'DUMMY' }
 
+sub setoption { 'DUMMY' }
+
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items) = @_;
    my $notsupported = 0;

@@ -97,7 +97,8 @@
    scrollbar-arrow-color: #777;
 }
 
-.main-span {
+.main-span IMG {
+   border: 0;
 }
 
 .main-link {

@@ -26,11 +26,12 @@ use lib qw/modules interfaces/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
 	  $unixfh $ircfh $cookie $ctcptime $intime
-	  $timer $event $config $cgi $irc $format $interface
+	  $timer $event $config $cgi $irc $format $interface $ioptions
+     $regexpicon %regexpicon
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.28 2002/04/16 22:36:26 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.29 2002/04/24 20:10:44 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -258,25 +259,61 @@ sub format_colourhtml {
    $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>!gi;
    $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>$3!gi;
 
+   if(config_set('smilies')) {
+      $line =~ s{
+         $regexpicon
+         (?![^<]*>)  # not inside HTML
+      }{
+         my($sm, $tmp) = ($1, $1);
+         for(keys %regexpicon) {
+            next unless $sm =~ /^$_$/;
+            $tmp = "<img src=\"images/$regexpicon{$_}.gif\" alt=\"$sm\">";
+            last;
+         }
+         $tmp
+      }gexo;
+   }
+
    return format_remove($line) if $config->{removecolour};
 
-   $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^]*|.*?$)/
-	  my $me = "<font ";
+   $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^\003\017]*|.*?$)/
+      my $me = "<font ";
       my $fg = sprintf("%0.2d",$1);
-	  my $bg = length $3 ? sprintf("%0.2d",$3) : '';
+      my $bg = length $3 ? sprintf("%0.2d",$3) : '';
 
       if(length $bg) {
-		 $me .= "style=\"background: ".$format->{$bg}."\" "
-	  }
+         $me .= "style=\"background: ".$format->{$bg}."\" "
+      }
 
 	  $me .= "color=\"$format->{$fg}\">$4<\/font>";
 	  $me
    /eg;
-   $line=~ s/\002(.*?)(\002|$)/<b>$1<\/b>/g;
-   $line=~ s/\022(.*?)(\022|$)/<u>$1<\/u>/g;
-   $line=~ s/\037(.*?)(\037|$)/<u>$1<\/u>/g; 
+   $line=~ s/\002(.*?)(\002|\017|$)/<b>$1<\/b>/g;
+   $line=~ s/\022(.*?)(\022|\017|$)/<u>$1<\/u>/g;
+   $line=~ s/\037(.*?)(\037|\017|$)/<u>$1<\/u>/g; 
 
    return format_remove($line);
+}
+
+sub format_init_smilies {
+   %regexpicon = (
+      ';-?\)'         => 'wink',
+      ';D'            => 'grin',
+      ':\'\(?'        => 'cry',
+      ':-?/(?!\S)'    => 'notsure',
+      ':-?[xX]'       => 'confused',
+      ':-?\['         => 'embarassed',
+      ':-?\*'         => 'love',
+      '&gt;:\(',      => 'angry',
+      ':-?[pP]'       => 'tongue',
+      ':-?\)'         => 'happy',
+      ':D'            => 'cheesy',
+      ':-?\('         => 'unhappy',
+      ':-?[oO]'       => 'surprised',
+      '(?<!\w)8-?\)'  => 'cool', # not other number
+      ':-?\|'         => 'flat',
+   );
+   $regexpicon = '(' . join('|', keys %regexpicon) . ')';
 }
 
 sub format_linkshorten {
@@ -397,14 +434,14 @@ sub load_interface {
    $name =~ s/[^a-z]//gi;
    require('interfaces/' . $name . '.pm');
 
-   my $icookies = parse_interface_cookie();
+   $ioptions = parse_interface_cookie();
    for(keys %$config) {
       next unless s/^interface //;
-      next if exists $icookies->{$_};
-      $icookies->{$_} = $config->{"interface $_"};
+      next if exists $ioptions->{$_};
+      $ioptions->{$_} = $config->{"interface $_"};
    }
 
-   $interface = $name->new($event,$timer, $config, $icookies);
+   $interface = $name->new($event,$timer, $config, $ioptions);
    $interface->header($config, $cgi);
 
    return $interface;
@@ -484,8 +521,10 @@ sub input_command {
       say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
       irc_close();
-   }elsif($command eq 'options' && $params->{name} && $params->{value}) {
-      $interface->options($params->{name}, $params->{value});
+   }elsif($command eq 'options' && length $params->{name} && length $params->{value}) {
+      $ioptions->{$params->{name}} = $params->{value};
+      $interface->setoption($params->{name}, $params->{value});
+# write proper cookie code one day.
       net_send($fh, "Set-cookie: cgiirc$params->{name}=$params->{value};path=/;expires=Sun, 01-Jan-2011 00:00:00 GMT\r\n");
    }
 }
@@ -835,6 +874,7 @@ sub init {
    header();
 
    $cgi = parse_query($ENV{QUERY_STRING});
+   if(config_set('smilies')) { format_init_smilies() }
    $cookie = parse_cookie();
 
    error('No CGI Input') unless keys %$cgi;
