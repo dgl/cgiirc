@@ -2,11 +2,12 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.8 2002/05/10 21:19:19 dgl Exp $
+ * $Id: client.c,v 1.9 2002/05/11 14:52:18 dgl Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
