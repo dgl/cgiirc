@@ -1,8 +1,8 @@
 #!/usr/bin/perl -T
-# You'll need to add this line to /etc/inetd.conf and change the line that is
-# already there to begin with ident2 then edit /etc/services and add port 114
-# as ident2 (for example), this means the idents can be forwarded.
-# ident	stream	tcp	nowait	nobody	/usr/local/irc/identd.pl
+# Basically you need to add a line like this to /etc/inetd.conf and 
+# kill -HUP inetd
+# ident	stream	tcp	nowait	nobody	/usr/local/sbin/identd.pl
+# see the advanced section of the docs for more details about this.
 use strict;
 use Socket;
 
