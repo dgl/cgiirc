@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.69 2002/10/17 21:24:11 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.70 2002/10/20 17:25:41 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -55,7 +55,7 @@ use Command;
 require 'parse.pl';
 
 my $needtodie = 0;
-$SIG{HUP} = $SIG{INT} = $SIG{TERM} = = sub { $needtodie = 1 };
+$SIG{HUP} = $SIG{INT} = $SIG{TERM} = sub { $needtodie = 1 };
 # Pipe isn't bad..
 $SIG{PIPE} = 'IGNORE';
 
