@@ -36,9 +36,11 @@ features:
 - admin interface?
 - whois in active window
 - nonjs interface needs a few more features...
+- /server command, /reconnect command
 
 docs:
 - admin password
+- remember to update cgiirc-form.txt
 
 Sucky bits of code need rewriting:
 - Use more events (slight redesign on Event.pm with global handlers)

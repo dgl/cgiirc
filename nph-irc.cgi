@@ -31,10 +31,9 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.65 2002/08/07 12:13:36 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.66 2002/08/07 12:16:17 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
-$ENV{PATH} = ( );
 
 use Socket;
 use Symbol; # gensym
@@ -746,7 +745,7 @@ sub irc_close {
    close($unixfh);
    
    my $t = $config->{socket_prefix} . $cgi->{R};
-   unlink("$t/sock", "$t/ip", "$t/server");
+   unlink("$t/sock", "$t/ip", "$t/server", "$t/ident");
    exit unless rmdir($t);
    
    exit unless ref $ircfh;
