@@ -31,9 +31,10 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.64 2002/08/07 01:45:06 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.65 2002/08/07 12:13:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
+$ENV{PATH} = ( );
 
 use Socket;
 use Symbol; # gensym
@@ -695,6 +696,7 @@ sub irc_connect {
    error("No server specified") unless $server;
 
    message('looking up', $server);
+   flushoutput(); # this stuff can block - keep the user informed
 
    my($ipv4,$ipv6) = net_hostlookup($server);
    unless(defined $ipv4 or defined $ipv6) {
@@ -706,6 +708,8 @@ sub irc_connect {
       : ($ipv4 ? $ipv4 : $ipv6);
 
    message('connecting', $server, $ip, $port);
+   flushoutput();
+
    my($fh,$error) = net_tcpconnect($ip, $port);
    
    error("Connecting to IRC: $error") unless ref $fh;
@@ -736,10 +740,7 @@ sub irc_close {
    $message = (config_set('quit_prefix') ? $config->{quit_prefix} : "CGI:IRC $VERSION") .
       ($message ? " ($message)" : '');
    
-   if(@output) {
-      $interface->lines(@output);
-      @output = ( );
-   }
+   flushoutput();
 
    exit unless ref $unixfh;
    close($unixfh);
@@ -752,10 +753,7 @@ sub irc_close {
    net_send($ircfh, "QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
 
-   if(@output) {
-      $interface->lines(@output);
-      @output = ( );
-   }
+   flushoutput();
 
    $interface->end if ref $interface;
    
@@ -908,10 +906,17 @@ sub header {
      "\r\n");
 }
 
+sub flushoutput {
+   if(@output) {
+      $interface->lines(@output);
+      @output = ( );
+   }
+}
+
 
 #### Error Reporting
 sub error {
-   my $message = "@_ (" . join(' ',(caller(1))[3,2]) . ")";
+   my $message = "@_";
    header() unless $config;
    if(defined $interface && ref $interface) {
      if(ref $format) {
@@ -923,7 +928,7 @@ sub error {
      }
    }else{
       print "An error occured: $message\n";
-      print STDERR "[" . scalar localtime() . "] CGI:IRC Error: $message\n";
+      print STDERR "[" . scalar localtime() . "] CGI:IRC Error: $message (" . join(' ',(caller(1))[3,2]) . ")";
    }
    irc_close("Error");
 }
@@ -1066,11 +1071,7 @@ sub main_loop {
                   unix_in($fh,$theline);
                }
             }
-            
-            if(@output) {
-               $interface->lines(@output);
-               @output = ( );
-            }
+            flushoutput();
          }
       }
       irc_close() if $needtodie;
