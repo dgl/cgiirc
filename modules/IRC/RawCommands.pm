@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.17 2002/05/05 20:25:33 dgl Exp $
+# $Id: RawCommands.pm,v 1.18 2002/05/05 20:25:54 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -569,7 +569,7 @@ sub ctcpmsg {
       my($command,$params) = ($1,$2);
 
       $irc->{event}->handle($type . ' ' . lc $command,
-        _info($irc->is_channel($to) ? $to : $nick, 1), $to
+        _info($irc->is_channel($to) ? $to : $nick, 1), $to,
         $nick, $host, $command, $params);
 
    }else{
