@@ -4,7 +4,7 @@ use strict;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2005 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -114,11 +114,15 @@ function nickvalid() {
 EOF
 }
 print <<EOF;
+function setcharset() {
+	if(document.charset && document.loginform["Character set"])
+		document.loginform['Character set'].value = document.charset
+}
 //-->
 </script>
 <title>CGI:IRC Login</title>
 </head>
-<body bgcolor="#ffffff" text="#000000">
+<body bgcolor="#ffffff" text="#000000" onload="setcharset();">
 EOF
 if($notsupported) {
    print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading.</font>\n";

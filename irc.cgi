@@ -25,18 +25,26 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.29 2004/02/03 15:58:50 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.30 2005/01/05 23:15:29 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
 
 require 'parse.pl';
 
+my $cgi = cgi_read();
+my $config = parse_config('cgiirc.config');
+
 if(!parse_cookie()) {
    print "Set-cookie: cgiircauth=". random(25) .";path=/\n";
 }
-print join("\r\n", 
-	  'Content-type: text/html; charset=utf-8',
+print join("\r\n",
+# Hack to make sure we print the correct type for stylesheets too..
+	  'Content-type: text/' . (ref $cgi && defined $cgi->{item} &&
+        $cgi->{item} eq 'style' ? 'css' : 'html')
+# We need this for some JavaScript magic that detects the character set.
+# Basically don't send a character set for the login page..
+         . (ref $cgi && $cgi->{item} ? '; charset=utf-8' : ''),
       'Pragma: no-cache',
       'Cache-control: must-revalidate, no-cache',
       'Expires: -1') . "\r\n";
@@ -45,9 +53,6 @@ print join("\r\n",
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
 EOF
-
-my $config = parse_config('cgiirc.config');
-my $cgi = cgi_read();
 
 my $scriptname = $config->{script_login} || 'irc.cgi';
 
@@ -73,7 +78,8 @@ if(ref $cgi && defined $cgi->{item}) {
          Realname => 'name',
          interface => 'interface',
          Password => 'pass',
-         Format => 'format'
+         Format => 'format',
+         'Character set' => 'charset',
       );
    my $out;
    for(keys %p) {
@@ -106,6 +112,19 @@ if(ref $cgi && defined $cgi->{item}) {
    my $server = dolist($config->{default_server});
    my $channel = dolist($config->{default_channel});
    my $port = dolist($config->{default_port});
+   
+   my $charset = [ $config->{'irc charset'} ];
+   if(defined $ENV{HTTP_ACCEPT_CHARSET}) {
+      for(split ',', $ENV{HTTP_ACCEPT_CHARSET}) {
+         next if /;q=0($|\.0$)/ or /\*/;
+         s/;.*//;
+         push @$charset, $_; 
+      }
+   }
+   if(@$charset == 1) {
+      $charset = $charset->[0];
+      $charset = '' unless defined $charset;
+   }
 
    if(ref $cgi && $cgi->{chan}) {
       $channel = $cgi->{chan};
@@ -139,6 +158,7 @@ if(ref $cgi && defined $cgi->{item}) {
       Password => '-PASSWORD-',
       Realname => $config->{default_name},
       Format => \@formats,
+      'Character set' => $charset
    );
 
    @items{keys %items} = map(ref $_ ? $_ : escape_html($_), values %items);
@@ -150,6 +170,7 @@ if(ref $cgi && defined $cgi->{item}) {
 		 @order = split(' ', $config->{'login advanced'});
 	  }else{
 		 @order = qw/Nickname Realname Server Port Channel Password Format/;
+       push @order, 'Character set';
 	  }
    }else{
 	  if($config->{'login basic'}) {

@@ -45,10 +45,10 @@ script_login = irc.cgi
 image_path = images
 
 # The charset to send to IRC, to send anything other than UTF-8 you will
-# need the Text::Iconv perl module installed. Any character set supported
-# by your system iconv should work here.
+# need the Encode perl module installed.
+# See perldoc Encode::Supported for a list of supported encodings.
 # If you see the wrong characters in CGI:IRC or with a normal IRC client
-# you probably need to change this.
+# you probably need to change this or set it on the login form.
 # Extended ASCII:
 #irc charset = iso-8859-1
 
@@ -143,6 +143,9 @@ session_timeout = 18000
 # it), seperate with spaces to check more than one.
 #dnsbl = opm.blitzed.org
 
+# Redirect to a different URL (eg. custom login form) instead of the default.
+#form_redirect = http://cgiirc.sourceforge.net/docs/custom.php
+
 # -----
 # Appearence settings
 
@@ -160,10 +163,15 @@ format = default
 
 # Do not output joins, parts or quits.
 #output none = join, part, quit
+# Hide a lot of information that is shown at connect time
+#output none = raw 439, reply welcome, reply yourhost, reply created, reply myinfo, reply protoctl, raw 251, raw 252, raw 254, raw 255, raw 265, raw 266, looking up, connecting, reply motd start, reply motd end, reply names
+
 # Show whois in the active window
 #output active = reply whois
+
 # Show the names output in the Status window
 #output status = reply names
+
 
 # Remove almost all colour from the output
 #removecolor = 0

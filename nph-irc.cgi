@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.98 2005/01/05 22:06:10 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.99 2005/01/05 23:15:29 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1057,6 +1057,7 @@ sub init {
 
    $config = parse_config('cgiirc.config');
    $config->{socket_prefix} ||= '/tmp/cgiirc-';
+   $config->{'irc charset'} ||= 'utf8';
    ($config->{socket_prefix}) = $config->{socket_prefix} =~ /(.*)/;
    $config->{encoded_ip} = 2 unless exists $config->{encoded_ip};
    $config->{access_command} = '!quote' unless exists $config->{access_command};
@@ -1077,6 +1078,10 @@ sub init {
    $cgi->{port} ||= $config->{default_port};
    $cgi->{nick} ||= $config->{default_nick};
    $cgi->{name} ||= $config->{default_name};
+
+   if($cgi->{charset} && $::ENCODE && Encode::find_encoding($cgi->{charset})) {
+      $config->{'irc charset'} = $cgi->{charset};
+   }
 
    ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
 
