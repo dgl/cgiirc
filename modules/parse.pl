@@ -56,7 +56,7 @@ sub parse_query {
 		    (not defined $2 || (defined $2 && hex($2) < 0x7F))) {
 		   make_utf8("00$1");
 		}else{
-		  pack("c",hex($1))
+		  pack("C",hex($1))
 		}
              }gex;
         if(defined $ext and $ext & 1) {
