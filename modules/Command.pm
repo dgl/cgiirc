@@ -159,7 +159,9 @@ my %commands = (
 	  }
   },
   winclose => sub {
-     $interface->del($params ? $params : $target);
+     my $c = $params ? $params : $target;
+     $irc->part($c) if $irc->is_channel($c);
+     $interface->del($c);
 	  return 0;
   },
   'close' => 'winclose',

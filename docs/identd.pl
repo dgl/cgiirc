@@ -18,7 +18,7 @@ my $reply = "nouser";
 # Taken from midentd
 my $in = '';
 ret(0,0, "ERROR : NO-USER") unless sysread STDIN, $in, 128;
-my($local, $remote) = split /[\,\r\n{*}]/, $in;
+my($local, $remote) = $in =~ /^\s*(\d+)\s*,\s*(\d+)/;
 
 $remote = 0 if $remote !~ /^([ \d])+$/;
 $local = 0 if $local !~ /^([ \d])+$/;

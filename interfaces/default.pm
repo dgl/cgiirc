@@ -122,7 +122,7 @@ print <<EOF;
 <tr><td align="left" bgcolor="#d9d9d9">
 <small><a href="$this?adv=1">Advanced..</a></small>
 </small></td><td align="right" bgcolor="#d9d9d9">
-<input type="submit" value="Login">
+<input type="submit" value="Login" style="background-color: #d9d9d9">
 </td></tr></table></form>
 
 <small id="ietest">$copy</small>

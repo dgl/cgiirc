@@ -30,7 +30,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.24 2002/04/14 13:02:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.25 2002/04/14 17:52:06 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -648,6 +648,10 @@ sub irc_close {
 
 sub irc_connected {
    my($event, $self, $server, $nick) = @_;
+   open(SERVER, ">>$config->{socket_prefix}$cgi->{R}/server") or irc_close();
+   print SERVER "$server\n";
+   close(SERVER);
+
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {

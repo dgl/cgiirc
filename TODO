@@ -15,6 +15,21 @@ Commands:
 = commands that will call to interface: help
 
 Interfaces:
+- add three buttons to top bar: close (close current window), options and help
+-! options stuff.
+- write help
+-? why does mozilla not tab complete with >1 char
+- join sync stuff - userlist updating on join/quit/part/nick/mode/kick and join
+- use css cursor: default to remove | char
+-? <FUCEKISX> www.dynamicdrive.com :)
+-? <KingSpence> i wish it had colour nicks ;)
+- <FUCEKISX> dg: I'll give you code for making the scrollbars look all flat and nice
+- /names, /say
+-? smilies
+- mirc color scheme
+-? config file format?
+- topic bar
+
 - right click context menus
 - pop-out/userlist needs to work in mozilla too
 - dblclick == query in userlist.

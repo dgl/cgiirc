@@ -61,6 +61,7 @@ sub _func_out {
 
 sub _escapejs {
    my $in = shift;
+   return "''" unless defined $in;
    $in =~ s/\\/\\\\/g;
    $in =~ s/'/\\'/g;
    return '\'' . $in . '\'';
@@ -172,7 +173,7 @@ $standardheader
 <title>CGI:IRC</title>
 <script language="JavaScript"><!--
 function form_focus() {
-   if(document.frames.fform)
+   if(document.frames && document.frames.fform)
 	  document.frames.fform.fns();
 }
 //-->
@@ -219,7 +220,7 @@ $standardheader
 <head>
 <style><!--
 
-BODY {
+.userlist-body {
        margin: 0;
        scrollbar-face-color: #e8e8e8;
        scrollbar-shadow-color: #777;
@@ -230,7 +231,11 @@ BODY {
        scrollbar-arrow-color: #777;
 }
 
-.userlist{
+.userlist-div {
+   width: 100%;
+}
+
+.userlist-item {
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    font-size: 10px;
    background-color: #f1f1f1;
@@ -241,7 +246,13 @@ BODY {
    border-right: 1px solid #f3f3f3;*/
 }
 
-.userlistbtn {
+.userlist-select {
+   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
+   font-size: 10px;
+   background-color: #f1f1f1;
+}
+
+.userlist-btn {
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    font-size: 10px;
    background-color: #f1f1f1;
@@ -252,41 +263,45 @@ BODY {
    border-left: 1px solid #f3f3f3;
 }
 
-.userlist A {
-   text-decoration: none;
-   color: #000;
-}
-
-.userlist A:hover {
+.userlist-hover {
+   width: 95%;
+   font-size: 10px;
+   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    cursor: default;
    background-color: #a0c0ff;
-   width: 100%;
 }
 
-.userlist TR {
+.userlist-selected {
+   width: 95%;
+   font-size: 10px;
+   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
+   background-color: #a0c0ff;
+}
+
+.userlist-table TR {
    vertical-align: top;
 }
 
 
-.userliststat {
+.userlist-status {
    width: 14px;
    font-size: 10px;
    font-family: courier,monospace,fixed;
    text-align: center;
 }
 
-.userlistuser {
+.userlist-item {
    width: 95%;
    font-size: 10px;
 }
 
-.op {
+.userlist-op {
    color: #008000;
    background-color: #20ff50;
    border: 1px solid #30a030;
 }
 
-.voice {
+.userlist-voice {
    color: #808000;
    background-color: #ffff20;
    border: 1px solid #a0a030;
@@ -296,6 +311,7 @@ BODY {
 </style>
 <script language="JavaScript">
 <!--
+var selected;
 
 function fsubmit(form) {
    var action = form.action.options[form.action.selectedIndex].value;
@@ -305,33 +321,43 @@ function fsubmit(form) {
       alert("No user or action selected");
       return false;
    }
-   user = user.replace(/^[@%+]/, '');
+   user = user.replace(/^[@%+ ]/, '');
    parent.fwindowlist.sendcmd_userlist(action, user);
    return false;
 }
 
+function deselect() {
+   if(!selected) return;
+   selected.className = 'userlist-item';
+}
+
 function userlist(users) {
-   var tmp = '<table class="userlist">';
+   var tmp = '<table class="userlist-table">';
    for(var i = 0;i < users.length; i++) {
       var status = users[i].substr(0, 1);
       var user = users[i].substr(1);
 
-      tmp += '<tr><td class="userliststat"> ' + statushtml(status) + ' </td>'
-          + '<td class="userlistuser"> <a href="#" onclick="'
-          + 'document.mform.user.value = \\''
-          + user + '\\';return false;">'
-          + user + '</a></td></tr>';
+      tmp += '<tr><td class="userlist-status"> ' + statushtml(status) + ' </td>'
+          + '<td class="userlist-item" ' + 
+        (user != 'No channel' ? 
+          ' onmouseout="this.className=(this == selected ?'
+          + '\\'userlist-selected\\':\\'userlist-item\\')"'
+          + ' onmouseover="this.className=\\'userlist-hover\\'"'
+          + ' onclick="' + 'this.className=\\'userlist-selected\\';'
+          + 'deselect();selected = this;document.mform.user.value = \\''
+          + user + '\\';return false;" ondblclick="fsubmit(document.mform);"'
+          : '') + '>' + user + '</td></tr>';
    }
    tmp += '</table>';
    document.getElementById('usertable').innerHTML = tmp;
-   document.mform.user.value = undefined;
+   document.mform.user.value = '';
 }
 
 function statushtml(status) {
    if(status == "@") {
-      return '<div class="op">@</div>';
+      return '<div class="userlist-op">@</div>';
    }else if(status == "+") {
-      return '<div class="voice">+</div>';
+      return '<div class="userlist-voice">+</div>';
    }else{
       return '';
    }
@@ -341,24 +367,25 @@ function statushtml(status) {
 </script>
 </head>
 
-<body>
+<body class="userlist-body">
 
-<div style="width:100%" id="usertable">
+<div class="userlist-div" id="usertable">
 
-<table class="userlist">
-<tr><td class="userliststat"> <!-- nothing --> </td><td class="userlistuser"> <a href="#" onClick="return false"> No channel </a> </td></tr>
+<table class="userlist-table">
+<tr><td class="userlist-status"></td>
+<td class="userlist-item">No channel</td></tr>
 </table>
 
 </div>
 
 <form name="mform" onsubmit="return fsubmit(this)">
 <input type="hidden" name="user">
-<select name="action" class="userlist">
+<select name="action" class="userlist-select">
 <option value="query">Query</option>
 <option value="whois">Whois</option>
 <option value="kick">Kick</option>
 </select>
-<input type="submit" class="userlistbtn" value="&gt;&gt;">
+<input type="submit" class="userlist-btn" value="&gt;&gt;">
 </form>
 
 </body>
@@ -371,11 +398,12 @@ print <<EOF;
 $standardheader
 <html><head>
 <style>
-body { word-wrap: break-word; }
+.main-body { word-wrap: break-word; }
 </style>
 </head>
-<body onkeydown="if(parent.fform.location) parent.fform.fns();">
-<span id="text"></span>
+<body class="main-body"
+onkeydown="if(parent.fform.location) parent.fform.fns();">
+<span class="main-span" id="text"></span>
 </body></html>
 EOF
 }
@@ -418,8 +446,8 @@ function t(item,text) {
 }
 
 function load() {
-   //extra.style.display = 'none';
    fns();
+document.getElementById('extra').style.display = 'none';
 
 }
 
@@ -536,28 +564,28 @@ function keypress(srcEl, keyCode, event) {
 //-->
 </script>
 <style><!--
-BODY { border-top: 1px solid #999999;margin: 0; }
-.myform { float: left; }
-.say { border: 0; width: 90%; padding-left: 4px; }
-.nickname { padding-left: 4px; background: #c0c0c0; }
-.econtain { float: right; }
-.extra { display: none; }
-.boldbutton { font-weight: bold; }
-.expand { border: 0; background: #ffffff; }
+.form-body { border-top: 1px solid #999999;margin: 0; }
+.form-form { float: left; }
+.form-say { border: 0; width: 90%; padding-left: 4px; }
+.form-nickname { padding-left: 4px; background: #c0c0c0; }
+.form-econtain { float: right; }
+.form-extra { display: none; }
+.form-boldbutton { font-weight: bold; }
+.form-expand { border: 0; background: #ffffff; }
 // -->
 </style>
 </head>
-<body onload="load()" onfocus="fns()">
-<form name="myform" onSubmit="return cmd();" class="myform">
-<span id="nickname" class="nickname"></span>
-<input type="text" class="say" name="say" autocomplete="off">
+<body onload="load()" onfocus="fns()" class="form-body">
+<form name="myform" onSubmit="return cmd();" class="form-form">
+<span id="nickname" class="form-nickname"></span>
+<input type="text" class="form-say" name="say" autocomplete="off">
 </form>
 
-<span class="econtain">
-<input type="button" class="expand" onclick="t(document.getElementById('extra'),this);" value="&lt;">
-<span id="extra" class="extra">
-<input type="button" class="boldbutton" value="B" onclick="append('\%B')">
-<input type="button" class="boldbutton" value="_" onclick="append('\%U')">
+<span class="form-econtain">
+<input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;">
+<span id="extra" class="form-extra">
+<input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
+<input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF
 for(sort {$a <=> $b} keys %colours) {
    print "<input type=\"button\" style=\"background: $colours{$_}\" value=\" \" onclick=\"append('\%C$_')\">\n";
@@ -584,28 +612,28 @@ print q~
 <html>
 <head>
 <style type="text/css"><!--
-BODY {
+.wlist-body {
    margin: 0px;
    background: #f1f1f1;
    border-bottom: 1px solid #999999;
    cursor: default;
 }
 
-.Wchooser { 
+.wlist-chooser { 
    border: 1px solid #f1f1f1;
    padding: 2px;
    margin: 2px;
    cursor: default;
 }
 
-.Wcontainer {
+.wlist-container {
    width: 100%;
    height: 100%;
    padding: 5px;
    cursor: default;
 }
 
-.Wmouseover {
+.wlist-mouseover {
    background: #c0c0dd;
    border: 1px solid black;
    padding: 2px;
@@ -613,12 +641,20 @@ BODY {
    cursor: default;
 }
 
-.Wactive {
+.wlist-active {
    background: #cccccc;
    border: 1px solid #999999;
    padding: 2px;
    margin: 2px;
    cursor: default;
+}
+
+.wlist-buttons {
+   float: right;
+}
+
+.wlist-container {
+   float: left;
 }
 
 // -->
@@ -669,6 +705,7 @@ function witemdel(name) {
    if(currentwindow == name) currentwindow = lastwindow ? lastwindow : 'Status';
    wlistredraw();
    witemredraw();
+   userlist();
 }
 
 function witemclear(name) {
@@ -867,7 +904,7 @@ function witemredraw() {
 function wlistredraw() {
    var output='';
    for (var i in Witems) {
-      output += '<span class="' + (i == currentwindow ? 'Wactive' : 'Wchooser') + '" style="color: ' + activity[Witems[i].activity] + ';" onclick="witemchg(\'' + (i == currentwindow ? escapejs(lastwindow) : escapejs(i)) + '\')" onmouseover="this.className = \'Wmouseover\'" onmouseout="this.className = \'' + (i == currentwindow ? 'Wactive' : 'Wchooser') + '\'">' + escapehtml(i) + '</span>\r\n';
+      output += '<span class="' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '" style="color: ' + activity[Witems[i].activity] + ';" onclick="witemchg(\'' + (i == currentwindow ? escapejs(lastwindow) : escapejs(i)) + '\')" onmouseover="this.className = \'wlist-mouseover\'" onmouseout="this.className = \'' + (i == currentwindow ? 'wlist-active' : 'wlist-chooser') + '\'">' + escapehtml(i) + '</span>\r\n';
    }
    document.getElementById('windowlist').innerHTML = output;
 }
@@ -962,15 +999,20 @@ print q~
 // -->
 </script>
 </head>
-<body onload="wlistredraw()" onkeydown="formfocus()" onbeforeunload="do_quit()" onunload="do_quit()">
+<body onload="wlistredraw()" onkeydown="formfocus()" onbeforeunload="do_quit()" onunload="do_quit()" class="wlist-body">
 <noscript>Scripting is required for this interface</noscript>
 ~;
 print <<EOF;
 
 <iframe src="$config->{script_nph}?$string" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
 
-<span class="Wcontainer" id="windowlist"></span>
-<form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe">
+<span class="wlist-container" id="windowlist"></span>
+<span class="wlist-buttons">
+<img src="help.gif" onclick="sendcmd('/help');" class="wlist-button">
+<img src="options.gif" onclick="alert('Not yet done');" class="wlist-button">
+<img src="close.gif" onclick="witemdel(currentwindow);" class="wlist-button">
+</span>
+<form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">
 <input type="hidden" name="item" value="say">
