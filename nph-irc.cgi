@@ -30,7 +30,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.26 2002/04/14 22:18:00 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.27 2002/04/15 22:18:00 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -255,8 +255,8 @@ sub format_colourhtml {
    $line =~ s/"/\&quot;/g;
    $line =~ s/( {2,})/'&nbsp;' x (length $1)/eg;
 
-   $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}">$1</a>!gi;
-   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}">$2</a>$3!gi;
+   $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>!gi;
+   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>$3!gi;
 
    return format_remove($line) if $config->{removecolour};
 
@@ -277,6 +277,17 @@ sub format_colourhtml {
    $line=~ s/\037(.*?)(\037|$)/<u>$1<\/u>/g; 
 
    return format_remove($line);
+}
+
+sub format_linkshorten {
+   my $link = shift;
+   if(config_set('linkshorten')) {
+      return substr($link, 0, $config->{linkshorten})
+         . (length $link > $config->{linkshorten} ? '...' : '');
+   }else{
+      return substr($link, 0, 120)
+         . (length $link > 120 ? '...' : '');
+   }
 }
 
 ## Removes all IRC formating characters
@@ -385,7 +396,15 @@ sub load_interface {
    my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
    $name =~ s/[^a-z]//gi;
    require('interfaces/' . $name . '.pm');
-   $interface = $name->new($event,$timer, $config);
+
+   my $icookies = parse_interface_cookie();
+   for(keys %$config) {
+      next unless s/^interface //;
+      next if exists $icookies->{$_};
+      $icookies->{$_} = $config->{"interface $_"};
+   }
+
+   $interface = $name->new($event,$timer, $config, $icookies);
    $interface->header($config, $cgi);
 
    return $interface;
@@ -563,7 +582,7 @@ sub access_configcheck {
 	  @tmp{split /,\s*/, lc $config->{"default_$type"}} = 1;
 	  return 1 if exists $tmp{lc $check};
    }
-   return 0 unless config_set('allow_non_default') &&config_set("access_$type");
+   return 0 unless config_set('allow_non_default') && config_set("access_$type");
 
    return 1 if $check =~ /^$config->{"access_$type"}$/i;
 
@@ -590,6 +609,7 @@ sub encode_ip {
 sub session_timeout {
    return unless defined $intime;
    if((time - $config->{session_timeout}) < $intime) {
+      message('session timeout');
       irc_close();
    }
 }

@@ -14,12 +14,12 @@ use default;
 @ISA = qw/default/;
 
 sub new {
-   my($class,$event,$timer, $config) = @_;
+   my($class,$event,$timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
    $timer->addforever(code => \&todo, data => $self, interval => 10);
    $self->{':_timestamp'} = 0;
-   $self->{':_timestamp'}++ if exists $config->{'interface timestamp'} &&
-        $config->{'interface timestamp'};
+   $self->{':_timestamp'}++ if exists $icookies->{timestamp} &&
+        $icookies->{timestamp};
    return $self;
 }
 

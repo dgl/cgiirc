@@ -1,44 +1,28 @@
 TODO
 ----
 
-IRC Module:
-- use 005 numeric if possible (mode can use PREFIX and CHANMODES)
-:www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
-
-Commands:
-= commands that will call to interface: help
-
-Interfaces:
-- add three buttons to top bar: close (close current window), options and help
 -! options stuff.
+- configurable things : timestamps - fonts and so on...
+- selecting colour in interfaces?
+
 - write help
--? why does mozilla not tab complete with >1 char
-- join sync stuff - userlist updating on join/quit/part/nick/mode/kick and join
-- use css cursor: default to remove | char
--? <FUCEKISX> www.dynamicdrive.com :)
--? <KingSpence> i wish it had colour nicks ;)
-- <FUCEKISX> dg: I'll give you code for making the scrollbars look all flat and nice
-- /names, /say
 -? smilies
 - mirc color scheme
--? config file format?
 - topic bar
 
-- right click context menus
-- pop-out/userlist needs to work in mozilla too
-- dblclick == query in userlist.
-= better handling of stream disconnections (also config option to go to page)
-= close windows
-- selecting colour in interfaces?
-- configurable things : timestamps - fonts and so on...
-
-nph-irc.cgi:
-- config fonts
-- config timestamps
-- config vhost
+bugs:
+-? why does mozilla not tab complete with >1 char
+- join sync stuff - userlist updating on join/quit/part/nick/mode/kick and join
+- pop-out needs to work in mozilla too
 
 Abuse:
 - ctcp kill/ban
 - limiting the number of connections to a server? (^^^ sock/server)
 - admin interface?
 
+Might be done one day:
+- use 005 numeric if possible (mode can use PREFIX and CHANMODES)
+:www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
+- config file format?
+-? right click context menus
+- <KingSpence> i wish it had colour nicks ;)

@@ -38,6 +38,10 @@
    border-left: 1px solid #f3f3f3;
 }
 
+.userlist-form {
+   float: right;
+}
+
 .userlist-hover {
    width: 95%;
    font-size: 10px;
@@ -94,6 +98,11 @@
 }
 
 .main-span {
+}
+
+.main-link {
+   color: black;
+   text-decoration: underline;
 }
 
 .form-body {

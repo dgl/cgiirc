@@ -29,12 +29,11 @@ my %colours = (
 	  '15' => '#C0C0C0');
 
 sub new {
-   my($class,$event, $timer, $config) = @_;
+   my($class,$event, $timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
    my $tmp='';
-   for(keys %$config) {
-      next unless s/^interface //;
-      $tmp .= "$_: " . $config->{"interface $_"} . ', ';
+   for(keys %$icookies) {
+      $tmp .= "$_: " . _escapejs($icookies->{$_}) . ', ';
    }
    $tmp =~ s/, $//;
    _out('parent.options = { ' . $tmp . '};');
@@ -140,13 +139,14 @@ sub line {
    }
    _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0);
 `;
-print "   _out('<!-- padding -->');\n" if $browser eq 'mozilla';
+print "   print \"<!-- padding for mozilla -->\\n\";\n" if $browser eq 'mozilla';
 print q`
 }
 
 sub error {
    my($self,$message) = @_;
    $self->line({ target => 'Status'}, $message);
+   _func_out('disconnected');
 }
 
 sub add {
@@ -220,7 +220,11 @@ sub help {
 
 sub uhelp {
    print <<EOF;
-THIS IS HELP - IT NEEDS DOING.
+`;
+   open(HELP, "../docs/help.html") or die($!);
+   print <HELP>;
+   close(HELP);
+   print q`
 EOF
 }
 
@@ -279,6 +283,8 @@ function statushtml(status) {
       return '<div class="userlist-op">@</div>';
    }else if(status == "+") {
       return '<div class="userlist-voice">+</div>';
+   }else if(status == "%") {
+      return '<div class="userlist-halfop">%</div>';
    }else{
       return '';
    }
@@ -307,7 +313,7 @@ print q`
 
 </div>
 
-<form name="mform" onsubmit="return fsubmit(this)">
+<form name="mform" onsubmit="return fsubmit(this)" class="userlist-form">
 <input type="hidden" name="user">
 <select name="action" class="userlist-select">
 <option value="query">Query</option>
@@ -615,6 +621,7 @@ function channeladdusers(channel, users) {
    for(var i = 0;i < users.length;i++) {
       channeladduser(channel, users[i]);
    }
+   userlist();
 }
 
 function channeladduser(channel, user) {
@@ -629,7 +636,6 @@ function channeladduser(channel, user) {
    if(o == '@') Witems[channel].users[user].op = 1;
    if(o == '%') Witems[channel].users[user].halfop = 1;
    if(o == '+') Witems[channel].users[user].voice = 1;
-   userlist();
 }
 
 function channelsdeluser(channels, user) {
@@ -926,6 +932,8 @@ function do_quit() {
 </head>
 <body onload="wlistredraw()" onkeydown="formfocus()" onbeforeunload="do_quit()" onunload="do_quit()" class="wlist-body">
 <noscript>Scripting is required for this interface</noscript>
+<table class="wlist-table">
+<tr><td width="1">
 `;
 if($browser eq 'ie'){
 print q`
@@ -937,12 +945,12 @@ print q`
 `;
 }
 print q`
-<table class="wlist-table">
-<tr><td id="windowlist" class="wlist-container">
+</td>
+<td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
 <img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;">
 <img src="$config->{image_path}/optionsup.gif" onclick="alert('Not yet done');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;">
-<img src="$config->{image_path}/closeup.gif" onclick="sendcmd('/winclose');" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;">
+<img src="$config->{image_path}/closeup.gif" onclick="if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit()}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;">
 </td></tr></table>
 
 <form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">

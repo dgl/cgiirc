@@ -10,6 +10,10 @@ my %commands = (
   },
   m => 'msg',
   privmsg => 'msg',
+  say => sub {
+     return 2 unless defined $params;
+     main::irc_send_message($target, $params);
+  },
   wi => 'whois',
   whois => sub {
      $params = $irc->{nick} unless $params;
@@ -17,11 +21,12 @@ my %commands = (
   },
   j => 'join',
   'join' => sub {
-     my @channels = (split(/,/, (split(' ', $params, 2))[0]));
+    my @channels = (split(/,/, (split(' ', $params, 2))[0]));
 	 for(@channels) {
+       $_ = "#$_" unless /^\W/;
 	    next if main::access_configcheck('channel', $_);
-		message('access channel denied', $_);
-		return;
+		 message('access channel denied', $_);
+		 return;
 	 }
      $irc->join($params);
   },
@@ -45,6 +50,9 @@ my %commands = (
   quit => sub {
      $irc->quit($params ? $params : (defined $config->{quit_message} ? 
 	     $config->{quit_message} : "CGI:IRC $::VERSION"));
+  },
+  names => sub {
+     $irc->out("NAMES " . ($params ? $params : $target));
   },
   mode => sub {
 	return 2 unless defined $params;
