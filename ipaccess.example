@@ -1,0 +1,24 @@
+# CGI:IRC ipaccess example file
+
+# This file allows and disallows access to CGI:IRC based on ip address
+# It can be used to limit access to CGI:IRC to a certain ip range
+# or to limit the number of connections from a particular IP
+
+# The file is read downwards and the first match for a particular mask is used
+# so if *.*.*.* is the first line then all connections would be allowed.
+
+# Format:
+# ipmask limit
+# ipmask is an IP address or mask (address containing *)
+# limit is optional - it is the number of connections to allow from a
+#       specific IP address that matches this mask, 0 allows no connections,
+#       and so is an easy way to ban an address.
+
+# Examples (remove first # to enable)
+#192.168.1.* 0 # Ban access from 192.168.1.*
+#192.168.2.* 5 # Limit access from 192.168.2.* to 5 connections per IP address
+#*.*.*.* 2 # Allow all connections but limit to 2 connections per IP address
+
+# Remember you must add at least one allow line if you enable ip_access to
+# allow clients to connect.
+
