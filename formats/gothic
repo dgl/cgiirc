@@ -105,7 +105,7 @@ reply whois end = {prefix-user} $0
 error nosuchnick = {prefix-server} %_$0%_ No such nick/channel
 error nickinuse = {prefix-server} Nickname $0 is already in use, type /nick newnick to use another.
 
-irc close = {prefix-error} Disconnected from IRC
+irc close = {prefix-error} Disconnected from IRC (type /reconnect to connect again)
 
 bg = 01
 fg = 00
