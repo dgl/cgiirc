@@ -1,0 +1,15 @@
+Summary of changes
+
+0.5.2
+- New Icons (thanks to Johnny).
+- Handle pastes in a much better way (IE only).
+- Bug fixes for encoded IP, disconnection problems, URL hilighting, nicknames
+  with a | in them, sending @#channel notices and Internet Explorer on Mac.
+  
+0.5.1
+- Style selection
+- KDE Konqueror 3+ support
+- Trusted web proxies
+- ipaccess can now match based on netmask (patch from Piotr KUCHARSKI).
+- Lots of bug fixes
+
