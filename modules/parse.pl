@@ -6,7 +6,7 @@ sub parse_config {
    my %config;
    open(CONFIG, "<$_[0]") or error("Opening config file '$_[0]': $!");
    while(<CONFIG>) {
-	  s/(\015\012|\012)$//; # Be forgiving for poor windows users
+      s/(\015\012|\012)$//; # Be forgiving for poor windows users
       next if /^\s*[#;]/; # Comments
       next if !/=/;
 
@@ -15,6 +15,19 @@ sub parse_config {
    }
    close(CONFIG);
    return \%config;
+}
+
+# From http://www1.tip.nl/~t876506/utf8tbl.html, yes i'm sure there's a better
+# way, but I'd prefer to use a module anyway..
+sub make_utf8 {
+   my $chr = unpack("n", pack("H*", shift));
+   return chr $chr if $chr < 0x7F;
+   return chr(192 + int($chr / 64)) . chr(128 + $chr % 64) if $chr <= 0x7FF;
+   return chr(224 + int($chr / 4096)) . chr(128 + int($chr / 64) % 64) .
+      chr(128 + $chr % 64) if $chr <= 0xFFFF;
+   return chr(240 + int($chr / 262144)) . chr(128 + int($chr / 4096) % 64) .
+      chr(128 + int($chr / 64) % 64) . chr(128 + $chr % 64) if $chr <= 0x1FFFFF;
+   return ""; # Deal with this..
 }
 
 ## Parses a CGI input, returns a hash reference to the value within it.
@@ -28,11 +41,22 @@ sub parse_query {
 	  map {
 	     s/\+/ /g;
 	     my($key, $val) = split(/=/,$_,2);
-        $val = "" unless defined $val;
+	     $val = "" unless defined $val;
 
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
-        $key =~ s/[\r\n\0\001]//g;
-	     $val =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
+	     $key =~ s/[\r\n\0\001]//g;
+
+	     $val =~ s/\%u([A-F0-9]{4})/make_utf8($1)/ge;
+	     $val =~ s{%([A-Fa-f0-9]{2})((?=%[A-Fa-f0-9]{2})?)}{
+	        my $x = hex($1);
+		
+		if($x >= 0x7F &&
+		    (not defined $2 || (defined $2 && hex($2) < 0x7F))) {
+		   make_utf8("00$1");
+		}else{
+		  pack("c",hex($1))
+		}
+             }gex;
         if(defined $allow and $allow) {
            $val =~ s/[\0\001]//g;
         }else{

@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2003 David Leadbeater <cgiirc@dgl.cx>
+# Copyright (C) 2000-2004 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.28 2004/01/29 14:50:27 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.29 2004/02/03 15:58:50 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -36,7 +36,7 @@ if(!parse_cookie()) {
    print "Set-cookie: cgiircauth=". random(25) .";path=/\n";
 }
 print join("\r\n", 
-	  'Content-type: text/html',
+	  'Content-type: text/html; charset=utf-8',
       'Pragma: no-cache',
       'Cache-control: must-revalidate, no-cache',
       'Expires: -1') . "\r\n";

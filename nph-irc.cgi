@@ -1,6 +1,6 @@
 #! /usr/bin/perl -T
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2003 David Leadbeater <cgiirc@dgl.cx>
+# Copyright (C) 2000-2004 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.91 2004/01/29 11:24:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.92 2004/02/03 15:58:50 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -994,8 +994,7 @@ sub header {
    my $charset = shift;
    print "HTTP/1.0 200 OK\r\n" if $0 =~ /nph-/;
    print join("\r\n",
-     'Content-type: text/html' . (defined $charset ? "; charset=$charset" :
-        ''),
+     'Content-type: text/html; charset=utf-8',
      'Pragma: no-cache',
      'Cache-control: must-revalidate, no-cache, no-store',
      'Expires: -1',

@@ -502,11 +502,11 @@ function xmlhttp_new() {
 function xmlhttp_send(xmlhttp, data) {
    var send = "";
    xmlhttp.open("POST", "$config->{script_form}", 1)
-   xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+   xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=utf-8")
    xmlhttp.onreadystatechange = post_results
    data.R = "$cgi->{R}";
    for(var i in data)
-      send += i + "=" + escape(data[i]) + "&"
+      send += i + "=" + (escape(data[i]).replace(/\\+/g, "\%2B")) + "&"
    xmlhttp.send(send)
    return false
 }
