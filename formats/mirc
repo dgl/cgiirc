@@ -66,7 +66,7 @@ action public own = {action-nick $0} {text $2}
 action private own = {action-nick $0} {text $2}
 
 ctcp own msg = {prefix-ctcp} CTCP to $T: $2
-ctcp msg = {prefix-ctcp} $0 requested CTCP %_$2%_ from $T: $3
+ctcp msg = {prefix-ctcp} $1 requested CTCP %_$3%_ from $0: $4
 ctcp reply = {prefix-ctcp} CTCP %_$2%_ reply from $0: $3
 
 text = $0

@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.47 2002/05/05 19:41:22 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.48 2002/05/05 20:25:32 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -800,7 +800,7 @@ sub irc_event {
 }
 
 sub irc_ctcp {
-   my($name, $info, $nick, $host, $command, $params) = @_;
+   my($name, $info, $to, $nick, $host, $command, $params) = @_;
    if($name eq 'ctcp own msg') {
 	  format_out('ctcp own msg', $info, $nick, $host, $command, $params);
    }elsif($name =~ /^ctcp msg /) {
@@ -811,11 +811,11 @@ sub irc_ctcp {
         return unless length $password and length $crypt;
 
         if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
-           format_out('kill ok', $nick, $reason);
+           message('kill ok', $nick, $reason);
            net_send($ircfh, "QUIT :Killed ($nick ($reason))\r\n");
            irc_close();
         }else{
-           format_out('kill wrong', $nick, $reason);
+           message('kill wrong', $nick, $reason);
         }
 	  }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
         format_out('action public', $info, $nick, $host, $params);
@@ -824,7 +824,7 @@ sub irc_ctcp {
         format_out('action private', $info, $nick, $host, $params);
         return;
 	  }else{
-	     format_out('ctcp msg', $info, $nick, $host, $command, $params);
+	     format_out('ctcp msg', $info, $to, $nick, $host, $command, $params);
 	  }
 
 	  if($ctcptime > time-4) {
