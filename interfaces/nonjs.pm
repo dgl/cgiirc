@@ -18,6 +18,10 @@ sub exists {
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
+sub query {
+   return 0;
+}
+
 sub header {
    my($self, $config, $cgi) = @_;
    print <<EOF;

@@ -68,6 +68,10 @@ sub exists {
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
+sub query {
+   return 1;
+}
+
 sub line {
    my($self, $info, $html) = @_;
    my $target = defined $info->{target} ? $info->{target} : 'Status';

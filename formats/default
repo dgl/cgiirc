@@ -32,15 +32,22 @@ notice special = {notice-target $0 $2} {text $3}
 notice private = {notice-nick $0}{notice-host $1} {text $2}
 notice server = %05-$0%05-%n {text $2}
 
-notice-target = %05-$0:$T%05-%n
+notice-target = %05-$0:$1%05-%n
 notice-nick = %03$0%n
 notice-host = [$0]
 
 message public = {message-nick $0} {text $2}
-message private = {message-nick $0} {text $2}
+message public hilight = {message-nick-hilight $0} {text $2}
+message private window = {message-nick $0} {text $2}
+message private = [$0($1)] {text $2}
+message special = <$0:$2> {text $3}
+
+message-nick = <$0>
+message-nick-hilight = <%07$0%n>
 
 message public own = {message-nick $0} {text $2}
 message private own = {message-nick $0} {text $2}
+
 
 action-nick = %_*%_ $0
 action public = {action-nick $0} {text $2}
@@ -53,7 +60,6 @@ ctcp own msg = {prefix-user} CTCP to $T: $2
 ctcp msg = {prefix-user} $0 requested CTCP %_$2%_ from $T: $3
 ctcp reply = {prefix-user} CTCP %_$2%_ reply from $0: $3
 
-message-nick = <$0>
 text = $0
 channel = %_$0%_
 reason = [$0]

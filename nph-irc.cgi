@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.13 2002/03/15 22:05:27 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.14 2002/03/16 00:39:29 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -642,6 +642,10 @@ sub irc_event {
 		defined $params->{text} ? $params->{text} : '');
    }elsif($name =~ /^ctcp/) {
 	  return irc_ctcp($name, $info, @params);
+   }elsif($name eq 'message public' && $params[2] =~ /^\Q$irc->{nick}\E\W/i) {
+	  $name = 'message public hilight';
+   }elsif($name eq 'message private' && $interface->query) {
+	  $name = 'message private window';
    }
 
    if(exists $format->{$name}) {
