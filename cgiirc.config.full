@@ -1,5 +1,5 @@
 # This is the full access CGI:IRC 0.5 config file
-# It will allow access to all servers and channels
+# It will allow access to *all* servers and channels
 # See http://cgiirc.sourceforge.net/docs/config.php for help editing it.
 
 # -----
@@ -40,10 +40,14 @@ script_login = irc.cgi
 
 image_path = images
 
-# The place where tmp. files should be stored
+# The location to append before the location of the socket directory
+# (don't change this unless you understand it - and then think about it again).
+# Remember you will need to either edit client-perl.cgi or
+# client.c and recompile client.cgi if you change this
 socket_prefix = /tmp/cgiirc-
 
 # Virtual Host - Bind to a specific IP address
+# (this must be a valid interface or IP alias on your system).
 #vhost = 0.0.0.0
 # For IPv6
 #vhost6 = 

@@ -57,7 +57,7 @@ sub setoption { 'DUMMY' }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
-   if($ENV{HTTP_USER_AGENT} =~ /kde|konqueror/i) {
+   if($ENV{HTTP_USER_AGENT} =~ /kde|konqueror|Mozilla\/4.\d+ \[/i) {
       $notsupported++;
    }
 print <<EOF;
@@ -106,7 +106,7 @@ print <<EOF;
 <body bgcolor="#ffffff" text="#000000" onload="setjs()">
 EOF
 if($notsupported) {
-   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur.</font>\n";
+   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading to Internet Explorer or Mozilla.</font>\n";
 }
 print <<EOF;
 <form method="post" action="$this" name="loginform" onsubmit="return nickvalid()">
@@ -120,6 +120,7 @@ Login</b></td></tr>
 EOF
 for(@$order) {
    my $item = $$items{$_};
+   next unless defined $item;
    print "<tr><td align=\"right\" bgcolor=\"#f1f1f1\">$_</td><td align=\"left\"
 bgcolor=\"#f1f1f1\">";
    if(ref $item eq 'ARRAY') {

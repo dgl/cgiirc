@@ -15,6 +15,7 @@ bugs:
 features:
 - form_redirect optional.
 - adding code to check for op to add op/voice/deop/devoice/ban/kick to userlist
+- /ban
 - scrolling locks if the window is scrolled upwards
 - pop-out needs to work in mozilla too
   mozilla seems to be being typically braindead about this
@@ -31,14 +32,16 @@ features:
 - right click context menus
 - admin interface?
 - whois in active window
+- nonjs interface needs a few more features...
+- ping via image.
 
 docs:
 - admin password
 
 Sucky bits of code need rewriting:
+- Use more events (slight redesign on Event.pm with global handlers)
 - The whole interface thing
 - Options
 - Formats could be in their own module
-- More use of handlers/events.
 - IPv6 handling, most stuff should work with IPv6, but some is messy :(
 

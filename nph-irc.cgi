@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.56 2002/05/27 19:37:39 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.57 2002/06/15 21:35:15 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -238,11 +238,11 @@ sub load_format {
 ## the format is the format name to use, taken from the %format hash
 ## the params are passed to the format
 sub format_out {
-   my($formatname, $info, @params) = @_;
+   my($formatname, $info, $params) = @_;
    return unless exists $format->{$formatname};
    return unless $format->{$formatname};
 
-   my $line = format_parse($format->{$formatname}, $info, @params);
+   my $line = format_parse($format->{$formatname}, $info, $params);
    $line = format_colourhtml($line);
    interface_lineout($info, $line);
 }
@@ -250,7 +250,7 @@ sub format_out {
 sub message {
    my($formatname, @params) = @_;
    my $info = { target => 'Status', activity => 1 };
-   format_out($formatname, $info, @params);
+   format_out($formatname, $info, \@params);
 }
 
 ## Formats IRC Colours and Styles into HTML and makes URLs clickable
@@ -342,94 +342,71 @@ sub format_remove {
 }
 
 ## Lowlevel code that deals with the format parsing
-## This is probably rather ugly, but it works :)
+## No longer supports nested 
 sub format_parse {
-   my($line, $info, @params) = @_;
+   my($line, $info, $params) = @_;
    return unless defined $line;
-   # l == last char
-   # f == char that ends current look
-   # s == current look
-   # c == contents of current look
-   # o == overall output
-   # r == count of bracket matching
-   my($l,$f,$s,$c,$o,$r) = ('','','','','','');
 
-   for my $b((split //, $line),'') {
-      if(!$s && ($b eq '$' || $b eq '%')) { # Sets variables for a $ or %
-         $s = $b;
-         $f = ' ';
-      }elsif(!$s && $b eq '{') { # Sets a {
-         $s = '{';
-         $f = '}';
-	   # Figures out when a $ or { ends
-      }elsif($b eq $f || !length $b || (($s eq '%' || $s eq '$') && $b =~ /[^a-zA-Z0-9,_-]/)) {
-         if($s eq '$') {
-			$o .= format_varexpand($c, $info, @params);
-            $s = $f = $c = '';
-			if($b eq '$' || $b eq '%') {
-			   $s = $b;
-			   $f = ' ';
-			}else{
-               $o .= $b;
-			}
-	     }elsif($s eq '%') {
-			if($c eq '_') {
-			   $o .= "\002";
-			}elsif($c eq 'n') {
-			   $o .= "\003$format->{fg},$format->{bg}";
-			} else {
-			   $o .= "\003$c";
-			}
-			$s = $f = $c = '';
-			if($b eq '$' || $b eq '%') {
-			   $s = $b;
-			   $f = ' ';
-			}else{
-			   $o .= $b;
-			}
-         }elsif($s eq '{' && $r) { # bracket matching stuff
-            $r--;
-            $c .= $b;
-         }elsif($s eq '{') {
-            # actual end of a {format}, recurses back into this sub
-            $c =~ /([^ ]+) ?(.*)?/;
-			# map stuff is to translate $0 and so on the params
-            $o .= format_parse($format->{$1}, $info, map{ s/^\$([A-Z0-9-]+)/format_varexpand($1, $info, @params)/eg; $_ } split(/ /, $2));
-            $s = $f = $c = '';
-         } else {
-			$s = $f = $c = '';
-			$o .= $b;
-		 }
-      }elsif($b eq '{' && $s eq '{') {
-         $r++;
-         $c .= $b;
-      }elsif($s) { # When $s (item being parsed is set, add to $c)
-         $c .= $b;
-      }else{ # Normal - add direct to output
-         $o .= $b;
+   my($match, $name, $param);
+
+   $line =~ s{
+      ( # format
+         \{
+           ([^\}\s]+)
+           \s?([^\}]+)?
+         \}
+          # variables
+       | (\$[A-Za-z0-9-]+)
+       | (\%(?:\d{1,2}|n|_|%))
+      )
+    }{
+      ($match, $name, $param) = ($1, $2, $3);
+      if($match =~ /^[\$%]/) {
+         format_varexpand($match, $info, $params);
+      }elsif(!exists $format->{$name}) {
+         error("Invalid format ($name) called: $line");
+      }else{ 
+         format_parse($format->{$name}, $info,
+               [map {format_varexpand($_, $info, $params)} split / /,
+                  defined $param ? $param : '']);
       }
-      $l = $b;
-   } # }}} stop bracket matching in vim messing up :)
-
-   return $o;
+   }egx;
+   
+   return $line;
 }
 
 sub format_varexpand {
-   my($c, $info, @params) = @_;
-   return '' unless defined $c;
-   local $^W = 0;
-   my $o = '';
-   if($c =~ /^(\d+)\-$/) {
-      $o = join(' ', @params[$1 .. $#params]);
-   }elsif($c !~ /\D/ && defined $params[$c]) { # Normal Params
-      $o = $params[$c];
-   }elsif($c eq 'VERSION') {
-      $o = $VERSION;
-   }elsif($c eq 'T' && exists $info->{target}) {
-      $o = $info->{target};
-      # ..add more special variables here..
+   $_ = shift;
+   my($info, $params) = @_;
+   return '' unless defined;
+
+   if(s/^\$//) {
+      if(ref $params && /^(\d+)\-$/) {
+         return join(' ', @$params[$1 .. @$params - 1]);
+      }elsif(ref $params && !/\D/ && defined $params->[$_]) { # Normal Params
+         return $params->[$_];
+      }elsif(/^VERSION$/) {
+         return $VERSION;
+      }elsif(/^T$/ && exists $info->{target}) {
+         return $info->{target};
+      }elsif(/^N$/) {
+         return $irc->{nick}
+      }elsif(/^S$/) {
+         return $irc->{server};
+      }
+   }elsif(s/^%//) {
+		if(/^_$/) {
+         return "\002";
+		}elsif(/^n$/) {
+			return "\003$format->{fg},$format->{bg}";
+      }elsif(/^%$/) {
+         return "%";
+		}elsif(/^\d+$/) {
+			return "\003$_";
+		}
+      return "\%$_";
    }
-   return $o;
+   return $_;
 }
 
 #### Interface Functions
@@ -810,16 +787,16 @@ sub irc_event {
    }
 
    if(exists $format->{$name}) {
-	  format_out($name, $info, @params);
+	  format_out($name, $info, \@params);
    }else{
-      format_out('default', $info, @params);
+      format_out('default', $info, \@params);
    }
 }
 
 sub irc_ctcp {
    my($name, $info, $to, $nick, $host, $command, $params) = @_;
    if($name eq 'ctcp own msg') {
-	  format_out('ctcp own msg', $info, $nick, $host, $command, $params);
+	  format_out('ctcp own msg', $info, [$nick, $host, $command, $params]);
    }elsif($name =~ /^ctcp msg /) {
       if(uc($command) eq 'KILL') {
         return unless config_set('admin password');
@@ -835,15 +812,15 @@ sub irc_ctcp {
            message('kill wrong', $nick, $reason);
         }
 	  }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
-        format_out('action public', $info, $nick, $host, $params);
+        format_out('action public', $info, [$nick, $host, $params]);
         return;
 	  }elsif(uc($command) eq 'ACTION') {
-        format_out('action private', $info, $nick, $host, $params);
+        format_out('action private', $info, [$nick, $host, $params]);
         return;
      }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
-        format_out('not supported', $info, $nick, $host, $params, "DCC");
+        format_out('not supported', $info, [$nick, $host, $params, "DCC"]);
 	  }else{
-	     format_out('ctcp msg', $info, $to, $nick, $host, $command, $params);
+	     format_out('ctcp msg', $info, [$to, $nick, $host, $command, $params]);
 	  }
 
 	  if($ctcptime > time-4) {
@@ -874,7 +851,7 @@ sub irc_ctcp {
 	  if(uc($command) eq 'PING') {
 		 $params = time - $params . " seconds";
 	  }
-	  format_out('ctcp reply', $info, $nick, $host, $command, $params);
+	  format_out('ctcp reply', $info, [$nick, $host, $command, $params]);
    }
 }
 

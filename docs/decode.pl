@@ -7,17 +7,19 @@
 # Decode hex ip addresses as found in CGI:IRC whois (realname) output with the 
 # encode ip addresses option turned on
 
+# Now i understand wtf pack and unpack do:
+# perl -le'print join ".", unpack "C*",pack "H*", $ARGV[0]'
+
 use strict;
+use Socket;
 my($input,$output);
 
 print "Type the Hex IP to decode into a normal IP address\n";
 $input=<>;
+chomp;
 
-for(substr($input,0,2),substr($input,2,2),
-	  substr($input,4,2),substr($input,6,2)){
-   $output .= hex("$_").".";
-}
+$output = pack "H*", $input;
 
-$output=~ s/\.$//;
-print "IP: $output\n";
+print "IP: " . join(".", unpack "C*", $output) . "\n";
+print "Host: " . scalar gethostbyaddr($output, AF_INET) . "\n";
 
