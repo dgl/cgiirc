@@ -24,6 +24,7 @@ Commands:
 - commands that will call to interface: help, (un)query
 - don't send blank lines
 - /nick doesn't work?
+- /part
 
 Interfaces:
 - hilight text targeted at nickname
