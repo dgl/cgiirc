@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.96 2004/03/25 01:09:09 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.97 2005/01/05 14:01:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -556,7 +556,9 @@ sub input_command {
    }elsif($command eq 'paste') {
       $params = parse_query($line, 1 + ($line =~ /&xmlhttp/ ? 2 : 0));
       for(split /\n/, $params->{say}) {
-         irc_send_message($params->{target}, $_);
+         s/\r$//;
+         next unless $_;
+         say_command($_, $params->{target});
       }
    }elsif($command eq 'quit') {
       net_send($fh, "Content-type: text/html\r\n\r\nquit\r\n"); # avoid errors
