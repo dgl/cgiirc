@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2003 David Leadbeater <cgiirc@dgl.cx>
+# Copyright (C) 2000-2004 David Leadbeater <cgiirc@dgl.cx>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ use vars qw($VERSION $PREFIX);
 $PREFIX = "/tmp/cgiirc-";
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.7 2003/10/27 17:18:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.8 2004/02/03 14:39:00 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
