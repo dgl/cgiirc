@@ -1049,7 +1049,11 @@ function t(item,text) {
 
 function load() {
    fns();
-   document.getElementById('extra').style.display = 'none';
+EOF
+if(!exists $config->{disable_format_input} || !$config->{disable_format_input}) {
+print "document.getElementById('extra').style.display = 'none';"
+}
+print <<EOF;
    document.onkeypress = enter_key_trap;
 }
 
@@ -1108,12 +1112,20 @@ function keypress(srcEl, event) {
    }
    if(charCode == null) charCode = keyCode; // MSIE
 
+EOF
+if(!exists $config->{disable_format_input} || !$config->{disable_format_input}) {
+print <<EOF;
    if((charCode == 66 || charCode == 98) && event.ctrlKey) {
        // in NN/Mozilla charcodes are case sensitive
        append('\%B');
    }else if((charCode == 67 || charCode == 99) && event.ctrlKey) {
        append('\%C');
-   }else if(keyCode == 9) { // TAB
+   }
+EOF
+}
+print <<EOF;
+   
+   if(keyCode == 9) { // TAB
        var tabIndex = srcEl.value.lastIndexOf(' ');
 	   var tabStr = srcEl.value.substr(tabIndex+1 || tabIndex).toLowerCase();
 

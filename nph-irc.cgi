@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.86 2003/10/29 08:37:22 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.87 2003/10/29 11:33:13 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -558,9 +558,11 @@ sub say_command {
    return unless length $say;
    $say =~ s/(\n|\r|\0|\001)//sg;
    $target =~ s/(\n|\r|\0|\001)//sg;
-   $say =~ s/\%C/\003/g;
-   $say =~ s/\%B/\002/g;
-   $say =~ s/\%U/\037/g;
+   if(!config_set('disable_format_input')) {
+      $say =~ s/\%C/\003/g;
+      $say =~ s/\%B/\002/g;
+      $say =~ s/\%U/\037/g;
+   }
    if($say =~ m!^/!) {
       if($say =~ s!^/ /!/!) {
          irc_send_message($target, $say);

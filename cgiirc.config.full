@@ -145,6 +145,10 @@ format = default
 # around browser bugs. This changes the length text is shortened to
 #linkshorten = 120
 
+# If set this disables the input of %C, %B, etc so that the user
+# cannot enter colours, etc
+#disable_format_input = 1
+
 # ----
 # Interface settings
 # These control the options for the user - the user can change these via the
