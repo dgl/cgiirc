@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.38 2002/05/01 19:30:02 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.39 2002/05/02 17:24:07 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -883,6 +883,7 @@ sub init {
 
    $config = parse_config('cgiirc.config');
    $config->{socket_prefix} ||= '/tmp/cgiirc-';
+   ($config->{socket_prefix}) = $config->{socket_prefix} =~ /(.*)/;
    $config->{encoded_ip} = 2 unless exists $config->{encoded_ip};
    $config->{access_command} = '!quote' unless exists $config->{access_command};
    $config->{format} ||= 'default';
