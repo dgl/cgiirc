@@ -109,6 +109,12 @@ sub query {
    return 1;
 }
 
+sub style {
+   open(STYLE, '<interfaces/style.css') or die("Error opening stylesheet: $!");
+   print <STYLE>;
+   close(STYLE);
+}
+
 sub line {
    my($self, $info, $html) = @_;
    my $target = defined $info->{target} ? $info->{target} : 'Status';
@@ -215,101 +221,11 @@ EOF
 }
 
 sub fuserlist {
+   my($self, $cgi, $config) = @_;
 print <<EOF;
 $standardheader
 <html>
 <head>
-<style><!--
-
-.userlist-body {
-       margin: 0;
-       scrollbar-face-color: #e8e8e8;
-       scrollbar-shadow-color: #777;
-       scrollbar-highlight-color: #777;
-       scrollbar-3dlight-color: #fff;
-       scrollbar-darkshadow-color: #ccc;
-       scrollbar-track-color: #e8e8e8;
-       scrollbar-arrow-color: #777;
-}
-
-.userlist-div {
-   width: 100%;
-}
-
-.userlist-item {
-   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   font-size: 10px;
-   background-color: #f1f1f1;
-   cursor: default;
-   /*border-top: 1px solid #808080;
-   border-left: 1px solid #808080;
-   border-bottom: 1px solid #f3f3f3;
-   border-right: 1px solid #f3f3f3;*/
-}
-
-.userlist-select {
-   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   font-size: 10px;
-   background-color: #f1f1f1;
-}
-
-.userlist-btn {
-   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   font-size: 10px;
-   background-color: #f1f1f1;
-   cursor: default;
-   border-bottom: 1px solid #808080;
-   border-right: 1px solid #808080;
-   border-top: 1px solid #f3f3f3;
-   border-left: 1px solid #f3f3f3;
-}
-
-.userlist-hover {
-   width: 95%;
-   font-size: 10px;
-   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   cursor: default;
-   background-color: #a0c0ff;
-}
-
-.userlist-selected {
-   width: 95%;
-   font-size: 10px;
-   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   background-color: #a0c0ff;
-}
-
-.userlist-table TR {
-   vertical-align: top;
-}
-
-
-.userlist-status {
-   width: 14px;
-   font-size: 10px;
-   font-family: courier,monospace,fixed;
-   text-align: center;
-}
-
-.userlist-item {
-   width: 95%;
-   font-size: 10px;
-}
-
-.userlist-op {
-   color: #008000;
-   background-color: #20ff50;
-   border: 1px solid #30a030;
-}
-
-.userlist-voice {
-   color: #808000;
-   background-color: #ffff20;
-   border: 1px solid #a0a030;
-}
-
-// -->
-</style>
 <script language="JavaScript">
 <!--
 var selected;
@@ -364,8 +280,10 @@ function statushtml(status) {
    }
 }
 
+
 // -->
 </script>
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
 </head>
 
 <body class="userlist-body">
@@ -395,12 +313,11 @@ EOF
 }
 
 sub fmain {
+   my($self, $cgi, $config) = @_;
 print <<EOF;
 $standardheader
 <html><head>
-<style>
-.main-body { word-wrap: break-word; }
-</style>
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
 </head>
 <body class="main-body"
 onkeydown="if(parent.fform.location) parent.fform.fns();">
@@ -415,6 +332,7 @@ sub say {
 }
 
 sub fform {
+   my($self,$config) = @_;
 print <<EOF;
 $standardheader
 <html>
@@ -568,17 +486,7 @@ function keypress(srcEl, keyCode, event) {
 }
 //-->
 </script>
-<style><!--
-.form-body { border-top: 1px solid #999999;margin: 0; }
-.form-form { float: left; }
-.form-say { border: 0; width: 90%; padding-left: 4px; }
-.form-nickname { padding-left: 4px; background: #c0c0c0; }
-.form-econtain { float: right; }
-.form-extra { display: none; }
-.form-boldbutton { font-weight: bold; }
-.form-expand { border: 0; background: #ffffff; }
-// -->
-</style>
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
 </head>
 <body onload="load()" onfocus="fns()" class="form-body">
 <form name="myform" onSubmit="return cmd();" class="form-form">
@@ -603,54 +511,6 @@ print $standardheader;
 print q~
 <html>
 <head>
-<style type="text/css"><!--
-.wlist-body {
-   margin: 0px;
-   background: #f1f1f1;
-   border-bottom: 1px solid #999999;
-   cursor: default;
-}
-
-.wlist-chooser { 
-   border: 1px solid #f1f1f1;
-   padding: 2px;
-   margin: 2px;
-   cursor: default;
-}
-
-.wlist-container {
-   width: 100%;
-   height: 100%;
-   padding: 5px;
-   cursor: default;
-}
-
-.wlist-mouseover {
-   background: #c0c0dd;
-   border: 1px solid black;
-   padding: 2px;
-   margin: 2px;
-   cursor: default;
-}
-
-.wlist-active {
-   background: #cccccc;
-   border: 1px solid #999999;
-   padding: 2px;
-   margin: 2px;
-   cursor: default;
-}
-
-.wlist-buttons {
-   float: right;
-}
-
-.wlist-container {
-   float: left;
-}
-
-// -->
-</style>
 <script language="JavaScript">
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
@@ -974,17 +834,14 @@ function do_quit() {
 ~;
 print qq~
    i.src = "$config->{script_form}?R=$cgi->{R}&cmd=quit";
-~;
-print q~
 }
 
 // -->
 </script>
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
 </head>
 <body onload="wlistredraw()" onkeydown="formfocus()" onbeforeunload="do_quit()" onunload="do_quit()" class="wlist-body">
 <noscript>Scripting is required for this interface</noscript>
-~;
-print <<EOF;
 
 <iframe src="$config->{script_nph}?$string" width="1" height="1"></iframe>
 
@@ -1002,7 +859,7 @@ print <<EOF;
 <input type="hidden" name="target" value="">
 </form>
 </body></html>
-EOF
+~;
 }
 
 1;
