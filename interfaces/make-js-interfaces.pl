@@ -29,10 +29,10 @@ my %colours = (
 	  '15' => '#C0C0C0');
 
 my %options = (
-   timestamp => { type => 'toggle', info => 'Display a timestamp next to each message' },
-   font => { type => 'select', options => [qw/sans-serif serif monospace/], info => 'The font that messages are displayed in' },
-   shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box' },
-   smilies => { type => 'toggle', info => 'Convert smilies into pictures' },
+   timestamp => { type => 'toggle', info => 'Display a timestamp next to each message', img => 'time.gif' },
+   font => { type => 'select', options => [qw/serif sans-serif fantasy monospace/], info => 'The font that messages are displayed in', img => 'font.gif' },
+   shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box', img => 'entry.gif' },
+   smilies => { type => 'toggle', info => 'Convert smilies into pictures', img => 'smile.gif' },
 );
 
 sub new {
@@ -248,11 +248,12 @@ EOF
 sub setoption {
    my($self, $name, $value) = @_;
    _func_out('setoption', $name, $value);
-   $self->options;
+   $self->options({}, {}, $main::config)
 }
 
 sub options {
-   my($self) = @_;
+   my($self, $cgi, $irc, $config) = @_;
+   $config = $irc unless ref $config;
    my $ioptions = $main::ioptions;
 
    my $out = "<html><head><title>CGI:IRC Options</title></head><body class=\"options-body\"><h1 class=\"options-title\">Options</h1>These options affect the appearence of CGI:IRC, they will stay between sessions provided cookies are turned on.<form><table border=0 class=\"options-table\"> ";
@@ -261,7 +262,7 @@ sub options {
       my $o = $options{$option};
       my $value = defined $ioptions->{$option} ? $ioptions->{$option} : '';
       
-      $out .= "<tr><td><b>$option</b>" . (exists $o->{info} ? " ($o->{info})" : '') . "</td><td>";
+      $out .= "<tr><td>" . (exists $o->{img} ? "<label for=\"$option\"><img src=\"$config->{image_path}/$o->{img}\"> " : '') . "<b>$option</b>" . (exists $o->{info} ? " ($o->{info})" : '') . "</td><td>";
       if($o->{type} eq 'toggle') {
          $out .= "<input class=\"options-checkbox\" type=\"checkbox\" name=\"$option\" value=\"1\"" . 
             ($value? ' checked=1' : '')."\" onclick=\"parent.fwindowlist.send_option(this.name, this.checked == true ? this.value : 0);return true;\">";
@@ -274,7 +275,7 @@ sub options {
       }else{
          $out .= "<input class=\"options-input\" type=\"text\" name=\"$option\" value=\""._escapehtml($value)."\" onChange=\"parent.fwindowlist.send_option(this.name, this.value);return true;\">";
       }
-      $out .= "</td></tr>";
+      $out .= "</label></td></tr>";
    }
    
 $out .= "

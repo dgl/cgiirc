@@ -1,12 +1,7 @@
 TODO
 ----
 
--! options stuff.
-- configurable things : timestamps - fonts and so on...
-- selecting colour in interfaces?
-
 - write help
--? smilies
 - mirc color scheme
 - topic bar
 
@@ -16,18 +11,16 @@ bugs:
 - pop-out needs to work in mozilla too
 
 Abuse:
-- ctcp kill/ban
 - limiting the number of connections to a server? (^^^ sock/server)
 - admin interface?
 
 Might be done one day:
 - use 005 numeric if possible (mode can use PREFIX and CHANMODES)
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
-- config file format?
 -? right click context menus
 - <KingSpence> i wish it had colour nicks ;)
 
-main problems:
+faq main problems:
 main frame not loading (make sure testing with irc.cgi?interface=nonjs is
     mentioned).
 setting admin password
