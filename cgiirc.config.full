@@ -159,4 +159,10 @@ format = default
 #interface font = monospace
 # Show users nickname next to text entry area
 #interface shownick = 1
+# Show long scrollback (uses more memory)
+#interface scrollback = 1
+# Enable activity sounds by default
+#interface actsound = 1
+# Enable join sounds by default
+#interface joinsound = 1
 
