@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.16 2002/05/27 19:37:39 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.17 2002/07/02 19:40:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -121,6 +121,8 @@ if(ref $cgi && defined $cgi->{item}) {
       Format => \@formats,
    );
 
+   @items{keys %items} = map(ref $_ ? $_ : escape_html($_), values %items);
+
    $items{Nickname} =~ s/\?/int rand 10/eg;
 
    if(ref $cgi && $cgi->{adv}) {
@@ -149,7 +151,7 @@ sub dolist {
    my($var) = @_;
    my @tmp = split(/,\s*/, $var);
    return [@tmp] if $#tmp > 0;
-   return $tmp[0];
+   return $var;
 }
 
 sub cgi_read { 

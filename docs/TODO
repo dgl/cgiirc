@@ -13,6 +13,7 @@ done but need testing:
 bugs:
 - problems with the smilie regexps
 - horzontal scrolling with really long lines
+- weird 2 in /part etc
 
 features:
 - form_redirect optional.

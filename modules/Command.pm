@@ -207,7 +207,7 @@ my %commands = (
   },
   winclose => sub {
      my $c = $params ? $params : $target;
-     $irc->part($c) if $irc->is_channel($c);
+     $irc->part($c) if $irc->is_channel($c) && $irc->channel($c);
      $interface->del($c);
 	  return 0;
   },

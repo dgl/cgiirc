@@ -11,7 +11,7 @@ sub parse_config {
       next if !/=/;
 
       my($key,$value) = split(/\s*=\s*/, $_, 2);
-      $config{$key} = $value;
+      $config{$key} = defined $value ? $value : '';
    }
    close(CONFIG);
    return \%config;
@@ -28,6 +28,8 @@ sub parse_query {
 	  map {
 	     s/\+/ /g;
 	     my($key, $val) = split(/=/,$_,2);
+        $val = "" unless defined $val;
+
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
         $key =~ s/[\r\n\0]//g;
 	     $val =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
@@ -62,6 +64,15 @@ sub parse_interface_cookie {
       }
    }
    return \%tmp;
+}
+
+sub escape_html {
+   my($html) = @_;
+   $html =~ s/&/&amp;/g;
+   $html =~ s/>/&gt;/g;
+   $html =~ s/</&lt;/g;
+   $html =~ s/"/&quot;/g;
+   return $html;
 }
 
 1;
