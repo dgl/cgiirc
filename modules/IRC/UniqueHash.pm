@@ -1,4 +1,4 @@
-# $Id: UniqueHash.pm,v 1.1 2002/03/05 16:34:19 dgl Exp $
+# $Id: UniqueHash.pm,v 1.2 2002/04/27 19:21:54 dgl Exp $
 #!/usr/bin/perl
 # from pircd, edited by david leadbeater..
 # 
@@ -30,7 +30,6 @@ sub TIEHASH {
 sub FETCH {
   my($self,$key) = @_;
 
-  #print STDERR "FETCH: '$key' => '".$self->{data}->{irclc($key)}->{value}."'\n";
   return $self->{data}->{irclc($key)}->{value};
 }
 
@@ -38,7 +37,6 @@ sub STORE {
   my($self,$key,$value) = @_;
   
   my $name = irclc($key);
-  #print STDERR "STORE: '$key' ($name) => '$value'\n";
   $self->{data}->{$name}->{name} = $key;
   $self->{data}->{$name}->{value} = $value;
 }
@@ -46,21 +44,18 @@ sub STORE {
 sub DELETE {
   my($self,$key) = @_;
 
-  #print "DELETE: $key\n";
   delete($self->{data}->{irclc($key)});
 }
 
 sub CLEAR {
   my $self = shift;
 
-  #print "CLEAR";
   %$self = ( );
 }
 
 sub EXISTS {
   my($self,$key) = @_;
 
-  #print "EXISTS: $key\n";
   return exists $self->{data}->{irclc($key)};
 }
 
@@ -68,7 +63,6 @@ sub FIRSTKEY {
   my $self = shift;
 
   @{$self->{_tmp}} = keys %{$self->{data}};
-  #print STDERR "FIRSTKEY @{$self->{_tmp}}->[0]\n";
   
   return $self->{data}->{shift @{$self->{_tmp}}}->{name};
 }
@@ -77,14 +71,11 @@ sub NEXTKEY {
   my ($self,$lastkey) = @_;
 
   return undef unless @{$self->{_tmp}};
-  #print "NEXTKEY: @{$self->{_tmp}}->[0]\n";
   return $self->{data}->{shift @{$self->{_tmp}}}->{name};
-
-#  return $self->{each %$self}->{name}
 }
 
 sub irclc {
-  return $_[0]
+  return lc $_[0];
 }
 
 1;
