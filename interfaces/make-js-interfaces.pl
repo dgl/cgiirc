@@ -9,6 +9,13 @@ use vars qw/@ISA/;
 
 use default;
 @ISA = qw/default/;
+my %colours = (
+	  '00' => '#FFFFFF', '01' => '#000000', '02' => '#0000FF', 
+	  '03' => '#008000', '04' => '#FF0000', '05' => '#800000', 
+	  '06' => '#800080', '07' => '#FF6600', '08' => '#FFFF00', 
+	  '09' => '#00FF00', '10' => '#008080', '11' => '#00FFFF', 
+	  '12' => '#0000FF', '13' => '#FF00FF', '14' => '#808080', 
+	  '15' => '#C0C0C0');
 
 sub new {
    my($class,$event) = @_;
@@ -17,8 +24,13 @@ sub new {
    $event->add('user del', code => \&userdel);
    $event->add('user change nick', code => \&usernick);
    $event->add('user change', code => \&usermode);
+   _out('parent.connected = 1;');
    $self->add('Status', 0);
    return $self;
+}
+
+sub end {
+   _out('parent.connected = 0;');
 }
 
 sub _out {
@@ -135,17 +147,29 @@ print <<EOF;
 
 <head>
 <title>CGI:IRC</title>
+<script><!--
+function form_focus() {
+   if(document.frames.fform)
+	  document.frames.fform.fns();
+}
+
+function do_quit() {
+   var i = new Image();
+   i.src = "$config->{script_form}?R=$random&cmd=quit";
+}
+//-->
+</script>
 </head>
 
 <frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0" 
-onfocus="if(document.frames.fform)document.frames.fform.fns()" onload="if(document.frames.fform)document.frames.fform.fns()">
+onfocus="form_focus()" onload="form_focus()" onunload="do_quit()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
 <frameset cols="*,100" framespacing="0" border="0" frameborder="0">
 <frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
 <frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="no">
 </frameset>
 <frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no">
-<frame name="hiddenframe" src="about:blank" scrolling="no">
+<frame name="hiddenframe" src="$scriptname?item=blank" scrolling="no">
 <noframes>
 This interface requires a browser that supports frames and javascript.
 </noframes>
@@ -153,6 +177,10 @@ This interface requires a browser that supports frames and javascript.
 </frameset>
 </html>
 EOF
+}
+
+sub blank {
+   return '';
 }
 
 sub fuserlist {
@@ -178,7 +206,7 @@ EOF
 sub fmain {
 print <<EOF;
 <html><head></head>
-<body onkeydown="if(parent.fform.location) parent.fform.fns();">
+<body onkeydown="if(parent.fform.location) parent.fform.fns();" onunload="parent.do_quit()">
 `;
 if($browser eq 'ie') {
    print q`<span id="text"></span>`;
@@ -201,6 +229,10 @@ print <<EOF;
 <head>
 <html><head>
 <script><!--
+// This javascript code is released under the same terms as CGI:IRC itself
+// http://cgiirc.sourceforge.net/
+// Copyright (C) 2000-2002 David Leadbeater <cgiirc\\@dgl.cx>
+
 var history = [ ];
 var hispos;
 var tabtmp = [ ];
@@ -217,9 +249,11 @@ function t(item,text) {
    if(item.style.display == 'none') {
       item.style.display = 'inline';
 	  text.value = '>';
+	  document.myform.say.style.width='60%'
    }else{
       item.style.display = 'none';
 	  text.value = '<';
+	  document.myform.say.style.width='90%'
    }
    fns();
 }
@@ -359,7 +393,7 @@ function keypress(srcEl, keyCode, event) {
 <style><!--
 BODY { border-top: 1px solid #999999;margin: 0; }
 .myform { float: left; }
-.say { border: 0; width: 80%; padding-left: 4px; }
+.say { border: 0; width: 90%; padding-left: 4px; }
 .econtain { float: right; }
 .extra { display: none; }
 .boldbutton { font-weight: bold; }
@@ -372,20 +406,24 @@ BODY { border-top: 1px solid #999999;margin: 0; }
 <form name="myform" onSubmit="return cmd();" class="myform">
 <input type="text" class="say" name="say" autocomplete="off">
 </form>
-<!--
+`;
+if($browser eq 'ie') {
+print q`
 <span class="econtain">
 <span id="extra" class="extra">
 <input type="button" class="boldbutton" value="B" onclick="append('\%B')">
-
-<select name="colour" onchange="append('\%C' + this.options[this.selectedIndex].value)">
-<option></option>
-<option style="color: #ff0000" value="04">red</option>
-</select>
-
+<input type="button" class="boldbutton" value="_" onclick="append('\%U')">
+EOF
+for(sort {$a <=> $b} keys %colours) {
+   print "<input type=\"button\" style=\"background: $colours{$_}\" value=\" \" onclick=\"append('\%C$_')\">\n";
+}
+print <<EOF;
 </span>
-<input type="button" class="expand" onclick="t(extra,this)" value="&lt;">
+<input type="button" class="expand" onclick="t(document.getElementById('extra'),this);" value="&lt;">
 </span>
--->
+`;
+}
+print q`
 </body>
 </html>
 EOF
@@ -443,13 +481,17 @@ BODY {
 </style>
 <script>
 <!--
-// Set this somehow
+// This javascript code is released under the same terms as CGI:IRC itself
+// http://cgiirc.sourceforge.net/
+// Copyright (C) 2000-2002 David Leadbeater <cgiirc\\@dgl.cx>
+
 //               none      joins    talk       directed talk
 var activity = ['#000000','#000099','#990000', '#009999'];
 
 var Witems = {};
 var currentwindow = '';
 var lastwindow = '';
+var connected = 0;
 
 `;
 if($browser eq 'ie') {
@@ -730,6 +772,10 @@ function escapehtml(string) {
 
 function sendcmd(cmd) {
    if(currentwindow == 'Status' && cmd.substr(0,1) != '/') return;
+   if(!connected) {
+	  alert('Not connected to IRC!');
+	  return;
+   }
    document.hsubmit.say.value = cmd;
    document.hsubmit.target.value = currentwindow;
    document.hsubmit.submit();
@@ -769,6 +815,14 @@ function formfocus() {
    if(parent.fform.location) parent.fform.fns();
 }
 
+function disconnected() {
+   if(connected == 1) {
+	  connected = 0;
+	  parent.do_quit();
+	  witemaddtext('-all', '<b>Disconnected</b>', 1);
+   }
+}
+
 // -->
 </script>
 </head>
@@ -779,7 +833,7 @@ print <<EOF;
 `;
 if($browser eq 'ie'){
 print q`
-<iframe src="$config->{script_nph}?$string" width="1" height="1" class="hidden"></iframe>
+<iframe src="$config->{script_nph}?$string" width="1" height="1" class="hidden" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
 <span class="Wcontainer" id="windowlist"></span>
 `;
 }else{

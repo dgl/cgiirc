@@ -34,6 +34,8 @@ sub del { 'DUMMY' }
 
 sub clear { 'DUMMY' }
 
+sub end { 'DUMMY' }
+
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items) = @_;
    my $notsupported = 0;

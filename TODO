@@ -12,23 +12,26 @@ IRC Module:
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
 
 Commands:
-- commands that will call to interface: help, clear
+- commands that will call to interface: help
 
 Interfaces:
 Javascript Interface:
 - make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
+- maybe add nickname there..
+- options for userlist
 - right click context menus
 - pop-out needs to work in mozilla too
 = tab completeion in mozilla?
 - key worded channels / nick in use text entry?
-- better handling of stream disconnections (also config option to go to page)
+= better handling of stream disconnections (also config option to go to page)
 = channel part
 - close windows
-- quit in more than one channel
+-? quit in more than one channel
 
 NonJS Interface:
-= do this :)
++ do this :)
 + auto detection of browser
+
 - selecting colour in interfaces?
 
 irc.cgi:
