@@ -25,7 +25,7 @@ use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.33 2005/01/23 22:25:26 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.34 2005/03/06 00:23:24 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -62,8 +62,9 @@ EOF
 my $scriptname = $config->{script_login} || 'irc.cgi';
 
 my $interface = ref $cgi && defined $cgi->{interface} ? $cgi->{interface} : 'default';
-$interface =~ s/[^a-z0-9]//gi;
-require('interfaces/' . $interface . '.pm');
+$interface =~ /^([a-z0-9]+)/;
+$interface = $1;
+require($interface . '.pm');
 
 if(ref $cgi && defined $cgi->{item}) {
    print "\r\n"; # send final header
