@@ -248,13 +248,53 @@ sub blank {
 sub help {
    my($self,$config) = @_;
    my $help = <<EOF;
+<!-- this is included in ie.pm and mozilla.pm by make-js-interfaces.pl -->
 <h1>CGI:IRC Help</h1>
 
-Interface
+<h3>Interface</h3>
 
-Commands
-Keyboard shortcuts
+The interface of CGI:IRC is very similar to a standard graphical IRC client, it
+ should be easy to use if you are familiar with IRC clients. Along the top is a
+ list of tabs, there will be a tab here for each channel you are in and each
+ query (private message) you have open. To close a window click the X button on
+ the far right of the tab list.<br />
+The userlist is on the right, when in a channel tab it will show a list of all
+ the people in that channel. Double clicking a nickname will open a query with
+ that user or perform whichever other action you select in the select box at the
+ bottom.<br />
+The text entry box should be simple, the little arrow to the right of the text
+ entry area shows a toolbar that allows easy typing of colour, bold and underline. It is also where you enter all the commands.
 
+<h3>Commands</h3>
+Commands begin with / and should be familar to anyone who has used IRC before
+- here is a quick summary of the most useful commands.
+<table>
+<tr><td>/me</td><td>This turns the text after /me into an action, eg: /me looks
+around.</td></tr>
+<tr><td>/join</td><td>Joins the specified channel. eg: /join #cgiirc</td></tr>
+<tr><td>/list</td><td>Lists all the channels on the network (this outputs a lot
+of information).</td></tr>
+<tr><td>/part</td><td>Leaves the current channel (same as clicking the X while
+in the channel).</td></tr>
+<tr><td>/quit</td><td>Quits IRC totally (same as clicking X in Status window).</td></tr>
+<tr><td>/msg</td><td>Sends a private message to a user. eg: /msg someone Hi</td></tr>
+<tr><td>/whois</td><td>Gives some information about a user.</td></tr>
+</table>
+
+<h3>Options</h3>
+The options window lets you change some settings in CGI:IRC. Hopefully it
+ should be fairly self explanatory, change a setting and it should take effect
+ immediately.
+
+<h3>Keyboard shortcuts</h3>
+There are several shortcuts to help make using CGI:IRC nicer, tab completion
+ which will complete a nickname or channel when you press tab, alt+number will
+ go to that number window if you number the windows from the left (Status = 1
+ and so on).
+
+<h3>About CGI:IRC</h3>
+CGI:IRC is written in Perl by David Leadbeater with help from lots of people. See the <a
+ href="http://cgiirc.sourceforge.net/" target="cgiirc-web">website</a> for more information.
 
 EOF
    $help =~ s/[\n\r]//g;

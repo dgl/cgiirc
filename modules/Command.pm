@@ -123,6 +123,37 @@ my %commands = (
   },
   ban => sub {
      return 2 unless defined $params;
+     my $chan = $irc->channel($target);
+     if($params =~ /\@/) {
+        $irc->mode($target, "+b $params");
+     }elsif(ref $chan && ref $chan->nick($params)) {
+        my $host = $chan->nick($params)->{host};
+        if($host =~ /\d$/) {
+           $host =~ s/^\W([^\@]+)\@(.*?)\.\d+$/*!*$1\@$2.*/;
+        }else{
+           $host =~ s/^\W([^\@]+)\@[^\.]+\.(.*)$/*!*$1\@*.$2/;
+        }
+        $irc->mode($target, "+b $host");
+     }else{
+        return 1;
+     }
+  },
+  ignore => sub {
+      if($params) {
+         $irc->ignore($params);
+         message('ignored', $params);
+      }else{
+         for($irc->ignores) {
+            message('ignore list', $_);
+         }
+      }
+      return 0;
+  },
+  unignore => sub {
+     return 2 unless defined $params;
+     $irc->unignore($params);
+     message('unignored', $params);
+     return 0;
   },
   notice => sub {
      my($target, $text) = split(' ', $params, 2);

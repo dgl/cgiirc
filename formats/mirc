@@ -79,6 +79,10 @@ host = ($0)
 
 default = {prefix-normal} $0-
 
+ignore list = {prefix-client} Ignore: $0-
+ignored = {prefix-client} Ignored: $0-
+unignored = {prefix-client} Unignored: $0-
+
 reply away = {prefix-user} $T is away: $0
 reply nowaway = {prefix-user} You are now set as away
 reply unaway = {prefix-user} You are no longer set as away

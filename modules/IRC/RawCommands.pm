@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.15 2002/05/01 18:49:32 dgl Exp $
+# $Id: RawCommands.pm,v 1.16 2002/05/05 19:37:49 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -168,6 +168,7 @@ my %raw = (
    },
    'privmsg' => sub {
       my($event,$self,$params) = @_;
+     return if exists $self->{ignore}->{$params->{nick}};
 	  my $to = $params->{params}->[1];
 
 	  if(substr($params->{text},0,1) eq "\001") {
@@ -192,6 +193,7 @@ my %raw = (
    },
    'notice' => sub {
       my($event,$self,$params) = @_;
+     return if exists $self->{ignore}->{$params->{nick}};
 	  my $to = $params->{params}->[1];
 	  if(substr($params->{text},0,1) eq "\001") {
 	     $self->{event}->handle('ctcp reply', $self, $params->{nick}, $params->{host}, $to, $params->{text});
@@ -274,6 +276,8 @@ my %raw = (
      if(exists $self->{capab}->{chanmodes}) {
         my @modes = split /,/, $self->{capab}->{chanmodes};
         @{$self->{modes}}{qw/masks param param_add toggle/} = @modes;
+     }else{
+        @{$self->{modes}}{qw/masks param param_add toggle/} = '';
      }
 
       $self->{event}->handle('reply protoctl', _info('Status', 1),

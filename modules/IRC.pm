@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.6 2002/04/26 23:02:16 dgl Exp $
+# $Id: IRC.pm,v 1.7 2002/05/05 19:37:49 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -14,6 +14,9 @@ sub new {
 
    $self->{_channels} = { };
    tie %{$self->{_channels}}, 'IRC::UniqueHash';
+
+   $self->{ignore} = { };
+   tie %{$self->{ignore}}, 'IRC::UniqueHash';
    
    $self->{_tmp} = { };
    $self->{fh} ||= 1;
@@ -107,6 +110,21 @@ sub sync_channel {
    $self->out("MODE $channel b");
    $self->channel($channel)->{who_sync} = 1;
    $self->out("WHO $channel");
+}
+
+sub ignore {
+   my($self, $ignore) = @_;
+   $self->{ignore}->{$ignore} = 1;
+}
+
+sub ignores {
+   my($self) = @_;
+   return keys %{$self->{ignore}};
+}
+
+sub unignore {
+   my($self, $ignore) = @_;
+   delete($self->{ignore}->{$ignore});
 }
 
 sub join {
