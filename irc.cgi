@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.20 2002/10/17 21:24:11 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.21 2002/10/17 21:48:33 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -38,7 +38,8 @@ print join("\r\n",
 	  'Content-type: text/html',
       'Pragma: no-cache',
       'Cache-control: must-revalidate, no-cache',
-      'Expires: -1');
+      'Expires: -1',
+      "\r\n");
 
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
