@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.34 2002/04/26 22:59:58 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.35 2002/04/27 18:49:42 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -240,6 +240,7 @@ sub load_format {
 sub format_out {
    my($formatname, $info, @params) = @_;
    return unless exists $format->{$formatname};
+   return unless $format->{$formatname};
 
    my $line = format_parse($format->{$formatname}, $info, @params);
    $line = format_colourhtml($line);
@@ -267,6 +268,7 @@ sub format_colourhtml {
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
       $line =~ s{
+         (?<![^\.a-zA-Z\s])
          $regexpicon
          (?![^<]*>)  # not inside HTML
       }{
@@ -305,20 +307,20 @@ sub format_colourhtml {
 
 sub format_init_smilies {
    %regexpicon = (
-      ';-?\)'         => 'wink',
-      ';D'            => 'grin',
+      '\;-?\)'        => 'wink',
+      '\;D'           => 'grin',
       ':\'\(?'        => 'cry',
       ':-?/(?!\S)'    => 'notsure',
       ':-?[xX]'       => 'confused',
       ':-?\['         => 'embarassed',
       ':-?\*'         => 'love',
-      '&gt;:\(',      => 'angry',
+      '\&gt\;:\(',    => 'angry',
       ':-?[pP]'       => 'tongue',
       ':-?\)'         => 'happy',
-      ':D'            => 'cheesy',
+      '\:D'           => 'cheesy',
       ':-?\('         => 'unhappy',
       ':-?[oO]'       => 'surprised',
-      '(?<!\w)8-?\)'  => 'cool', # not other number
+      '8-?\)'         => 'cool',
       ':-?\|'         => 'flat',
    );
    $regexpicon = '(' . join('|', keys %regexpicon) . ')';

@@ -65,6 +65,7 @@ sub _out {
 sub _func_out {
    my($func,@rest) = @_;
    @rest = map(ref $_ eq 'ARRAY' ? _outputarray($_) : _escapejs($_), @rest);
+   print STDERR 'parent.' . $func . '(' . _jsp(@rest) . ");\n";
    _out('parent.' . $func . '(' . _jsp(@rest) . ');');
 }
 
@@ -681,6 +682,14 @@ function channeladduser(channel, user) {
 }
 
 function channelsdeluser(channels, user) {
+   if(channels == '-all-') {
+      for(var i in Witems) {
+         if(!Witems[i].channel) continue;
+         if(!Witems[i].users[user]) continue;
+         channeldeluser(i, user);
+      }
+      return;
+   }
    for(var i = 0;i < channels.length; i++) {
       channeldeluser(channels[i], user);
    }

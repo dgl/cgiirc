@@ -8,6 +8,7 @@ TODO
 bugs:
 -? why does mozilla not tab complete with >1 char
 - join sync stuff - userlist updating on join/quit/part/nick/mode/kick and join
+- ") ?
 - pop-out needs to work in mozilla too
 - netscape select bug (multiple unix domain sockets == breakage).
 

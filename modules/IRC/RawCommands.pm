@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.11 2002/04/27 12:07:43 dgl Exp $
+# $Id: RawCommands.pm,v 1.12 2002/04/27 18:49:42 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -29,7 +29,7 @@ my %raw = (
 	  for my $channel(@channels) {
 		 $self->{_channels}->{$channel}->delnick($params->{nick});
 	  }
-	  $self->{event}->handle('user del', $params->{nick}, \@channels);
+	  $self->{event}->handle('user del', $params->{nick}, '-all-');
 	  $self->{event}->handle('quit', _info(\@channels, 1), $params->{nick}, $params->{host}, $params->{text});
    },
    'join' => sub {
