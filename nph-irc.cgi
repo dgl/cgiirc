@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.83 2003/02/19 19:01:01 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.84 2003/04/16 12:10:27 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
@@ -602,8 +602,14 @@ sub access_ipcheck {
    my($ipn) = inet_aton($ip);
    my($ipaccess_match) = 0;
 
-   open(IP, "<$config->{ip_access_file}") or return 1;
    my %ips = list_connected_ips();
+   my $total = 0;
+   $total += $ips{$_} for keys %ips;
+   if(config_set("max_users") && $total > $config->{max_users}) {
+      message('access denied', 'Too many connections (global)');
+   }
+
+   open(IP, "<$config->{ip_access_file}") or return 1;
    while(<IP>) {
       chomp;
       next if /^(#|\s*$)/;
