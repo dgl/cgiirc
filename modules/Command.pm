@@ -1,9 +1,11 @@
 package Command;
+use strict;
 my($package, $event, $irc, $command, $target, $params);
 
 my %commands = (
   msg => sub {
      my($target, $text) = split(' ', $params, 2);
+	 return 2 unless(defined $text && defined $target);
      $event->handle('message ' .
 	    ($irc->is_channel($target) ? 'public' : 'private') . ' own',
 		{ target => $target, create => 1 }, $irc->{nick}, $irc->{myhost}, $text);
@@ -20,7 +22,7 @@ my %commands = (
   'join' => sub {
      my @channels = (split(/,/, (split(' ', $params, 2))[0]));
 	 for(@channels) {
-	    main::access_configcheck('channel', $_);
+	    next if main::access_configcheck('channel', $_);
 		message('access channel denied', $_);
 		return;
 	 }
@@ -40,12 +42,14 @@ my %commands = (
 	 }
   },
   nick => sub {
+	 return 1 unless defined $params;
      $irc->nick($params);
   },
   quit => sub {
-     $irc->quit($params ? $params : "CGI:IRC $main::VERSION");
+     $irc->quit($params ? $params : "CGI:IRC $::VERSION");
   },
   mode => sub {
+	return 2 unless defined $params;
     my($atarget, $text) = split(' ', $params, 2);
 	if($atarget =~ /^[+-]/) {
 	   $irc->mode($target, $params);
@@ -54,9 +58,34 @@ my %commands = (
 	}
   },
   umode => sub {
+	 return 2 unless defined $params;
      $irc->mode($irc->{nick}, $params);
   },
   usermode => 'umode',
+  op => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '+' . ('o' x scalar @{[split ' ', $params]}) . $params);
+  },
+  halfop => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) . $params);
+  },
+  voice => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '+' . ('v' x scalar @{[split ' ', $params]}) . $params);
+  },
+  deop => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '-' . ('o' x scalar @{[split ' ', $params]}) . $params);
+  },
+  dehalfop => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '+' . ('h' x scalar @{[split ' ', $params]}) . $params);
+  },
+  devoice => sub {
+     return 2 unless defined $params;
+	 $irc->mode($target, '-' . ('v' x scalar @{[split ' ', $params]}) . $params);
+  },
   t => 'topic',
   topic => sub {
      my($atarget, $text) = split(' ', $params, 2);
@@ -85,6 +114,9 @@ my %commands = (
 	    $irc->kick($target, $atarget, $tnick .(defined $text ? " $text" : ''));
 	 }
   },
+  ban => sub {
+     return 2 unless defined $params;
+  },
   notice => sub {
      my($target, $text) = split(' ', $params, 2);
      $event->handle('notice ' .
@@ -94,30 +126,28 @@ my %commands = (
   },
   ctcp => sub {
      my($target, $text) = split(' ', $params, 2);
-	 $event->handle('ctcp ' .
-	   ($irc->is_channel($target) ? 'public' : 'private') . ' own',
+	 $event->handle('ctcp own msg',
 	   { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
 	 $irc->ctcp($target,$text);
   },
   ping => sub {
      $target = $params if $params;
-	 $event->handle('ctcp ' .
-	  ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
+	 $event->handle('ctcp own msg',
+	  { target => $target }, $irc->{nick}, $irc->{myhost}, 'PING');
 	 $irc->ctcp($target, 'PING ' . time);
   },
   me => sub {
      $event->handle('action ' .
 	  ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
-     $irc->ctcp($target, 'ACTION ' . $text);
+	  { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
+     $irc->ctcp($target, 'ACTION ' . $params);
   },
   action => sub {
      my($target, $text) = split(' ', $params, 2);
 	 $event->handle('action ' .
 	  ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
-	 $irc->ctcp($target, 'ACTION ' . $text);
+	  { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
+	 $irc->ctcp($target, 'ACTION ' . $params);
   },
   quote => sub {
      $irc->out($params);
@@ -126,11 +156,14 @@ my %commands = (
      if($params) {
 	    $irc->out("VERSION $params");
 	 }else{
-	    message('default',"CGI:IRC $main::VERSION by David Leadbeater (dgl\@dgl.cx)");
+	    message('default',"CGI:IRC $main::VERSION - David Leadbeater - http://cgiirc.sf.net/");
 		$irc->out('VERSION');
 	 }
   },
 );
+
+my %lcs;
+@lcs{qw/nickserv memoserv chanserv statserv cs ms ns ss away/} = 1;
 
 sub expand {
    ($package, $command) = @_;
@@ -148,8 +181,16 @@ sub run {
    if(exists $commands{$command}) {
       my $error = $commands{$command}->();
 	  return $error ? $error : 100;
+   }elsif(exists $lcs{$command}) {
+      $irc->out(uc($command) . ' :' . $params);
+      return 100;
+   }elsif($command =~ /^:/) {
+      ($command,$params) = $params =~ /^([^ ]+) ?(.*)$/;
+	  return 1 unless exists $commands{lc $command};
+	  my $error = $commands{lc $command}->();
+	  return $error ? $error : 100;
    }else{
-      $irc->out(uc($command) . ' ' . ($params =~ / / ? ':' : '') . $params);
+      $irc->out(uc($command) . ' ' . $params);
       return 100;
    }
 

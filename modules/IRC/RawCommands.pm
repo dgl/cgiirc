@@ -1,6 +1,7 @@
-# $Id: RawCommands.pm,v 1.4 2002/03/10 14:35:26 dgl Exp $
+# $Id: RawCommands.pm,v 1.5 2002/03/10 22:35:23 dgl Exp $
 package IRC::RawCommands;
 use strict;
+my $ctcptime = 0;
 
 use IRC::Util;
 # Don't be fooled by the fact it's a package.. the self in the subroutines is
@@ -162,7 +163,7 @@ my %raw = (
 	  my $to = $params->{params}->[1];
 
 	  if(substr($params->{text},0,1) eq "\001") {
-	     $self->{event}->handle('ctcp msg', $self->{event}, $params->{nick}, $params->{host}, $to, $params->{text});
+	     $self->{event}->handle('ctcp msg', $self, $params->{nick}, $params->{host}, $to, $params->{text});
 	  }elsif(is_vaild_channel($to)) {
 	     $self->{event}->handle('message public', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
@@ -185,7 +186,7 @@ my %raw = (
       my($event,$self,$params) = @_;
 	  my $to = $params->{params}->[1];
 	  if(substr($params->{text},0,1) eq "\001") {
-	     $self->{event}->handle('ctcp reply', $params->{nick}, $params->{host}, $to, $params->{text});
+	     $self->{event}->handle('ctcp reply', $self, $params->{nick}, $params->{host}, $to, $params->{text});
 	  }elsif(is_vaild_channel($to)) {
 	     $self->{event}->handle('notice public', _info($to, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
@@ -262,21 +263,21 @@ my %raw = (
    302 => sub { # RPL_USERHOST
       my($event,$self,$params) = @_;
 	  my($nick,$oper,$away,$host) = $params->{text} =~ /^([^=*]+)(\*)?\=(.*)$/;
-	  $self->{event}->handle('reply userhost', $params, $nick,$oper,$away,$host);
+	  $self->{event}->handle('reply userhost', _info($nick, 1), $nick,$oper,$away,$host);
    },
    303 => sub { # RPL_ISON
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply ison', $params, $params->{text});
+	  $self->{event}->handle('reply ison', _info('Status', 1), $params->{text});
    },
    305 => sub { # RPL_UNAWAY
       my($event,$self,$params) = @_;
 	  $self->{away} = 0;
-	  $self->{event}->handle('reply unaway', $params);
+	  $self->{event}->handle('reply unaway', _info('Status', 1));
    },
    306 => sub { # RPL_NOWAWAY
       my($event,$self,$params) = @_;
 	  $self->{away} = 1;
-	  $self->{event}->handle('reply nowaway',$params);
+	  $self->{event}->handle('reply nowaway', _info('Status', 1));
    },
    
    # whois replies
@@ -414,7 +415,9 @@ my %raw = (
 	  $voice = 1 if $bits =~ /\%/;
 	  $halfop = 1 if $bits =~ /\+/;
 
-	  if($self->{_channels}->{$channel} && $self->{_channels}->{$channel}->nick($nick)) {
+	  if(defined $self->{_channels}->{$channel} 
+	      && ref $self->{_channels}->{$channel} ne 'HASH'
+	      && $self->{_channels}->{$channel}->nick($nick)) {
 	     $self->{_channels}->{$channel}->{_nicks}->{$nick} = {
 		     name => $nick,
 			 op => $op,
@@ -430,7 +433,7 @@ my %raw = (
 
 	  return if $self->{_channels}->{$channel} && $self->{_channels}->{$channel}->{who_sync};
 
-	  $self->{event}->handle('reply who',$params, $channel,$user,$host,$server,$nick,$bits,$hops,$realname);
+	  $self->{event}->handle('reply who', _info($channel, 1), $channel,$user,$host,$server,$nick,$bits,$hops,$realname);
    },
 
    315 => sub { # RPL_ENDOFWHO
@@ -462,8 +465,6 @@ my %raw = (
 	        );
 	     }
 	     $self->{event}->handle('user add', [split(/ /, $params->{text})], $channel);
-	  }else{
-	     print "ho hum\n\n\n". ref $self->{_channels}->{$channel} . "\n\n";
 	  }
 	  
 	  $self->{event}->handle('reply names', _info($channel, 1), $params->{text});
@@ -472,7 +473,7 @@ my %raw = (
    366 => sub { # RPL_ENDOFNAMES
       my($event,$self,$params) = @_;
 	  return unless $self->{_channels}->{$params->{params}->[2]};
-	  $self->{event}->handle('reply end names', _info($params->{params}->[2], 1), [ $self->{_channels}->{$params->{params}->[2]}->nicks ]);
+	  $self->{event}->handle('reply end names', _info($params->{params}->[2], 1), scalar $self->{_channels}->{$params->{params}->[2]}->nicks);
    },
 
    367 => sub { # RPL_BANLIST
@@ -482,7 +483,7 @@ my %raw = (
 	     $self->{_channels}->{$channel}->addban($params->{params}->[3], setby => $params->{params}->[4], 'time' => $params->{params}->[5]);
 	  }
 	   return if $self->{_channels}->{$channel} && $self->{_channels}->{$channel}->{modeb_sync};
-	  $self->{event}->handle('reply ban',$params,$channel,@{$params->{params}}[3..5]);
+	  $self->{event}->handle('reply ban', _info($channel, 1),$channel,@{$params->{params}}[3..5]);
    },
    368 => sub { # RPL_ENDOFBANLIST
       my($event,$self,$params) = @_;
@@ -491,7 +492,7 @@ my %raw = (
 		   delete($self->{_channels}->{$params->{params}->[2]}->{modeb_sync});
 		   return;
       }
-	  $self->{event}->handle('reply end ban',$params,$params->{params}->[2],$params->{text});
+	  $self->{event}->handle('reply end ban', _info($params->{params}->[2], 1),$params->{params}->[2],$params->{text});
    },
 
    372 => sub { # RPL_MOTD
@@ -510,40 +511,40 @@ my %raw = (
 		 $self->{connect_time} = time;
 		 $self->{event}->handle('server connected',$self, $self->{server},$self->{nick});
 	  }
-	  $self->{event}->handle('reply end motd',$params,$params->{text});
-   },
-   381 => sub { # RPL_YOUREOPER
-      my($event,$self,$params) = @_;
-	  $self->{oper} = 1;
-	  $self->{event}->handle('reply oper',$params);
-   },
-   385 => sub { # RPL_NOTOPERANYMORE
-      my($event,$self,$params) = @_;
-      $self->{oper} = 0;
-	  $self->{event}->handle('reply notoperanymore',$params);
+	  $self->{event}->handle('reply end motd',_info('Status', 1),$params->{text});
    },
    391 => sub { # RPL_TIME
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply time',$params,$params->{text});
+	  $self->{event}->handle('reply time',_info('Status', 1),$params->{text});
    },
+   401 => sub {
+      my($event,$self,$params) = @_;
+	  $self->{event}->handle('error nosuchnick', _info($params->{params}->[2], 1));
+   },
+   433 => sub {
+      my($event,$self,$params) = @_;
+	  $self->{event}->handle('error nickinuse', _info('Status', 1), $params->{params}->[2]);
+   },
+
 );
 
 sub ctcpmsg {
    my($event, $irc, $nick, $host, $to, $text, $type) = @_;
    $type = 'ctcp msg' unless defined $type;
 
-   if($text =~ /^\001([^ ]+)(?: (.*?))?\001?$/) {
+   if($text =~ /^\001([^ \001]+)(?: (.*?))?\001?$/) {
       my($command,$params) = ($1,$2);
 
-	   $irc->handle($type . ' '. lc $command,
-	     _info($to, 1), $nick, $host, $command, $params);
+      $irc->{event}->handle($type . ' ' . lc $command,
+        _info($to, 1), $nick, $host, $command, $params);
+
    }else{
       return undef;
    }
 }
 
 sub ctcpreply {
-   ctcpmsg(@_[0 .. @_ - 1], 'ctcp reply');
+   ctcpmsg(@_, 'ctcp reply');
 }
 
 sub new {

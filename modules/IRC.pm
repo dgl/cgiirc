@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.4 2002/03/10 14:35:26 dgl Exp $
+# $Id: IRC.pm,v 1.5 2002/03/10 22:35:23 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -173,9 +173,9 @@ sub ctcp {
 }
 
 sub ctcpreply {
-   my($self, $channel, $text) = @_;
+   my($self, $channel, $command, $text) = @_;
    $channel = $channel->{name} if ref $channel;
-   $self->out("NOTICE $channel :\001$text\001");
+   $self->out("NOTICE $channel :\001$command $text\001");
 }
 
 1;

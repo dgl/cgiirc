@@ -6,7 +6,7 @@ access server denied = {prefix-client} Access to that server is blocked
 access channel denied = {prefix-client} Access to that channel is blocked
 command denied = {prefix-client} Access to that command is blocked
 
-command unknown = {prefix-client} Unknown command: $0
+command notparams = {prefix-client} Not enough parameters for command
 command error = {prefix-client} Error running command
 
 cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
@@ -32,7 +32,7 @@ notice special = {notice-target $0 $1} {text $2}
 notice private = {notice-nick $0}{notice-host $1} {text $2}
 notice server = %05-$0%05-%n {text $2}
 
-notice-target = %05-$0:$T-%n
+notice-target = %05-$0:$T%05-%n
 notice-nick = %03$0%n
 notice-host = [$0]
 
@@ -41,6 +41,17 @@ message private = {message-nick $0} {text $2}
 
 message public own = {message-nick $0} {text $2}
 message private own = {message-nick $0} {text $2}
+
+action-nick = %_*%_ $0
+action public = {action-nick $0} {text $2}
+action private = {action-nick $0} {text $2}
+
+action public own = {action-nick $0} {text $2}
+action private own = {action-nick $0} {text $2}
+
+ctcp own msg = {prefix-user} CTCP to $T: $2
+ctcp msg = {prefix-user} $0 requested CTCP %_$2%_ from $T: $3
+ctcp reply = {prefix-user} CTCP %_$2%_ reply from $0: $3
 
 message-nick = <$0>
 text = $0
@@ -54,10 +65,26 @@ host = [$0]
 default = {prefix-server} $0-
 
 reply away = {prefix-user} $T is away: $0
+reply nowaway = {prefix-server} You are now set as away
+reply unaway = {prefix-server} You are no longer set as away
+
 reply channel time = {prefix-server} Channel created on $0
 reply notopic = {prefix-server} No topic set
 reply topic = {prefix-server} Topic is: $0
 reply topicwhotime = {prefix-server} Topic set by $0 [$1]
+
+reply whois user = {prefix-user} $T [$0@$1]: $2
+reply whowas user = {prefix-user} $T [$0@$1]: $2
+reply whois channel = {prefix-user} channels: $0
+reply whois regnick = {prefix-user} registered: $0
+reply whois operator = {prefix-user} ircop: $0
+reply whois idle = {prefix-user} idle: $0 signon: $1
+
+reply end whois = $0
+reply end whowas = $0
+
+error nosuchnick = {prefix-server} %_$0%_ No such nick/channel
+error nickinuse = {prefix-server} Nickname $0 is already in use, type /nick newnick to use another.
 
 irc close = {prefix-error} Disconnected from IRC
 

@@ -24,12 +24,12 @@ use strict;
 use lib qw/modules interfaces/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
-	  $unixfh $ircfh $cookie
+	  $unixfh $ircfh $cookie $ctcptime
 	  $timer $event $config $cgi $irc $format $interface
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.7 2002/03/10 14:58:54 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.8 2002/03/10 22:35:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -212,7 +212,6 @@ sub load_format {
 ## Prints a nicely formatted line
 ## the format is the format name to use, taken from the %format hash
 ## the params are passed to the format
-## TODO document formats
 sub format_out {
    my($formatname, $info, @params) = @_;
    return unless exists $format->{$formatname};
@@ -343,18 +342,17 @@ sub format_parse {
 sub format_varexpand {
    my($c, $info, @params) = @_;
    return '' unless defined $c;
-   my $o;
-   if($c !~ /\D/ && defined $params[$c]) { # Normal Params
-      $o = $params[$c];
-   }elsif($c =~ /(\d+)-\z/) {
+   local $^W = 0;
+   my $o = '';
+   if($c =~ /^(\d+)\-$/) {
       $o = join(' ', @params[$1 .. $#params]);
+   }elsif($c !~ /\D/ && defined $params[$c]) { # Normal Params
+      $o = $params[$c];
    }elsif($c eq 'VERSION') {
       $o = $VERSION;
    }elsif($c eq 'T' && exists $info->{target}) {
       $o = $info->{target};
       # ..add more special variables here..
-   }else{
-      $o = '';
    }
    return $o;
 }
@@ -456,7 +454,12 @@ sub say_command {
 
 		 my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '');
 		 return 1 if $error == 100;
-		 message('command error', $error);
+
+		 if($error == 2) {
+		    message('command notparams', $error);
+		 }else{
+		    message('command error', $error);
+		 }
 		 return 0;
 	  }
    }else{
@@ -494,6 +497,15 @@ sub access_configcheck {
 }
 
 sub access_command {
+   my($command) = @_;
+   return 1 unless defined $config->{access_command};
+   for(split / /, $config->{access_command}) {
+	  if(/^!(.*)/) {
+		 return 0 if $command =~ /^$1/i;
+	  }else{
+		 return 1 if $command =~ /^$_/i;
+	  }
+   }
    return 1;
 }
 
@@ -525,7 +537,7 @@ sub irc_connect {
 sub irc_out {
    my($event,$fh,$data) = @_;
    $data = $fh, $fh = $event if !$data;
-   message('default', "-> Server: $data");
+#message('default', "-> Server: $data");
    net_send($fh, $data . "\r\n");
 }
 
@@ -537,23 +549,66 @@ sub irc_send_message {
    $irc->msg($target,$text);
 }
 
-
 sub irc_event {
    my($event, $name, $info, @params) = @_;
    $info->{type} = $name;
 
    if($name =~ /^raw/) {
+#message('default', "Unhandled numeric: $name");
 	  my $params = $params[0];
 	  $info->{activity} = 1;
 	  $info->{target} = defined $params->{params}->[2] ? $params->{params}->[2] : 'Status';
 	  @params = (join(' ', defined $params->{params}->[2] ? @{$params->{params}}[2 .. @{$params->{params}} - 1] : ''),
 		defined $params->{text} ? $params->{text} : '');
+   }elsif($name =~ /^ctcp/) {
+	  return irc_ctcp($name, $info, @params);
    }
 
    if(exists $format->{$name}) {
 	  format_out($name, $info, @params);
    }else{
       format_out('default', $info, @params);
+   }
+}
+
+sub irc_ctcp {
+   my($name, $info, $nick, $host, $command, $params) = @_;
+   if($name eq 'ctcp own msg') {
+	  format_out('ctcp own msg', $info, $nick, $host, $command, $params);
+   }elsif($name =~ /^ctcp msg /) {
+	  if(uc($command) eq 'KILL') {
+		 return;
+	  }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
+	     format_out('action public', $info, $nick, $host, $params);
+		 return;
+	  }elsif(uc($command) eq 'ACTION') {
+		 format_out('action private', $info, $nick, $host, $params);
+		 return;
+	  }else{
+	     format_out('ctcp msg', $info, $nick, $host, $command, $params);
+	  }
+
+	  if($ctcptime > time-4) {
+		 $ctcptime = time;
+		 return;
+	  }
+	  $ctcptime = time;
+	  
+	  if(uc($command) eq 'VERSION') {
+		 $irc->ctcpreply($nick, $command,
+			 "CGI:IRC $VERSION - David Leadbeater - http://cgiirc.sf.net/");
+	  }elsif(uc($command) eq 'PING') {
+		 return if $params =~ /[^0-9 ]/ || length $params > 50;
+		 $irc->ctcpreply($nick, $command, $params);
+	  }elsif(uc($command) eq 'USERINFO') {
+		 $irc->ctcpreply($nick, $command,
+			 "$ENV{REMOTE_ADDR} - $ENV{HTTP_USER_AGENT}");
+	  }
+   }else{
+	  if(uc($command) eq 'PING') {
+		 $params = time - $params . " seconds";
+	  }
+	  format_out('ctcp reply', $info, $nick, $host, $command, $params);
    }
 }
 
@@ -572,6 +627,10 @@ sub irc_close {
 }
 
 sub irc_connected {
+   my($event, $self, $server, $nick) = @_;
+   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file");
+   print S "$server\n";
+   close(S);
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {
@@ -595,6 +654,7 @@ sub error {
 	  $interface->error($message);
    }else{
       print "An error occured: $message\n";
+	  print STDERR "An error occured: $message\n";
    }
    exit;
 }
@@ -686,6 +746,7 @@ sub main_loop {
 			   $theline =~ s/\r$//;
 
 			   if($fh == $ircfh) {
+#message('default', "<- Server: $theline");
 				  $irc->in($theline);
 			   }else{
 				  unix_in($fh,$theline);
