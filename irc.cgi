@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.11 2002/04/15 22:18:00 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.12 2002/04/26 22:58:21 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -85,12 +85,12 @@ if(ref $cgi && defined $cgi->{item}) {
 
    my $server = dolist($config->{default_server});
    my $channel = dolist($config->{default_channel});
-   my $port = $config->{default_port};
+   my $port = dolist($config->{default_port});
 
    if(!defined $config->{allow_non_default} || !$config->{allow_non_default}) {
        $server = "-DISABLED- $server" unless ref $server;
        $channel = "-DISABLED- $channel" unless ref $channel;
-       $port = "-DISABLED- $port";
+       $port = "-DISABLED- $port" unless ref $port;
    }elsif(!defined $config->{access_server} || !$config->{access_server}) {
        $server = "-DISABLED- $server" unless ref $server;
    }
