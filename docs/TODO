@@ -22,8 +22,7 @@ features:
 - /quit window.close
 - title
 - maxlength in input field
-- (tom) onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
-                
+
 docs:
 - admin password
 - remember to update cgiirc-form.txt

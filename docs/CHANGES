@@ -1,12 +1,17 @@
 Summary of changes
 
 0.5.3
-- Lots of bug fixes (+/!channels, ( key in mozilla)
+- Lots of bug fixes (+/!channels, ( key in mozilla and some smaller things)
 - Use of iframes removed (IE sometimes does not load the JS needed properly)
 - ipaccess can now use hostnames (see ipaccess.example)
-- config file updates (documented new options)
-- sound support (IE only?)
+- config file updates (documented new options in cgiirc.config.full)
+- sound support (IE only)
 - Opera 7 support
+- Output options (display items in active window, status or not at all)
+  (eg: whois in active window, hide joins, etc), see cgiirc.config.full
+  for details.
+- Better support for prefixes sent in 005
+- disable_format_input option to disable the "<<" and %B, %C, etc.
 
 0.5.2
 - New Icons (thanks to Johnny).
