@@ -1,13 +1,14 @@
+/* Thanks to Veritas - northstar networks for this style */
+
 .userlist-body {
    margin: 0;
-   scrollbar-face-color: #e8e8e8;
-   scrollbar-shadow-color: #777;
-   scrollbar-highlight-color: #777;
-   scrollbar-3dlight-color: #fff;
-   scrollbar-darkshadow-color: #ccc;
-   scrollbar-track-color: #e8e8e8;
-   scrollbar-arrow-color: #777;
-   background-color: #f8f8f8;
+   scrollbar-base-color: #BBBBBB;
+   scrollbar-darkshadow-color: #222222;
+   scrollbar-face-color: #555555;
+   scrollbar-highlight-color: #222222;
+   scrollbar-shadow-color: #AAAAAA;
+   scrollbar-track-color: #444444;
+   background-color: #303030;
    border-left: 1px solid #999999;
 }
 
@@ -19,23 +20,25 @@
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    font-size: 10px;
    cursor: default;
+   color: #808080;
 }
 
 .userlist-select {
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    font-size: 10px;
-   background-color: #f1f1f1;
+   background-color: #707070;
 }
 
 .userlist-btn {
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    font-size: 10px;
-   background-color: #f1f1f1;
+   background-color: #606060;
+   color: #909090;
    cursor: default;
-   border-bottom: 1px solid #808080;
-   border-right: 1px solid #808080;
-   border-top: 1px solid #f3f3f3;
-   border-left: 1px solid #f3f3f3;
+   border-bottom: 1px solid #505050;
+   border-right: 1px solid #505050;
+   border-top: 1px solid #404040;
+   border-left: 1px solid #404040;
 }
 
 .userlist-form {
@@ -47,14 +50,14 @@
    font-size: 10px;
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
    cursor: default;
-   background-color: #a0c0ff;
+   background-color: #808080;
 }
 
 .userlist-selected {
    width: 95%;
    font-size: 10px;
    font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
-   background-color: #a0c0ff;
+   background-color: #909090;
 }
 
 .userlist-table TR {
@@ -76,26 +79,29 @@
 }
 
 .userlist-op {
-   color: #008000;
-   background-color: #20ff50;
-   border: 1px solid #30a030;
+   color: #0000dd;
+   background-color: #404040;
+   border: 1px solid #0000dd;
 }
 
 .userlist-voice {
-   color: #808000;
-   background-color: #ffff20;
-   border: 1px solid #a0a030;
+   color: #a0a0a0;
+   background-color: #404040;
+   border: 1px solid #a0a0a0;
 }
 
 .main-body { 
    word-wrap: break-word;
-   scrollbar-face-color: #e8e8e8;
-   scrollbar-shadow-color: #777;
-   scrollbar-highlight-color: #777;
-   scrollbar-3dlight-color: #fff;
-   scrollbar-darkshadow-color: #ccc;
-   scrollbar-track-color: #e8e8e8;
-   scrollbar-arrow-color: #777;
+   scrollbar-base-color: #BBBBBB;
+   scrollbar-darkshadow-color: #222222;
+   scrollbar-face-color: #555555;
+   scrollbar-highlight-color: #222222;
+   scrollbar-shadow-color: #AAAAAA;
+   scrollbar-track-color: #444444;
+   background-color: #303030;
+   color: #909090;
+   font-family: arial;
+   font-size: 12px;
 }
 
 .main-span IMG {
@@ -103,13 +109,21 @@
 }
 
 .main-link {
-   color: black;
+   color: #000099;
    text-decoration: underline;
+   background-color: #303030;
+}
+
+.main-motd {
+   font-family: monospace;
 }
 
 .form-body {
-   border-top: 1px solid #999999;
+   border-top: 1px solid #404040;
    margin: 0;
+   background-color: #303030;
+   border: 1px
+   color: #b0b0b0;
 }
 
 .form-form {
@@ -120,11 +134,13 @@
    border: 0;
    width: 90%;
    padding-left: 4px;
+   background-color: #505050;
 }
 
 .form-nickname {
    padding-left: 4px;
-   background: #c0c0c0;
+   background-color: #303030;
+   color: #303030;
 }
 
 .form-econtain {
@@ -141,12 +157,13 @@
 
 .form-expand {
    border: 0;
-   background: #ffffff;
+   background-color: #303030;
+   color: #909090;
 }
 
 .wlist-body {
    margin: 0px;
-   background: #f1f1f1;
+   background: #303030;
    cursor: default;
 }
 
@@ -165,16 +182,16 @@
 }
 
 .wlist-mouseover {
-   background-color: #a0c0ff;
-   border: 1px solid black;
+   background-color: #505050;
+   border: 1px solid #000000;
    padding: 2px;
    margin: 2px;
    cursor: default;
 }
 
 .wlist-active {
-   background: #cccccc;
-   border: 1px solid #999999;
+   background: #404040;
+   border: 1px solid #909090;
    padding: 2px;
    margin: 2px;
    cursor: default;
