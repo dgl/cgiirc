@@ -17,6 +17,7 @@ sub new {
    my($class,$event,$timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
    $timer->addforever(code => \&todo, data => $self, interval => 10);
+   $event->add('user 005', code => sub { $self->{':_prefix'} = "$_[1] " } );
    $self->{':_timestamp'} = 0;
    $self->{':_timestamp'}++ if exists $icookies->{timestamp} &&
         $icookies->{timestamp};
@@ -190,6 +191,9 @@ sub userlist {
 
    my @users = map($channel->get_umode($_) . $_, $channel->nicks);
    my $umap = '@%+ ';
+   if($self->{':_prefix'}) {
+      $umap = $self->{':_prefix'};
+   }
 
    for(sort { # (I think this is clever :-)
         my($am,$bm) = (substr($a, 0, 1), substr($b, 0, 1));

@@ -49,6 +49,7 @@ sub new {
    $event->add('user change nick', code => \&usernick);
    $event->add('user change', code => \&usermode);
    $event->add('user self', code => \&mynick);
+   $event->add('user 005', code => sub { _func_out('prefix',$_[1])});
    _out('parent.connected = 1;');
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
@@ -633,6 +634,7 @@ var currentwindow = '';
 var lastwindow = '';
 var connected = 0;
 var mynickname = '';
+var prefixchars = '@%+ ';
 
 `;
 if($browser eq 'ie') {
@@ -699,7 +701,7 @@ function channeladdusers(channel, users) {
 
 function channeladduser(channel, user) {
    var o = user.substr(0,1);
-   if(o == '@' || o == '+' || o == '%')
+   if(prefixchars.lastIndexOf(o) != -1)
       user = user.substr(1);
 
    if(!Witems[channel] && !(channel = findwin(channel))) return;
@@ -709,6 +711,8 @@ function channeladduser(channel, user) {
    if(o == '@') Witems[channel].users[user].op = 1;
    if(o == '%') Witems[channel].users[user].halfop = 1;
    if(o == '+') Witems[channel].users[user].voice = 1;
+   else if(prefixchars.lastIndexOf(o) != -1)
+      Witems[channel].users[user].other = o;
 }
 
 function channelsdeluser(channels, user) {
@@ -757,7 +761,8 @@ function channellist(channel) {
 
    for (var i in Witems[channel].users) {
       var user = Witems[channel].users[i];
-      if(user.op) i = '@' + i
+      if(user.other) i = user.other + i;
+     else if(user.op) i = '@' + i
 	  else if(user.halfop) i = '%' + i;
 	  else if(user.voice) i = '+' + i;
      else   i = ' ' + i;
@@ -827,6 +832,10 @@ function mynick(mynick) {
    mynickname = mynick;
    if(options.shownick != 1) return;
    if(parent.fform && parent.fform.nickchange) parent.fform.nickchange(mynick);
+}
+
+function prefix(chars) {
+   prefixchars = chars;
 }
 
 function witemchgnum(num) {

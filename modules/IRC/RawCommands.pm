@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.10 2002/04/26 23:00:37 dgl Exp $
+# $Id: RawCommands.pm,v 1.11 2002/04/27 12:07:43 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -56,6 +56,10 @@ my %raw = (
    'part' => sub {
       my($event,$self,$params) = @_;
 	  my $channel = $params->{params}->[1];
+     if(!$channel && $params->{text}) { # b0rked servers here we come
+        $channel = $params->{text};
+        $params->{text} = '';
+     }
 	  $self->{_channels}->{$channel}->delnick($params->{nick}) if exists $self->{_channels}->{$channel}->{_users}->{$params->{nick}};
 
 	  if($params->{nick} eq $self->{nick}) { # It's me!
@@ -257,6 +261,13 @@ my %raw = (
      if(exists $self->{capab}->{prefix} && $self->{capab}->{prefix} =~ /^\(([^\)]+)\)(.*)$/) {
         $self->{prefixmodes} = $1;
         $self->{prefixchars} = $2;
+     }elsif(exists $self->{capab}->{ircx}) {
+        $self->{prefixmodes} = "qov";
+        $self->{prefixchars} = ".@+";
+     }
+
+     if(exists $self->{prefixchars} && $self->{prefixchars}) {
+        $self->{event}->handle('user 005', $self->{prefixchars});
      }
 
      if(exists $self->{capab}->{chanmodes}) {

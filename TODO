@@ -18,7 +18,5 @@ Abuse:
 --- Release 0.5 here.
 
 Might be done one day:
-- use 005 numeric if possible (mode can use PREFIX and CHANMODES)
-:www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
 - right click context menus
 
