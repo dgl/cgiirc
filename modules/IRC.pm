@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.5 2002/03/10 22:35:23 dgl Exp $
+# $Id: IRC.pm,v 1.6 2002/04/26 23:02:16 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -92,6 +92,10 @@ sub channels {
 
 sub is_channel {
    my($self,$channel) = @_;
+   if(exists $self->{capab}->{chantypes}) {
+      return 1 if $channel =~ /^[$self->{capab}->{chantypes}]/;
+      return 0;
+   }
    return is_vaild_channel($channel);
 }
 
