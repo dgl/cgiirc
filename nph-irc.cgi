@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.30 2002/04/24 21:34:23 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.31 2002/04/24 22:42:43 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -111,6 +111,8 @@ sub net_tcpconnect {
 	  $saddr = sockaddr_in($port, $inet_addr);
      if(config_set('vhost')) {
         bind($fh, pack_sockaddr_in(0, inet_aton($config->{vhost})));
+     }else{
+        bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
      }
    }elsif($family == AF_INET6) {
 	  $saddr = sockaddr_in6($port, $inet_addr);
@@ -122,14 +124,16 @@ sub net_tcpconnect {
 	  return 0;
    }
 
+   my($localport,$localip) = sockaddr_in getsockname $fh;
+   irc_write_server(inet_ntoa($localip), $localport, inet_ntoa($inet_addr), $port);
+
    connect($fh, $saddr) or return (0,$!);
 
    select($fh);
    $|++;
    select(STDOUT);
 
-   my($localport,$localip) = sockaddr_in getsockname $fh;
-   return($fh, [$localport, inet_ntoa $localip]);
+   return($fh);
 }
 
 ## Opens a UNIX Domain Listening socket
@@ -682,13 +686,16 @@ sub irc_connect {
    
    error("Connecting to IRC: $error") unless ref $fh;
    
-   open(S, ">$config->{socket_prefix}$cgi->{R}/server") 
-      or error("Opening server file: $!");
-   print S net_ntoa($ip) . ":$port\n$error->[1]:$error->[0]\n";
-   close(S);
-   
    select_add($fh);
    return $fh;
+}
+
+sub irc_write_server {
+   my($lip, $lport, $rip, $rport) = @_;
+   open(S, ">$config->{socket_prefix}$cgi->{R}/server") 
+      or error("Opening server file: $!");
+   print S "$rip:$rport\n$lip:$lport\n";
+   close(S);
 }
 
 ## Sends data to the irc connection
