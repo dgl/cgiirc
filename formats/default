@@ -28,10 +28,11 @@ prefix-client = %02***%n
 prefix-server = %05***%n
 
 notice public = {notice-target $0 $1} {text $2}
+notice special = {notice-target $0 $1} {text $2}
 notice private = {notice-nick $0}{notice-host $1} {text $2}
 notice server = %05-$0%05-%n {text $2}
 
-notice-target = %02-%03$0%02:%04$T%02-%n
+notice-target = %05-$0:$T-%n
 notice-nick = %03$0%n
 notice-host = [$0]
 

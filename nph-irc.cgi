@@ -26,7 +26,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.4 2002/03/06 20:39:59 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.5 2002/03/08 18:06:20 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 
 use Socket;
@@ -366,7 +366,7 @@ sub load_interface {
 
 sub interface_show {
    my($show, $input) = @_;
-   return unless $interface->exists($show);
+   return '' unless $interface->exists($show);
 
    return $interface->$show($input, $irc, $config);
 }
@@ -531,7 +531,7 @@ sub irc_event {
 	  my $params = $params[0];
 	  $info->{activity} = 1;
 	  $info->{target} = defined $params->{params}->[2] ? $params->{params}->[2] : 'Status';
-	  @params = (join(' ', defined $params->{params}->[2] ? @{$params->{params}}[2 .. @{$params->{params}}] : ''),
+	  @params = (join(' ', defined $params->{params}->[2] ? @{$params->{params}}[2 .. @{$params->{params}} - 1] : ''),
 		defined $params->{text} ? $params->{text} : '');
    }
 

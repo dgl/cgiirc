@@ -1,11 +1,10 @@
-# $Id: IRC.pm,v 1.2 2002/03/06 20:39:59 dgl Exp $
+# $Id: IRC.pm,v 1.3 2002/03/08 18:06:20 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
 use IRC::Util;
 use IRC::Channel;
 use IRC::RawCommands;
-use IRC::CTCP;
 
 sub new {
    my $class = shift;
@@ -21,7 +20,6 @@ sub new {
    $self->{mode} ||= '+';
 
    $self->{_rawcmd} = IRC::RawCommands->new($self,$self->{event});
-   $self->{_ctcp} = IRC::CTCP->new($self->{event});
 
    if($self->{nick}) {
       $self->connect(@_);

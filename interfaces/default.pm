@@ -52,6 +52,8 @@ bgcolor=\"#f1#f1#f1\">";
       print "<select name=\"$_\" style=\"width: 100%\">";
       print "<option>$_</option>" for @$item;
       print "</select>";
+   }elsif($item eq '-PASSWORD-') {
+      print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{
       print "<input type=\"text\" name=\"$_\" value=\"$item\">";
    }

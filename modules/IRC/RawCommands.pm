@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.2 2002/03/06 20:39:59 dgl Exp $
+# $Id: RawCommands.pm,v 1.3 2002/03/08 18:06:20 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -73,7 +73,7 @@ my %raw = (
 	  if(is_vaild_nickname($to)) {
 	     return unless $to eq $self->{nick};
 		 for(split //, $mode) {
-		    if($_ =~ /[+-]/) {
+		    if(/([+-])/) {
 			  $action = $1;
 			}elsif($action eq '+') {
 			   $self->{mode} = add_mode($self->{mode},$_);
@@ -83,13 +83,13 @@ my %raw = (
 		 }
 		 $self->{event}->handle('user mode', _info($to, 1),
 		     $params->{nick}, $params->{host},
-		   (join(' ',@{$params->{params}}[2.. @{$params->{params}}])));
+		   (join(' ',@{$params->{params}}[2.. @{$params->{params}} - 1])));
 	  }elsif(is_vaild_channel($to)) {
 	     return unless $self->{_channels}->{$to};
 		 my $channel = $self->{_channels}->{$to};
 		 my %tmpevents;
 		 for(split //, $mode) {
-		    if(/(\-|\+)/) {
+		    if(/([+-])/) {
 			   $action = $1;
 			}elsif($action eq '-' && /[ilkmnpst]/) {
 			   $channel->{mode} = del_mode($channel->{mode}, $_);
@@ -160,7 +160,7 @@ my %raw = (
 	  my $to = $params->{params}->[1];
 
 	  if(substr($params->{text},0,1) eq "\001") {
-	     $self->{event}->handle('ctcp msg', $params->{nick}, $params->{host}, $to, $params->{text});
+	     $self->{event}->handle('ctcp msg', $self->{event}, $params->{nick}, $params->{host}, $to, $params->{text});
 	  }elsif(is_vaild_channel($to)) {
 	     $self->{event}->handle('message public', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
@@ -248,7 +248,7 @@ my %raw = (
 	  }
 
       $self->{event}->handle('reply protoctl', _info('Status', 1),
-	    join(' ',@{$params->{params}}[2.. @{$params->{params}}], defined $params->{text} ? $params->{text} : ''));
+	    join(' ',@{$params->{params}}[2.. @{$params->{params}} - 1], defined $params->{text} ? $params->{text} : ''));
    },
    
 # Command Replies (200 -> 399)
@@ -526,12 +526,34 @@ my %raw = (
    },
 );
 
+sub ctcpmsg {
+   my($event, $irc, $nick, $host, $to, $text, $type) = @_;
+   $type = 'ctcp msg' unless defined $type;
+
+   if($text =~ /^\001([^ ]+)(?: (.*?))?\001?$/) {
+      my($command,$params) = ($1,$2);
+
+	   $irc->handle($type . ' '. lc $command,
+	     _info($to, 1), $nick, $host, $command, $params);
+   }else{
+      return undef;
+   }
+}
+
+sub ctcpreply {
+   ctcpmsg(@_[0 .. @_ - 1], 'ctcp reply');
+}
+
 sub new {
    my($class,$self,$event) = @_;
    for(keys %raw) {
       next if $event->exists('raw '. $_);
       $event->add('raw '. $_, code => $raw{$_});
    }
+   for(['ctcp msg',\&ctcpmsg] , ['ctcp reply', \&ctcpreply]) {
+	  next if $event->exists($_->[0]);
+	  $event->add($_->[0], code => $_->[1]);
+   }				   
    return bless {}, shift;
 }
 

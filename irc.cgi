@@ -21,7 +21,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ $Id: irc.cgi,v 1.3 2002/03/05 20:31:06 dgl Exp $'
+ '$Name:  $ $Id: irc.cgi,v 1.4 2002/03/08 18:06:20 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 
 require 'parse.pl';
@@ -76,7 +76,7 @@ if(ref $cgi && defined $cgi->{item}) {
       Channel => dolist($config->{default_channel}),
       Server => dolist($config->{default_server}),
       Port => $config->{default_port},
-      Password => '',
+      Password => '-PASSWORD-',
       Realname => $config->{default_name},
    );
 

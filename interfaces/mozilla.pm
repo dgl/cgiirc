@@ -155,6 +155,11 @@ print <<EOF;
 EOF
 }
 
+sub say {
+   my($self) = @_;
+   return 'ok';
+}
+
 sub fform {
 print <<EOF;
 <html>
