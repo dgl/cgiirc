@@ -1,5 +1,8 @@
 Summary of changes
 
+0.5.6
+- UTF-8 fixes and /charset command
+
 0.5.5
 - Various bugfixes including: Firefox CSS, paste
 - Proper UTF-8 support (uses Encode)
