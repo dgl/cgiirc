@@ -218,9 +218,13 @@ my %commands = (
   'unquery' => 'winclose',
   'query' => sub {
      return 2 unless $params;
-	  $interface->add($params);
-	  $interface->active($params);
-	  return 0;
+     my($target, $text) = split(' ', $params, 2);
+     $interface->add($target);
+     $interface->active($target);
+     if(defined $text and $text) {
+	 main::irc_send_message($target, $text);
+     }
+     return 0;
   },
   clear => sub {
      $interface->clear($params ? $params : $target);
