@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#! /usr/bin/perl -wT
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
@@ -22,7 +22,7 @@
 
 require 5.004;
 use strict;
-use lib qw/modules interfaces/;
+use lib qw{./modules ./interfaces};
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
 	  $unixfh $ircfh $cookie $ctcptime $intime
@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.36 2002/04/27 20:07:31 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.37 2002/05/01 18:48:13 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -441,8 +441,8 @@ sub format_varexpand {
 ## Loads the default interface.
 sub load_interface {
    my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
-   $name =~ s/[^a-z]//gi;
-   require('interfaces/' . $name . '.pm');
+   ($name) = $name =~ /([a-z]+)/i;
+   require("./interfaces/$name.pm");
 
    $ioptions = parse_interface_cookie();
    for(keys %$config) {
@@ -479,6 +479,7 @@ sub interface_lineout {
 sub load_socket {   
    error('Communication socket name is invalid')
       if !$cgi->{R} or $cgi->{R} =~ /[^A-Za-z0-9]/;
+   ($cgi->{R}) = $cgi->{R} =~ /([A-Za-z0-9]+)/;
    error('Communication socket already exists')
       if -e $config->{socket_prefix}.$cgi->{R};
 
@@ -860,7 +861,7 @@ sub error {
      }
    }else{
       print "An error occured: $message\n";
-	  print STDERR "An error occured: $message\n";
+      print STDERR "[" . scalar localtime() . "] CGI:IRC Error (" . join(" ", caller) . "): $message\n";
    }
    irc_close();
 }
@@ -897,6 +898,8 @@ sub init {
    $cgi->{nick} ||= $config->{default_nick};
    $cgi->{name} ||= $config->{default_name};
 
+   ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
+
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
@@ -910,6 +913,7 @@ sub init {
 	  message('access server denied', $cgi->{serv});
 	  $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
+   ($cgi->{serv}) = $cgi->{serv} =~ /(.*)/; # untaint hack.
 
    if(config_set('encoded_ip')) {
 	  $cgi->{name} = '[' .
