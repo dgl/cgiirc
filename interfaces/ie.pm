@@ -6,7 +6,7 @@ use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -80,6 +80,7 @@ sub new {
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
+   _func_out('enable_sounds') if ((exists $icookies->{actsound} || exists $icookies->{joinsound}) && ($icookies->{actsound} || $icookies->{joinsound}));
    return $self;
 }
 
@@ -174,259 +175,6 @@ sub style {
    close(STYLE);
 }
 
-sub positionjs {
-print <<EOF;
-// position.js: make edge-positioning work on IE
-// version 0.3, 18-Apr-2002; requires event.js
-// written by Andrew Clover <and\@doxdesk.com>, use freely
-
-var position_h= new Array();
-var position_v= new Array();
-var position_viewport;
-var position_width= 0;
-var position_height= 0;
-var position_fontsize= 0;
-var position_ARBITRARY= 200;
-
-/* Binding. Called on each new element; if the it's <body>, initialise script.
-   Check all new elements to see if they need our help, make lists of them */
-
-function position_bind(el) {
-  if (!position_viewport) {
-    if (!document.body) return;
-    // initialisation
-    position_viewport= (document.compatMode=='CSS1Compat') ?
-      document.documentElement : document.body;
-    event_addListener(window, 'resize', position_delayout);
-    var em= document.createElement('div');
-    em.setAttribute('id', 'position_em');
-    em.style.position= 'absolute'; em.style.visibility= 'hidden';
-    em.style.fontSize= 'xx-large'; em.style.height= '10em';
-    em.style.setExpression('width', 'position_checkFont()');
-    document.body.appendChild(em);
-  }
-
-  // check for absolute edge-positioned elements (ignore ones from fixed.js!)
-  var st= el.style; var cs= el.currentStyle;
-  if (cs.position=='absolute' && !st.fixedPWidth) {
-    if (cs.left!='auto' && cs.right!='auto') {
-      position_h[position_h.length]= el;
-      st.position_width= position_ARBITRARY;
-      st.width= st.position_width+'px';
-      position_delayout();
-    }
-    if (cs.top!='auto' && cs.bottom!='auto') {
-      position_v[position_v.length]= el;
-      st.position_height= position_ARBITRARY;
-      st.height= st.position_height+'px';
-      position_delayout();
-  } }
-}
-
-function position_checkFont() { position_delayout(); return '1em'; }
-
-/* Layout. For each edge-positioned axis, measure difference between min-edge
-   and max-edge positioning, set size to the difference */
-
-// Request re-layout at next available moment
-var position_delaying= false;
-function position_delayout() {
-  if (position_delaying) return;
-  position_delaying= true;
-  window.setTimeout(position_layout, 0);
-}
-
-function position_layout() {
-  position_delaying= false;
-  var i, el, st, pos, tmp;
-  var fs= document.all['position_em'].offsetWidth;
-  var newfs= (position_fontsize!=fs && position_fontsize!=0);
-  position_fontsize= fs;
-
-  // horizontal axis
-  if (position_viewport.clientWidth!=position_width || newfs) {
-    position_width= position_viewport.clientWidth;
-    for (i= position_h.length; i-->0;) {
-      el= position_h[i]; st= el.style; cs= el.currentStyle;
-      pos= el.offsetLeft; tmp= cs.left; st.left= 'auto';
-      st.position_width+= el.offsetLeft-pos; st.left= tmp;
-      if (st.position_width<1) st.position_width= 1;
-      st.width= st.position_width+'px';
-  } }
-  // vertical axis
-  if (position_viewport.clientHeight!=position_height || newfs) {
-    position_height= position_viewport.clientHeight;
-    for (i= position_v.length; i-->0;) {
-      el= position_v[i]; st= el.style; cs= el.currentStyle;
-      pos= el.offsetTop; tmp= cs.top; st.top= 'auto';
-      st.position_height+= el.offsetTop-pos; st.top= tmp;
-      if (st.position_height<1) st.position_height= 1;
-      st.height= st.position_height+'px';
-  } }
-}
-
-/* Start. If IE, get event to call us back on every new element */
-
-if (window.clientInformation) {
-  event_addBinding('*', position_bind);
-}
-
-EOF
-}
-
-sub eventjs {
-print <<EOF;
-// event.js: cross-browser Listener-style event handling
-// version 0.8, 18-Apr-2001
-// written by Andrew Clover <and\@doxdesk.com>, use freely
-
-event_list= new Array();
-
-event_level= 0;
-if (document.implementation)
-  if (document.implementation.hasFeature('Events', '2.0'))
-    event_level= 2;
-
-function event_addListener(esource, etype, elistener) {
-  var i;
-  var alreadyTriggering= false;
-  for (i= 0; i<event_list.length; i++) {
-    if (event_list[i][0]==esource && event_list[i][1]==etype) {
-      if (event_list[i][2]==elistener) return;
-      alreadyTriggering= true;
-  } }
-  event_list[event_list.length]= new Array(esource, etype, elistener);
-  if (!alreadyTriggering) {
-    if (event_level==2) {
-      esource.addEventListener(etype, event_trigger_DOM2, true);
-    } else {
-      eval(event_trigger_DOM0(etype));
-      esource['on'+etype]= event_trigger;
-      if (esource.captureEvents)
-        esource.captureEvents('Event.'+etype.toUpperCase());
-  } }
-}
-
-function event_removeListener(esource, etype, elistener) {
-  var i; var e;
-  var j= 0;
-  var removedListener= false;
-  var keepTrigger= false;
-  for (i= 0; i<event_list.length; i++) {
-    if (event_list[i][0]==esource && event_list[i][1]==etype) {
-      if (event_list[i][2]==elistener) {
-        removedListener= true;
-        continue;
-      }
-      else keepTrigger= true;
-    }
-    if (i!=j) event_list[j]= event_list[i];
-    j++;
-  }
-  event_list.length= j;
-  if (removedListener && !keepTrigger) {
-    if (event_level==2)
-      esource.removeEventListener(etype, elistener, true);
-    else
-      esource['on'+etype]= window.clientInformation ? null : window.undefined;
-  }
-}
-
-function event_trigger_DOM2(e) {
-  if (event_dispatch(this, e.type)==false)
-    e.preventDefault();
-}
-
-function event_trigger_DOM0(t) {
-  return 'function event_trigger() {return event_dispatch(this, \\''+t+'\\');}';
-}
-
-function event_dispatch(esource, etype) {
-  var i; var r;
-  var elisteners= new Array();
-  var result= window.undefined;
-  for (i= 0; i<event_list.length; i++)
-    if (event_list[i][0]==esource && event_list[i][1]==etype)
-      elisteners[elisteners.length]= event_list[i][2];
-  for (i= 0; i<elisteners.length; i++) {
-    r= elisteners[i](esource, etype);
-    if (r+''!='undefined') result= r;
-  }
-  return result;
-}
-
-// convenience prevent-default-action listener
-function event_prevent(esource, etype) { return false; }
-
-// page finished loading detector for binding
-var event_loaded= false;
-function event_load(esource, etype) {
-  event_loaded= true;
-  event_removeListener(window, 'load', event_load);
-}
-event_addListener(window, 'load', event_load);
-
-// binding helper
-var event_BINDDELAY= 750;
-var event_binds= new Array();
-
-function event_addBinding(btag, blistener) {
-  event_binds[event_binds.length]= new Array(btag, 0, blistener);
-  if (event_intervalling)
-    event_bind();
-  else {
-    event_intervalling= true;
-    window.setTimeout(event_interval, 0);
-  }
-}
-
-var event_intervalling= false;
-function event_interval() {
-  event_bind();
-  if (!event_loaded)
-    window.setTimeout(event_interval, event_BINDDELAY);
-}
-
-function event_bind() {
-  var i, j, els, blistener;
-  for (i= event_binds.length; i-->0;) {
-    els= event_getElementsByTag(event_binds[i][0]);
-    blistener= event_binds[i][2];
-    for (j= event_binds[i][1]; j<els.length; j++)
-      blistener(els[j]);
-    event_binds[i][1]= event_getElementsByTag(event_binds[i][0]).length;
-  }
-}
-
-// get elements by tag name with backup for pre-DOM browsers
-var event_NIL= new Array();
-function event_getElementsByTag(tag) {
-  if (document.getElementsByTagName) {
-    var arr= document.getElementsByTagName(tag);
-    // IE5.0/Win doesn't support '*' for all tags
-    if (tag!='*' || arr.length>0) return arr;
-  }
-  if (document.all) {
-    if (tag=='*') return event_array(document.all);
-    else return event_array(document.all.tags(tag));
-  }
-  tag= tag.toLowerCase();
-  if (tag=='a') return event_array(document.links);
-  if (tag=='img') return event_array(document.images);
-  if (tag=='form') return event_array(document.forms);
-  if (document.layers && tag=='div') return event_array(document.layers);
-  return event_NIL;
-}
-function event_array(coll) {
-  var arr= new Array(coll.length);
-  for (var i= arr.length; i-->0;)
-    arr[i]= coll[i];
-  return arr;
-}
-
-EOF
-}
-
 sub makeline {
    my($self, $info, $html) = @_;
    my $target = defined $info->{target} ? $info->{target} : 'Status';
@@ -515,8 +263,6 @@ print <<EOF;
 $standardheader
 <html>
 <head>
-<script src="$scriptname?item=eventjs&interface=$interface"></script>
-<script src="$scriptname?item=positionjs&interface=$interface"></script>
 <title>CGI:IRC - Loading</title>
 <link rel="stylesheet" href="$config->{script_login}?interface=ie&item=style&style=$style" />
 <link rel="SHORTCUT ICON" href="$config->{image_path}/favicon.ico">
@@ -528,12 +274,27 @@ function form_focus() {
 //-->
 </script>
 </head>
-<body onload="form_focus()" onfocus="form_focus()" class="frame-body">
-<iframe name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no" class="frame-windowlist" frameborder="0"></iframe>
-<iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main" frameborder="0"></iframe>
-<iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist" frameborder="0"></iframe>
-<iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
-</body>
+<frameset
+rows="40,*,25,0"
+framespacing="0" border="0" frameborder="0" onfocus="form_focus()" onload="form_focus()">
+<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
+scrolling="no">
+<frameset cols="*,120" framespacing="0" border="0" frameborder="0">
+<frame name="fmain"
+src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes">
+<frame name="fuserlist"
+src="$scriptname?item=fuserlist&interface=$interface&style=$style"
+scrolling="yes">
+</frameset>
+<frame name="fform"
+src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no"
+framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="hiddenframe" src="$scriptname?item=blank&style=$style"
+scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<noframes>
+This interface requires a browser that supports frames and javascript.
+</noframes>
+</frameset>
 </html>
 EOF
 }
@@ -598,10 +359,15 @@ The options window lets you change some settings in CGI:IRC. Hopefully it
  immediately.
 
 <h3>Keyboard shortcuts</h3>
-There are several shortcuts to help make using CGI:IRC nicer, tab completion
- which will complete a nickname or channel when you press tab, alt+number will
- go to that number window if you number the windows from the left (Status = 1
- and so on).
+There are several shortcuts to help make using CGI:IRC nicer.
+<table>
+<tr><td>Tab</td><td>Will autocomplete a nickname or channel.</td></tr>
+<tr><td>Ctrl+number / Alt+number</td><td>Will go to that number window if you number
+ the windows from the left (Status = 1 and so on).</td></tr>
+<tr><td>Ctrl+B</td><td>Write "%B" for bold text.</td></tr>
+<tr><td>Ctrl+C</td><td>Write "%C" for colored text.</td></tr>
+<tr><td>Cursor Up/Down</td><td>Move in the command history.</td></tr>
+</table>
 
 <h3>About CGI:IRC</h3>
 CGI:IRC is written in Perl by David Leadbeater with help from lots of people. See the <a
@@ -672,7 +438,7 @@ print q~
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
 // http://cgiirc.sourceforge.net/
-// Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+// Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
 
 //               none      joins    talk       directed talk
 var activity = ['#000000','#000099','#990000', '#009999'];
@@ -868,13 +634,14 @@ function retitle() {
 
 function setoption(option, value) {
    options[option] = value;
-   if(option == 'shownick' && value == 1) {
-      mynick(mynickname);
-   }else if(option == 'shownick') {
+   if(option == 'shownick' && value == 1)
+      mynick(mynickname)
+   else if(option == 'shownick') {
       if(parent.fform && parent.fform.nickchange) parent.fform.nickchange('');
-   }else if(option == 'font') {
-      fontset(value);
-   }
+   }else if(option == 'font')
+      fontset(value)
+   else if((option == 'actsound' || option == 'joinsound') && value == 1)
+   	enable_sounds();
 }
 
 function mynick(mynick) {
@@ -1094,8 +861,8 @@ function doinfowin(name, text) {
 }
 
 function fontset(font) {
-   if(parent.fmain.document.getElementById('text')) {
-      parent.fmain.document.getElementById('text').style.fontFamily = font;
+   if(parent.frames.fmain.document.getElementById('text')) {
+      parent.frames.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
 
@@ -1165,13 +932,13 @@ function do_quit() {
 <input type="hidden" name="name" value="">
 <input type="hidden" name="value" value="">
 </form>
-
-<embed src="$config->{image_path}/join.wav" hidden="false" loop="false"
-autostart="false" type="audio/x-wav" id="sound-join">
-<embed src="$config->{image_path}/actmsg.wav" hidden="false" loop="false"
-autostart="false" type="audio/x-wav" id="sound-actmsg">
-
-
+<span style="display:none" id="sounds"></span>
+<script>
+function enable_sounds() {
+   if(document.getElementById('sounds').innerHTML == "")
+      document.getElementById('sounds').innerHTML = "<embed src='$config->{image_path}/join.wav' hidden='false' loop='false' autostart='false' type='audio/x-wav' id='sound-join'><embed src='$config->{image_path}/actmsg.wav' hidden='false' loop='false' autostart='false' type='audio/x-wav' id='sound-actmsg'>"
+}
+</script>
 </body></html>
 EOF
 }
@@ -1355,21 +1122,31 @@ function hisdo() {
 }
 
 function enter_key_trap(e) {
-   if(e == null) {
-      return keypress(event.srcElement, event.keyCode, event);
-   }else{
-      // mozilla dodginess
-      return keypress(e.target, e.keyCode == 0 ? e.which : e.keyCode, e);
+   if(e == null) { // MSIE
+      return keypress(event.srcElement, event);
+   }else{ // Mozilla, Netscape, W3C
+      return keypress(e.target, e);
    }
 }
 
-function keypress(srcEl, keyCode, event) {
+function keypress(srcEl, event) {
    if (srcEl.tagName != 'INPUT' || srcEl.name.toLowerCase() != 'say')
        return true;
+   var charCode = event.charCode; // MSIE: undef, Mozilla: different when shifted
+   var keyCode = event.keyCode; // the only one in MSIE, Mozilla: only special keys (up, down, etc)
+   var which = event.which; // the only one in NN
 
-   if(keyCode == 66 && event.ctrlKey) {
-	   append('\%B');
-   }else if(keyCode == 67 && event.ctrlKey) {
+   if(keyCode == null) { // NN
+      charCode = which;
+      if(which < 32) keyCode = which;
+      // NN only has charcodes (and some special keys below 32, i.e. Esc)
+   }
+   if(charCode == null) charCode = keyCode; // MSIE
+
+   if((charCode == 66 || charCode == 98) && event.ctrlKey) {
+       // in NN/Mozilla charcodes are case sensitive
+       append('\%B');
+   }else if((charCode == 67 || charCode == 99) && event.ctrlKey) {
        append('\%C');
    }else if(keyCode == 9) { // TAB
        var tabIndex = srcEl.value.lastIndexOf(' ');
@@ -1409,14 +1186,14 @@ function keypress(srcEl, keyCode, event) {
 		  tabpos = (tabIndex == -1 ? 0 : tabIndex + 1) + tablen;
 		  tabinc = 1;
 	   }
-   }else if(keyCode == 38) { // UP
+   }else if(keyCode == 38) { // UP, doesn't work in NN
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  hispos = shistory.length;
 	   }
 	   hispos--;
 	   hisdo();
-   }else if(keyCode == 40) { // DOWN
+   }else if(keyCode == 40) { // DOWN, dito
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  document.myform["say"].value = '';
@@ -1424,8 +1201,11 @@ function keypress(srcEl, keyCode, event) {
 	   }
 	   hispos++;
 	   hisdo();
-   }else if(event.altKey && !event.ctrlKey && keyCode > 47 && keyCode < 58) {
-       var num = keyCode - 48;
+   }else if(((event.altKey && !event.ctrlKey) || (!event.altKey && event.ctrlKey)) && charCode > 47 && charCode < 58) {
+       // Alt or Ctrl + number is often bound to browser functions
+       // Ctrl+Alt is totally equal to AltGr on Windows (strange!)
+       // so use Ctrl+num or Alt+num, whatever the browser passes through
+       var num = charCode - 48;
 	   if(num == 0) num = 10;
 
 	   var name = parent.fwindowlist.witemchgnum(num);

@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.22 2003/01/18 14:42:42 dgl Exp $
+# $Id: RawCommands.pm,v 1.23 2003/10/27 17:18:52 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -93,7 +93,7 @@ my %raw = (
 		 $self->{event}->handle('user mode', _info($to, 1),
 		     $params->{nick}, $params->{host},
 		   (join(' ',@{$params->{params}}[2.. @{$params->{params}} - 1])));
-	  }elsif(is_vaild_channel($to)) {
+	  }elsif($self->is_channel($to)) {
 	     return unless $self->{_channels}->{$to};
 		 my $channel = $self->{_channels}->{$to};
 		 my %tmpevents;
@@ -165,7 +165,7 @@ my %raw = (
 
 	  if(substr($params->{text},0,1) eq "\001") {
 	     $self->{event}->handle('ctcp msg', $self, $params->{nick}, $params->{host}, $to, $params->{text});
-	  }elsif(is_vaild_channel($to)) {
+	  }elsif($self->is_channel($to)) {
 	     $self->{event}->handle('message public', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }elsif($to =~ /^[+@%]/) {
@@ -187,7 +187,7 @@ my %raw = (
 	  my $to = $params->{params}->[1];
 	  if(substr($params->{text},0,1) eq "\001") {
 	     $self->{event}->handle('ctcp reply', $self, $params->{nick}, $params->{host}, $to, $params->{text});
-	  }elsif(is_vaild_channel($to)) {
+	  }elsif($self->is_channel($to)) {
 	     $self->{event}->handle('notice public', _info($to, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }elsif($to =~ /^[+@%]/) {

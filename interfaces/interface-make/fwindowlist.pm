@@ -13,7 +13,7 @@ print q~
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
 // http://cgiirc.sourceforge.net/
-// Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+// Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
 
 //               none      joins    talk       directed talk
 var activity = ['#000000','#000099','#990000', '#009999'];
@@ -211,13 +211,16 @@ function retitle() {
 
 function setoption(option, value) {
    options[option] = value;
-   if(option == 'shownick' && value == 1) {
-      mynick(mynickname);
-   }else if(option == 'shownick') {
+   if(option == 'shownick' && value == 1)
+      mynick(mynickname)
+   else if(option == 'shownick') {
       if(parent.fform && parent.fform.nickchange) parent.fform.nickchange('');
-   }else if(option == 'font') {
-      fontset(value);
-   }
+   }else if(option == 'font')
+      fontset(value)
+.$just ie
+   else if((option == 'actsound' || option == 'joinsound') && value == 1)
+   	enable_sounds();
+.$end
 }
 
 function mynick(mynick) {
@@ -448,8 +451,8 @@ function doinfowin(name, text) {
 }
 
 function fontset(font) {
-   if(parent.fmain.document.getElementById('text')) {
-      parent.fmain.document.getElementById('text').style.fontFamily = font;
+   if(parent.frames.fmain.document.getElementById('text')) {
+      parent.frames.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
 
@@ -529,14 +532,14 @@ function do_quit() {
 <input type="hidden" name="name" value="">
 <input type="hidden" name="value" value="">
 </form>
-
 .$just ie
-<embed src="$config->{image_path}/join.wav" hidden="false" loop="false"
-autostart="false" type="audio/x-wav" id="sound-join">
-<embed src="$config->{image_path}/actmsg.wav" hidden="false" loop="false"
-autostart="false" type="audio/x-wav" id="sound-actmsg">
+<span style="display:none" id="sounds"></span>
+<script>
+function enable_sounds() {
+   if(document.getElementById('sounds').innerHTML == "")
+      document.getElementById('sounds').innerHTML = "<embed src='$config->{image_path}/join.wav' hidden='false' loop='false' autostart='false' type='audio/x-wav' id='sound-join'><embed src='$config->{image_path}/actmsg.wav' hidden='false' loop='false' autostart='false' type='audio/x-wav' id='sound-actmsg'>"
+}
+</script>
 .$end
-
-
 </body></html>
 EOF

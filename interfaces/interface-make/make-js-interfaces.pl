@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # CGI:IRC JavaScript Interface builder
 # Copyright (C) 2002 David Leadbeater (cgiirc@dgl.cx)
-# Licensed under the GPL
+# Licensed under the GPLv2
 use Symbol;
 use IO::Handle;
 
@@ -27,6 +27,7 @@ sub parse_line {
    if(/^\.\$?(\w+)(?: (.*))?/) {
         # The $ is so the variables get syntax hilighted :)
       my($cmd, $param) = ($1, $2);
+      my @params = split(' ', $param);
 
       if($cmd eq 'include') {
          open(INC, $param) or die "$param: $!";
@@ -39,17 +40,17 @@ sub parse_line {
          close(SUB);
          out_cur("}\n");
       }elsif($cmd eq 'just') {
-         for(keys %current) {
-            $current{$_} = 0;
-            if($_ eq $param) {
-               $current{$_} = 1;
+         for my $current (keys %current) {
+            $current{$current} = 0;
+            if(scalar(grep(/$current/, @params))) {
+               $current{$current} = 1;
             }
          }
       }elsif($cmd eq 'not') {
-         for(keys %current) {
-            $current{$_} = 1;
-            if($_ eq $param) {
-               $current{$_} = 0;
+         for my $current (keys %current) {
+            $current{$current} = 1;
+            if(scalar(grep(/$current/, @params))) {
+               $current{$current} = 0;
             }
          }
       }elsif($cmd eq 'end') {

@@ -6,7 +6,7 @@ use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -80,6 +80,7 @@ sub new {
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
+   _func_out('enable_sounds') if ((exists $icookies->{actsound} || exists $icookies->{joinsound}) && ($icookies->{actsound} || $icookies->{joinsound}));
    return $self;
 }
 
@@ -174,22 +175,6 @@ sub style {
    close(STYLE);
 }
 
-.$just ie
-sub positionjs {
-print <<EOF;
-.$include position.js
-
-EOF
-}
-
-sub eventjs {
-print <<EOF;
-.$include event.js
-
-EOF
-}
-.$end
-
 sub makeline {
    my($self, $info, $html) = @_;
    my $target = defined $info->{target} ? $info->{target} : 'Status';
@@ -281,10 +266,6 @@ print <<EOF;
 $standardheader
 <html>
 <head>
-.$just ie
-<script src="$scriptname?item=eventjs&interface=$interface"></script>
-<script src="$scriptname?item=positionjs&interface=$interface"></script>
-.$end
 <title>CGI:IRC - Loading</title>
 <link rel="stylesheet" href="$config->{script_login}?interface=**BROWSER&item=style&style=$style" />
 <link rel="SHORTCUT ICON" href="$config->{image_path}/favicon.ico">
@@ -296,9 +277,13 @@ function form_focus() {
 //-->
 </script>
 </head>
+<frameset
 .$just konqueror
-<frameset rows="40,*,50,0" framespacing="0" border="0" frameborder="0"
-onfocus="form_focus()" onload="form_focus()">
+rows="40,*,50,0"
+.$else
+rows="40,*,25,0"
+.$end
+framespacing="0" border="0" frameborder="0" onfocus="form_focus()" onload="form_focus()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
 scrolling="no">
 <frameset cols="*,120" framespacing="0" border="0" frameborder="0">
@@ -317,14 +302,6 @@ scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
 This interface requires a browser that supports frames and javascript.
 </noframes>
 </frameset>
-.$else
-<body onload="form_focus()" onfocus="form_focus()" class="frame-body">
-<iframe name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no" class="frame-windowlist" frameborder="0"></iframe>
-<iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main" frameborder="0"></iframe>
-<iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist" frameborder="0"></iframe>
-<iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
-</body>
-.$end
 </html>
 EOF
 }

@@ -22,13 +22,17 @@ use vars qw($VERSION);
 use Socket;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.1 2002/05/05 12:30:34 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.2 2003/10/27 17:18:49 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
 # Change these if needed.
 my $cgiircprefix="/tmp/cgiirc-";
 my $resolve = 1;
+
+if($ENV{GATEWAY_INTERFACE} =~ /CGI/) { # We aren't really a CGI script..
+   print "Content-type: text/plain\n\n";
+}
 
 my @connects = list_connects();
 

@@ -6,7 +6,7 @@ use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -80,6 +80,7 @@ sub new {
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
+   _func_out('enable_sounds') if ((exists $icookies->{actsound} || exists $icookies->{joinsound}) && ($icookies->{actsound} || $icookies->{joinsound}));
    return $self;
 }
 
@@ -173,7 +174,6 @@ sub style {
    print <STYLE>;
    close(STYLE);
 }
-
 
 sub makeline {
    my($self, $info, $html) = @_;
@@ -275,12 +275,27 @@ function form_focus() {
 //-->
 </script>
 </head>
-<body onload="form_focus()" onfocus="form_focus()" class="frame-body">
-<iframe name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no" class="frame-windowlist" frameborder="0"></iframe>
-<iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main" frameborder="0"></iframe>
-<iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist" frameborder="0"></iframe>
-<iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
-</body>
+<frameset
+rows="40,*,25,0"
+framespacing="0" border="0" frameborder="0" onfocus="form_focus()" onload="form_focus()">
+<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
+scrolling="no">
+<frameset cols="*,120" framespacing="0" border="0" frameborder="0">
+<frame name="fmain"
+src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes">
+<frame name="fuserlist"
+src="$scriptname?item=fuserlist&interface=$interface&style=$style"
+scrolling="yes">
+</frameset>
+<frame name="fform"
+src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no"
+framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="hiddenframe" src="$scriptname?item=blank&style=$style"
+scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<noframes>
+This interface requires a browser that supports frames and javascript.
+</noframes>
+</frameset>
 </html>
 EOF
 }
@@ -345,10 +360,15 @@ The options window lets you change some settings in CGI:IRC. Hopefully it
  immediately.
 
 <h3>Keyboard shortcuts</h3>
-There are several shortcuts to help make using CGI:IRC nicer, tab completion
- which will complete a nickname or channel when you press tab, alt+number will
- go to that number window if you number the windows from the left (Status = 1
- and so on).
+There are several shortcuts to help make using CGI:IRC nicer.
+<table>
+<tr><td>Tab</td><td>Will autocomplete a nickname or channel.</td></tr>
+<tr><td>Ctrl+number / Alt+number</td><td>Will go to that number window if you number
+ the windows from the left (Status = 1 and so on).</td></tr>
+<tr><td>Ctrl+B</td><td>Write "%B" for bold text.</td></tr>
+<tr><td>Ctrl+C</td><td>Write "%C" for colored text.</td></tr>
+<tr><td>Cursor Up/Down</td><td>Move in the command history.</td></tr>
+</table>
 
 <h3>About CGI:IRC</h3>
 CGI:IRC is written in Perl by David Leadbeater with help from lots of people. See the <a
@@ -419,7 +439,7 @@ print q~
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
 // http://cgiirc.sourceforge.net/
-// Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+// Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
 
 //               none      joins    talk       directed talk
 var activity = ['#000000','#000099','#990000', '#009999'];
@@ -602,13 +622,12 @@ function retitle() {
 
 function setoption(option, value) {
    options[option] = value;
-   if(option == 'shownick' && value == 1) {
-      mynick(mynickname);
-   }else if(option == 'shownick') {
+   if(option == 'shownick' && value == 1)
+      mynick(mynickname)
+   else if(option == 'shownick') {
       if(parent.fform && parent.fform.nickchange) parent.fform.nickchange('');
-   }else if(option == 'font') {
-      fontset(value);
-   }
+   }else if(option == 'font')
+      fontset(value)
 }
 
 function mynick(mynick) {
@@ -826,8 +845,8 @@ function doinfowin(name, text) {
 }
 
 function fontset(font) {
-   if(parent.fmain.document.getElementById('text')) {
-      parent.fmain.document.getElementById('text').style.fontFamily = font;
+   if(parent.frames.fmain.document.getElementById('text')) {
+      parent.frames.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
 
@@ -893,9 +912,6 @@ function do_quit() {
 <input type="hidden" name="name" value="">
 <input type="hidden" name="value" value="">
 </form>
-
-
-
 </body></html>
 EOF
 }
@@ -1078,21 +1094,31 @@ function hisdo() {
 }
 
 function enter_key_trap(e) {
-   if(e == null) {
-      return keypress(event.srcElement, event.keyCode, event);
-   }else{
-      // mozilla dodginess
-      return keypress(e.target, e.keyCode == 0 ? e.which : e.keyCode, e);
+   if(e == null) { // MSIE
+      return keypress(event.srcElement, event);
+   }else{ // Mozilla, Netscape, W3C
+      return keypress(e.target, e);
    }
 }
 
-function keypress(srcEl, keyCode, event) {
+function keypress(srcEl, event) {
    if (srcEl.tagName != 'INPUT' || srcEl.name.toLowerCase() != 'say')
        return true;
+   var charCode = event.charCode; // MSIE: undef, Mozilla: different when shifted
+   var keyCode = event.keyCode; // the only one in MSIE, Mozilla: only special keys (up, down, etc)
+   var which = event.which; // the only one in NN
 
-   if(keyCode == 66 && event.ctrlKey) {
-	   append('\%B');
-   }else if(keyCode == 67 && event.ctrlKey) {
+   if(keyCode == null) { // NN
+      charCode = which;
+      if(which < 32) keyCode = which;
+      // NN only has charcodes (and some special keys below 32, i.e. Esc)
+   }
+   if(charCode == null) charCode = keyCode; // MSIE
+
+   if((charCode == 66 || charCode == 98) && event.ctrlKey) {
+       // in NN/Mozilla charcodes are case sensitive
+       append('\%B');
+   }else if((charCode == 67 || charCode == 99) && event.ctrlKey) {
        append('\%C');
    }else if(keyCode == 9) { // TAB
        var tabIndex = srcEl.value.lastIndexOf(' ');
@@ -1132,14 +1158,14 @@ function keypress(srcEl, keyCode, event) {
 		  tabpos = (tabIndex == -1 ? 0 : tabIndex + 1) + tablen;
 		  tabinc = 1;
 	   }
-   }else if(keyCode == 38) { // UP
+   }else if(keyCode == 38) { // UP, doesn't work in NN
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  hispos = shistory.length;
 	   }
 	   hispos--;
 	   hisdo();
-   }else if(keyCode == 40) { // DOWN
+   }else if(keyCode == 40) { // DOWN, dito
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  document.myform["say"].value = '';
@@ -1147,8 +1173,11 @@ function keypress(srcEl, keyCode, event) {
 	   }
 	   hispos++;
 	   hisdo();
-   }else if(event.altKey && !event.ctrlKey && keyCode > 47 && keyCode < 58) {
-       var num = keyCode - 48;
+   }else if(((event.altKey && !event.ctrlKey) || (!event.altKey && event.ctrlKey)) && charCode > 47 && charCode < 58) {
+       // Alt or Ctrl + number is often bound to browser functions
+       // Ctrl+Alt is totally equal to AltGr on Windows (strange!)
+       // so use Ctrl+num or Alt+num, whatever the browser passes through
+       var num = charCode - 48;
 	   if(num == 0) num = 10;
 
 	   var name = parent.fwindowlist.witemchgnum(num);

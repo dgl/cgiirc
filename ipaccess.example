@@ -1,8 +1,11 @@
-# CGI:IRC ipaccess example file
+# CGI:IRC example ipaccess file. (For CGI:IRC versions from 0.5.3).
+# To use this rename the file to ipaccess and in the CGI:IRC configuration
+# set ip_access_file = ipaccess
 
-# This file allows and disallows access to CGI:IRC based on ip address
-# It can be used to limit access to CGI:IRC to a certain ip range
-# or to limit the number of connections from a particular IP
+# This file allows and disallows access to CGI:IRC based on IP address
+# and/or hostname.
+# It can be used to limit access to CGI:IRC to a certain IP range
+# or to limit the number of connections from particular IPs.
 
 # The file is read downwards and the first match for a particular mask is
 # used so if *.*.*.* is the first line then all connections would be allowed.
@@ -10,14 +13,23 @@
 # Format:
 # ipmask limit
 # ipmask is an IP address or mask (address containing *)
+#       Note: An * in ipmask matches only numbers so it must contain three dots.
 # limit is optional - it is the number of connections to allow from a
 #       specific IP address that matches this mask, 0 allows no connections,
-#       and so is an easy way to ban an address.
+#       and so bans connections from the address.
+
+# It is also possible to use hostnames, this is much the same as an IP address.
+# The format is:
+# hostmask limit
+# The only difference is subnet masks are not possible and the * matches any
+# character (even a dot).
 
 # Examples (remove first # to enable)
 #192.168.1.* 0 # Ban access from 192.168.1.*
 #192.168.2.* 5 # Limit access from 192.168.2.* to 5 connections per IP address
 #192.168.3.0/24 0 # Ban access from 192.168.3.0/24
+#127.0.0.1 # Allow 127.0.0.1 (without any connection limit)
+#*.example.com 0 # Ban all connections from example.com
 #*.*.*.* 2 # Allow all connections but limit to 2 connections per IP address
 
 # Remember you must add at least one allow line if you enable ip_access to

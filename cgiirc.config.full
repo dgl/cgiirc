@@ -56,7 +56,7 @@ socket_prefix = /tmp/cgiirc-
 #vhost6 = 
 
 # Prefer IPv6 addresses if both addresses resolve (default is IPv4).
-#prefer_v6 = 0
+#prefer_v6 = 0 (XXX: This option does not currently work)
 
 # -----
 # Access related settings
@@ -72,6 +72,11 @@ encoded_ip = 2
 # See ipaccess.example for more information, rename it to ipaccess
 # and uncomment the line below to enable.
 #ip_access_file = ipaccess
+
+# The maximum number of users that can connect to this CGI:IRC script at once
+# Please note, sometimes CGI:IRC leaves files in the socket_prefix location, if
+# it is killed (kill -9) or maybe a bug - this option still counts those as users.
+#max_users = 20
 
 # Allow access to servers and channels not set in the default
 # settings above and use access_channel and access_server below.
@@ -103,6 +108,9 @@ session_timeout = 18000
 
 # Admin password (used for /ctcp kill)
 # Remember this is a crypt of the password - not the actual password.
+# You can generate this by running (at a Unix shell prompt):
+# perl -le'print crypt(shift,$$)' password
+# where password is the password to generate a crypt for.
 #admin password = 
 
 # If your server is password protected and you wish to provide the password in
@@ -110,6 +118,14 @@ session_timeout = 18000
 # option to the password (The user can still override this with a password on
 # the login form).
 #server_password =
+
+# Send extra information (e.g. proxy headers) on ctcp USERINFO.
+#extra_userinfo = 1
+
+# If the irc server you are connecting to accepts hostnames encoded into passwords
+# (CGI:IRC host spoofing) and it has been setup for your host uncomment the following
+# line.
+#realhost_as_password = 1
 
 # -----
 # Appearence settings

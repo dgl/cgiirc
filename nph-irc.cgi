@@ -1,6 +1,6 @@
 #! /usr/bin/perl -T
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+# Copyright (C) 2000-2003 David Leadbeater <cgiirc@dgl.cx>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.84 2003/04/16 12:10:27 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.85 2003/10/27 17:18:49 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
@@ -129,16 +129,19 @@ sub net_tcpconnect {
       irc_write_server(inet_pton(AF_INET6, $localip), $localport, $inet_addr, $port);
    }
 
-   $SIG{ALRM} = sub { die "timeout" };
+   $SIG{ALRM} = sub { die "xtimeout" };
    eval {
       local $SIG{__DIE__} = undef;
       alarm 60;
-      connect($fh, $saddr) or return (0,$!);
+      connect($fh, $saddr) or die "$!\n";
    };
    alarm 0;
 
-   if($@ =~ /timeout/) {
+   if($@ =~ /xtimeout/) {
       return(0, "Connection timed out (60 seconds)");
+   }elsif($@) {
+      chomp(my $error = $@);
+      return(0, "$error connecting to $inet_addr:$port");
    }
 
    net_autoflush($fh);
@@ -597,8 +600,9 @@ sub config_set {
 }
 
 sub access_ipcheck {
-   return  1 unless config_set('ip_access_file');
-   my($ip) = $ENV{REMOTE_ADDR};
+   return unless config_set('ip_access_file');
+   
+   my($ip, $hostname) = @_;
    my($ipn) = inet_aton($ip);
    my($ipaccess_match) = 0;
 
@@ -609,12 +613,14 @@ sub access_ipcheck {
       message('access denied', 'Too many connections (global)');
    }
 
-   open(IP, "<$config->{ip_access_file}") or return 1;
+   open(IP, "<$config->{ip_access_file}") or return;
    while(<IP>) {
       chomp;
       next if /^(#|\s*$)/;
       s/\s+#.*$//g;
-      my($check,$limit) = split(' ', $_, 2);
+      my($check, $limit) = split(' ', $_, 2);
+
+      # IP address with subnet mask
       if ($check =~ /\//) {
          my($addr,$mask) = split('/', $check, 2);
          $mask = "1" x $mask . "0" x (32-$mask);
@@ -623,23 +629,32 @@ sub access_ipcheck {
          if($addr eq $mask) {
             $ipaccess_match = 1;
          }
-      }else{
+      # IP or hostname (we check both)
+      # XXX: someone could make their hostname resolve to 127.0.0.1.foobar.com
+      # and it would match eg 127.*.*.*, I don't think it's that serious and
+      # if it really is a problem 127.0.0.0/8 wouldn't match..
+      } else {
          $check =~ s/\./\\./g;
-         $check =~ s/\*/\\d+/g;
-         if($ip =~ /^$check$/) {
+         my $ipcheck = $check;
+         $ipcheck =~ s/\*/\\d+/g;
+         $check =~ s/\*/.*/g;
+         
+         if($ip =~ /^$ipcheck$/) {
+            $ipaccess_match = 1;
+         }elsif($hostname =~ /^$check$/) {
             $ipaccess_match = 1;
          }
       }
       if($ipaccess_match == 1) {
-         return 1 unless defined $limit;
+         return unless defined $limit;
          if($limit == 0) {
-            message('access denied', 'No connections allowed');
+            message('access denied', "No connections allowed (your hostname is $hostname and your IP address is $ip)");
             irc_close();
          }elsif($ips{$ip} >= $limit) {
             message('access denied', 'Too many connections');
             irc_close();
          }
-         return 1;
+         return;
       }
    }
    close(IP);
@@ -667,6 +682,7 @@ sub list_connected_ips {
    for(readdir TMPDIR) {
       next unless /^\Q$prefix\E/;
       next unless -o $dir . $_ && -d $dir . $_;
+      next unless -f "$dir$_/server";
       open(TMP, "<$dir$_/ip") or next;
       chomp(my $tmp = <TMP>);
       $ips{$tmp}++;
@@ -707,33 +723,41 @@ sub encode_ip {
    return join('',map(sprintf("%0.2x", $_), split(/\./,shift)));
 }
 
-sub client_hostname {
+# Resolve host *and* do checks against hosts that are allowed to connect.
+# Note: this follows proxies (via X-Forwarded-For header - but only if the
+# proxy is listed in the trusted-proxy file).
+sub access_check_host {
    my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
+
+   access_dnsbl($ip);
 
    my($hostname) = gethostbyaddr(inet_aton($ip), AF_INET);
    unless(defined $hostname && $hostname) {
+      access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
 
+   # Check reverse == forward
    my $ip_check = scalar gethostbyname($hostname);
-
    if(inet_aton($ip) ne $ip_check) {
+      access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
+   
+   access_ipcheck($ip, $hostname);
 
    if(exists $ENV{HTTP_X_FORWARDED_FOR}
          && $ENV{HTTP_X_FORWARDED_FOR} =~ /((\d{1,3}\.){3}\d{1,3})$/
          && !defined $_[1]) { # check proxy but only once
       my $proxyip = $1;
       return($hostname, $ip) if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
-      
-      access_dnsbl($proxyip);
+
       open(TRUST, "<trusted-proxy") or return($hostname, $ip);
       while(<TRUST>) {
          chomp;
          s/\*/.*/g;
          s/\?/./g;
-         return client_hostname($proxyip, 1) if $hostname =~ /^$_$/i;
+         return access_resolve_host($proxyip, 1) if $hostname =~ /^$_$/i;
       }
       close TRUST;
    }
@@ -772,8 +796,8 @@ sub irc_connect {
    message('connecting', $server, $ip, $port);
    flushoutput();
 
-   my($fh,$error) = net_tcpconnect($ip, $port);
-   
+   my($fh, $error) = net_tcpconnect($ip, $port);
+
    error("Connecting to IRC: $error") unless ref $fh;
    
    select_add($fh);
@@ -1034,28 +1058,23 @@ sub init {
 
    ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
 
-   if($cgi->{serv} =~ s/:(\d+)$//) {
-      $cgi->{port} = $1;
-   }
-
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
    $interface = load_interface();
  
-   access_ipcheck();
-   access_dnsbl($ENV{REMOTE_ADDR});
+   my($resolved, $resolvedip) = access_check_host($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
       message('access server denied', $cgi->{serv});
       $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
    ($cgi->{serv}) = $cgi->{serv} =~ /([^ ]+)/; # untaint hack.
-      
-   my $resolved = '';
-   my $resolvedip = '';
-   ($resolved, $resolvedip) = client_hostname();
+
+   if($cgi->{serv} =~ s/:(\d+)$//) {
+      $cgi->{port} = $1;
+   }
    
    if(config_set('encoded_ip')) {
       $cgi->{name} = '[' .
@@ -1069,6 +1088,11 @@ sub init {
 
    if(config_set('realhost_as_password')) {
       $cgi->{pass} = "CGIIRC_${resolvedip}_${resolved}";
+   }
+
+   my $preconnect;
+   if(config_set('webirc_password')) {
+      $preconnect = "WEBIRC $config->{webirc_password} cgiirc $resolved $resolvedip";
    }
 
    $unixfh = load_socket();
@@ -1101,9 +1125,11 @@ sub init {
                ? $config->{default_user} 
                : $cgi->{nick}
             ),
+         preconnect => $preconnect,
   );
 
-  # Generally use server connected.
+  # It is usually better to use 'server connected' (this is for the JS
+  # interface so it knows the script has started ok).
   $event->handle("user connected", $irc);
 
   $interface->sendping if $interface->ping;

@@ -33,7 +33,7 @@ function t(item,text) {
 function load() {
    fns();
    document.getElementById('extra').style.display = 'none';
-.$just ie
+.$just ie konqueror
    document.onkeydown = enter_key_trap;
 .$else
    document.onkeypress = enter_key_trap;
@@ -74,21 +74,31 @@ function hisdo() {
 }
 
 function enter_key_trap(e) {
-   if(e == null) {
-      return keypress(event.srcElement, event.keyCode, event);
-   }else{
-      // mozilla dodginess
-      return keypress(e.target, e.keyCode == 0 ? e.which : e.keyCode, e);
+   if(e == null) { // MSIE
+      return keypress(event.srcElement, event);
+   }else{ // Mozilla, Netscape, W3C
+      return keypress(e.target, e);
    }
 }
 
-function keypress(srcEl, keyCode, event) {
+function keypress(srcEl, event) {
    if (srcEl.tagName != 'INPUT' || srcEl.name.toLowerCase() != 'say')
        return true;
+   var charCode = event.charCode; // MSIE: undef, Mozilla: different when shifted
+   var keyCode = event.keyCode; // the only one in MSIE, Mozilla: only special keys (up, down, etc)
+   var which = event.which; // the only one in NN
 
-   if(keyCode == 66 && event.ctrlKey) {
-	   append('\%B');
-   }else if(keyCode == 67 && event.ctrlKey) {
+   if(keyCode == null) { // NN
+      charCode = which;
+      if(which < 32) keyCode = which;
+      // NN only has charcodes (and some special keys below 32, i.e. Esc)
+   }
+   if(charCode == null) charCode = keyCode; // MSIE
+
+   if((charCode == 66 || charCode == 98) && event.ctrlKey) {
+       // in NN/Mozilla charcodes are case sensitive
+       append('\%B');
+   }else if((charCode == 67 || charCode == 99) && event.ctrlKey) {
        append('\%C');
    }else if(keyCode == 9) { // TAB
        var tabIndex = srcEl.value.lastIndexOf(' ');
@@ -128,14 +138,14 @@ function keypress(srcEl, keyCode, event) {
 		  tabpos = (tabIndex == -1 ? 0 : tabIndex + 1) + tablen;
 		  tabinc = 1;
 	   }
-   }else if(keyCode == 38) { // UP
+   }else if(keyCode == 38) { // UP, doesn't work in NN
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  hispos = shistory.length;
 	   }
 	   hispos--;
 	   hisdo();
-   }else if(keyCode == 40) { // DOWN
+   }else if(keyCode == 40) { // DOWN, dito
        if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  document.myform["say"].value = '';
@@ -143,8 +153,11 @@ function keypress(srcEl, keyCode, event) {
 	   }
 	   hispos++;
 	   hisdo();
-   }else if(event.altKey && !event.ctrlKey && keyCode > 47 && keyCode < 58) {
-       var num = keyCode - 48;
+   }else if(((event.altKey && !event.ctrlKey) || (!event.altKey && event.ctrlKey)) && charCode > 47 && charCode < 58) {
+       // Alt or Ctrl + number is often bound to browser functions
+       // Ctrl+Alt is totally equal to AltGr on Windows (strange!)
+       // so use Ctrl+num or Alt+num, whatever the browser passes through
+       var num = charCode - 48;
 	   if(num == 0) num = 10;
 
 	   var name = parent.fwindowlist.witemchgnum(num);

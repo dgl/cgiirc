@@ -1,4 +1,4 @@
-# $Id: Util.pm,v 1.3 2002/11/19 23:30:16 dgl Exp $
+# $Id: Util.pm,v 1.4 2003/10/27 17:18:52 dgl Exp $
 package IRC::Util;
 use Exporter;
 @ISA = qw(Exporter);
@@ -62,14 +62,14 @@ sub fullhost2host {
 
 sub add_mode{
    my($mode,$bit) = @_;
-   return $mode if $mode =~ /^\S*$bit/;
+   return $mode if $mode =~ /^\S*\Q$bit\E/;
    $mode =~ s/^(\S*)/$1$bit/;
    return $mode;
 }
 
 sub del_mode{
    my($mode,$bit) = @_;
-   return $mode if $mode !~ /^\S*$bit/;
+   return $mode if $mode !~ /^\S*\Q$bit\E/;
    $mode =~ s/^(\S*)$bit/$1/;
    return $mode;
 }

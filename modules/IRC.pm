@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.11 2003/01/18 14:42:42 dgl Exp $
+# $Id: IRC.pm,v 1.12 2003/10/27 17:18:52 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -78,6 +78,7 @@ sub connect {
    my($self,%connect) = @_;
    $connect{server} =~ s/://g;
    $self->{alternick} ||= $connect{alternick} || $connect{nick} . '_';
+   $self->out($self->{preconnect}) if $self->{preconnect};
    $self->out("PASS $self->{password}") if $self->{password};
    $self->out('NICK '.($connect{nick} || $ENV{IRC_NICK} || $ENV{USER}));
    $self->out('USER '.($connect{user} || $ENV{USER}) . ' localhost ' .

@@ -117,7 +117,7 @@ my %commands = (
   },
   k => 'kick',
   kick => sub {
-     my($atarget, $tnick, $text) = split(' ', $params, 3);
+    my($atarget, $tnick, $text) = split(' ', $params, 3);
 	 if($irc->is_channel($atarget)) {
 	    $irc->kick($atarget, $tnick, $text);
 	 }else{
@@ -198,7 +198,7 @@ my %commands = (
 	 $irc->ctcp($target, 'ACTION ' . $params);
   },
   quote => sub {
-     $irc->out($params);
+     $irc->out($params) if $params;
   },
   version => sub {
      if($params) {
