@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.18 2002/07/05 16:52:56 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.19 2002/08/06 23:42:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -39,7 +39,7 @@ print join("\r\n",
       'Pragma: no-cache',
       'Cache-control: must-revalidate, no-cache',
       'Expires: -1',
-	  "\r\n");
+      "\r\n");
 
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
@@ -56,10 +56,12 @@ $interface =~ s/[^a-z]//gi;
 require('interfaces/' . $interface . '.pm');
 
 if(ref $cgi && defined $cgi->{item}) {
+   print "\r\n"; # send final header
    my $name = $cgi->{item};
    exit unless $interface->exists($name);
    $interface->$name($cgi, $config, 0);
 }elsif(ref $cgi && defined $cgi->{Nickname}) {
+   print "\r\n"; # send final header
    my $r = random();
    my($format, $style);
    
@@ -90,7 +92,15 @@ if(ref $cgi && defined $cgi->{item}) {
    $out =~ s/\&$//;
    $interface->frameset($scriptname, $config, $r, $out, $interface, $style);
 
+}elsif(defined $config->{form_redirect}) {
+   print join("\r\n",
+         "Status: 302",
+         "Location: $config->{form_redirect}",
+         "",
+         $config->{form_redirect});
 }else{
+   print "\r\n"; # send final header
+
    my(%items,@order);
 
    my $server = dolist($config->{default_server});

@@ -16,6 +16,9 @@ my $cgiircprefix="/tmp/cgiirc-";
 # forward:port forward to a real identd
 my $reply = "nouser";
 
+# Use custom ident (currently HTTP USER set by CGI:IRC).
+my $customident = 0;
+
 # Taken from midentd
 my $in = '';
 ret(0,0, "ERROR : NO-USER") unless sysread STDIN, $in, 128;
@@ -34,6 +37,13 @@ my $randomvalue = find_socket($local, $remote);
 
 if(defined $randomvalue) {
    my $user = encode_ip($randomvalue);
+   if($customident && -f "$cgiircprefix$randomvalue/ident") {
+      open(TMP, "<$cgiircprefix$randomvalue/ident") or
+         ret($local, $remote, "USERID : UNIX : $user");
+      $user = <TMP>;
+      chomp($user);
+      $user ||= encode_ip($randomvalue);
+   }
 	ret($local, $remote, "USERID : UNIX : $user");
 }else{
    if($reply eq 'nouser') {

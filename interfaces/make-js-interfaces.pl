@@ -35,6 +35,7 @@ my %options = (
    font => { type => 'select', options => [qw/serif sans-serif fantasy cursive monospace/, 'Arial Black', 'Comic Sans MS', 'Fixedsys', 'Tahoma', 'Verdana'], info => 'The font that messages are displayed in', img => 'font.gif' },
    shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box', img => 'entry.gif' },
    smilies => { type => 'toggle', info => 'Convert smilies into pictures', img => 'smile.gif' },
+   scrollback => { type => 'toggle', info => 'Save complete scrollback (uses more memory)' },
 );
 
 sub new {
@@ -445,8 +446,7 @@ $standardheader
 <link rel="stylesheet" href="$config->{script_login}?interface=`;print $browser;print q`&item=style&style=$cgi->{style}" />
 </head>
 <body class="main-body"
-onkeydown="if((event && !event.ctrlKey) && parent.fform.location) 
-   parent.fform.fns();">
+onkeydown="if((event && ((event.keyCode < 30 || event.keyCode > 40) && !event.ctrlKey)) && parent.fform.location) parent.fform.fns();">
 <span class="main-span" id="text"></span>
 </body></html>
 EOF
@@ -465,7 +465,7 @@ $standardheader
 <head>
 <html><head>
 <script language="JavaScript"><!--
-var history = [ ];
+var shistory = [ ];
 var hispos;
 var tabtmp = [ ];
 var tabpos;
@@ -492,15 +492,9 @@ function t(item,text) {
 
 function load() {
    fns();
+   document.onkeypress = enter_key_trap;
 `;
-if($browser eq 'mozilla' || $browser eq 'konqueror') {
-print q`
-   if(document.captureEvents) {
-      document.captureEvents(Event.KEYPRESS);
-      document.onkeypress = enter_key_trap;
-   }
-`;
-}else{
+if($browser eq 'ie') {
    print "document.getElementById('extra').style.display = 'none';\n";
 }
 print q`
@@ -527,32 +521,26 @@ function nickchange(nick) {
 }
 
 function hisadd() {
-   history[history.length] = document.myform["say"].value;
-   hispos = history.length;
+   shistory[shistory.length] = document.myform["say"].value;
+   hispos = shistory.length;
 }
 
 function hisdo() {
-   if(history[hispos]) {
-      document.myform["say"].value = history[hispos];
+   if(shistory[hispos]) {
+      document.myform["say"].value = shistory[hispos];
    }else{
       document.myform["say"].value = '';
    }
 }
-`;
-if($browser eq 'ie') {
-print q`
-document.onkeydown = function() {
-   return keypress(event.srcElement, event.keyCode, event);
-}
-`;
-}else {
-print q`
+
 function enter_key_trap(e) {
-   return keypress(e.target, e.keyCode, e);
+   if(e == null) {
+      return keypress(event.srcElement, event.keyCode, event);
+   }else{
+      // mozilla dodginess
+      return keypress(e.target, e.keyCode == 0 ? e.which : e.keyCode, e);
+   }
 }
-`;
-}
-print q`
 
 function keypress(srcEl, keyCode, event) {
    if (srcEl.tagName != 'INPUT' || srcEl.name.toLowerCase() != 'say')
@@ -601,14 +589,14 @@ function keypress(srcEl, keyCode, event) {
 		  tabinc = 1;
 	   }
    }else if(keyCode == 38) { // UP
-       if(!history[hispos]) {
+       if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
-		  hispos = history.length;
+		  hispos = shistory.length;
 	   }
 	   hispos--;
 	   hisdo();
    }else if(keyCode == 40) { // DOWN
-       if(!history[hispos]) {
+       if(!shistory[hispos]) {
 	      if(document.myform["say"].value) hisadd();
 		  document.myform["say"].value = '';
 		  return false;
@@ -942,7 +930,9 @@ function witemaddtext(name, text, activity, redraw) {
       var D = new Date();
       text = '[' + (D.getHours() < 10 ? '0' + D.getHours() : D.getHours()) + ':' + (D.getMinutes() < 10 ? '0' + D.getMinutes() : D.getMinutes()) + '] ' + text;
    }
-   
+  
+   if(options["scrollback"] == 0)
+      Witems[name].text = Witems[name].text.slice(Witems[name].text.length - 200);
    Witems[name].text[Witems[name].text.length] = text;
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);

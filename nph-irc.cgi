@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.62 2002/07/03 18:06:23 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.63 2002/08/06 23:42:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -275,7 +275,7 @@ sub format_colourhtml {
             last;
          }
          $tmp
-      }geo;
+      }ge;
    }
 
    return format_remove($line) if $config->{removecolour};
