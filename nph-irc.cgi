@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.29 2002/04/24 20:10:44 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.30 2002/04/24 21:34:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -259,7 +259,7 @@ sub format_colourhtml {
    $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>!gi;
    $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($1)]}</a>$3!gi;
 
-   if(config_set('smilies')) {
+   if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
       $line =~ s{
          $regexpicon
          (?![^<]*>)  # not inside HTML
@@ -525,7 +525,7 @@ sub input_command {
       $ioptions->{$params->{name}} = $params->{value};
       $interface->setoption($params->{name}, $params->{value});
 # write proper cookie code one day.
-      net_send($fh, "Set-cookie: cgiirc$params->{name}=$params->{value};path=/;expires=Sun, 01-Jan-2011 00:00:00 GMT\r\n");
+      net_send($fh, "Set-Cookie: cgiirc$params->{name}=$params->{value}; path=/; expires=Sun, 01-Jan-2011 00:00:00 GMT\r\n");
    }
 }
 
@@ -654,7 +654,7 @@ sub encode_ip {
 
 sub session_timeout {
    return unless defined $intime;
-   if((time - $config->{session_timeout}) < $intime) {
+   if((time - $config->{session_timeout}) > $intime) {
       message('session timeout');
       irc_close();
    }
@@ -874,7 +874,7 @@ sub init {
    header();
 
    $cgi = parse_query($ENV{QUERY_STRING});
-   if(config_set('smilies')) { format_init_smilies() }
+   format_init_smilies();
    $cookie = parse_cookie();
 
    error('No CGI Input') unless keys %$cgi;

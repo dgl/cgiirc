@@ -26,9 +26,10 @@ my %colours = (
 	  '15' => '#C0C0C0');
 
 my %options = (
-   timestamp => { type => 'toggle' },
-   font => { type => 'select', options => [qw/sans-serif serif monospace/] },
-   shownick => { type => 'toggle' },
+   timestamp => { type => 'toggle', info => 'Display a timestamp next to each message' },
+   font => { type => 'select', options => [qw/sans-serif serif monospace/], info => 'The font that messages are displayed in' },
+   shownick => { type => 'toggle', info => 'Show your nickname next to the text entry box' },
+   smilies => { type => 'toggle', info => 'Convert smilies into pictures' },
 );
 
 sub new {
@@ -63,7 +64,6 @@ sub _func_out {
    my($func,@rest) = @_;
    @rest = map(ref $_ eq 'ARRAY' ? _outputarray($_) : _escapejs($_), @rest);
    _out('parent.' . $func . '(' . _jsp(@rest) . ');');
-   print STDERR 'parent.' . $func . '(' . _jsp(@rest) . ');' . "\n";
 }
 
 sub _escapejs {
@@ -250,30 +250,31 @@ EOF
 sub setoption {
    my($self, $name, $value) = @_;
    _func_out('setoption', $name, $value);
+   $self->options;
 }
 
 sub options {
-   my($self, $cgi, $config) = @_;
+   my($self) = @_;
    my $ioptions = $main::ioptions;
 
-   my $out = "<html><head><title>CGI:IRC Options</title></head><body><form><table border=0>";
+   my $out = "<html><head><title>CGI:IRC Options</title></head><body class=\"options-body\"><h1 class=\"options-title\">Options</h1>These options affect the appearence of CGI:IRC, they will stay between sessions provided cookies are turned on.<form><table border=0 class=\"options-table\"> ";
 
    for my $option(keys %options) {
       my $o = $options{$option};
       my $value = defined $ioptions->{$option} ? $ioptions->{$option} : '';
       
-      $out .= "<tr><td>$option</td><td>";
+      $out .= "<tr><td><b>$option</b>" . (exists $o->{info} ? " ($o->{info})" : '') . "</td><td>";
       if($o->{type} eq 'toggle') {
-         $out .= "<input type=\"checkbox\" name=\"$option\" value=\"1\"" . 
+         $out .= "<input class=\"options-checkbox\" type=\"checkbox\" name=\"$option\" value=\"1\"" . 
             ($value? ' checked=1' : '')."\" onclick=\"parent.fwindowlist.send_option(this.name, this.checked == true ? this.value : 0);return true;\">";
       }elsif($o->{type} eq 'select') {
-         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option(this.name, this.options[this.selectedIndex].value);return true\">";
+         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option(this.name, this.options[this.selectedIndex].value);return true\" class=\"options-select\">";
          for(@{$o->{options}}) {
-            $out .= "<option name=\"$option\" value=\"$_\"".($_ eq $value ? ' selected=1' : '') . ">$_</option>";
+            $out .= "<option class=\"options-option\" name=\"$option\" value=\"$_\"".($_ eq $value ? ' selected=1' : '') . ">$_</option>";
          }
          $out .= "</select>";
       }else{
-         $out .= "<input type=\"text\" name=\"$option\" value=\""._escapehtml($value)."\" onChange=\"parent.fwindowlist.send_option(this.name, this.value);return true;\">";
+         $out .= "<input class=\"options-input\" type=\"text\" name=\"$option\" value=\""._escapehtml($value)."\" onChange=\"parent.fwindowlist.send_option(this.name, this.value);return true;\">";
       }
       $out .= "</td></tr>";
    }
@@ -760,8 +761,10 @@ function retitle() {
 
 function setoption(option, value) {
    options[option] = value;
-   if(option == 'shownick') {
+   if(option == 'shownick' && value == 1) {
       mynick(mynickname);
+   }else if(option == 'shownick') {
+      if(parent.fform && parent.fform.nickchange) parent.fform.nickchange('');
    }
 }
 
@@ -788,7 +791,7 @@ function countit(obj) {
 function witemaddtext(name, text, activity) {
    if(name == '-all') {
       for(var window in Witems) {
-        if(Witem[window].info) continue;
+        if(Witems[window].info) continue;
 	     witemaddtext(window, text, activity);
 	  }
       return;
@@ -798,7 +801,7 @@ function witemaddtext(name, text, activity) {
 	  name = "Status";
    }
    
-   if(options["timestamp"]) {
+   if(options["timestamp"] == 1 && !Witems[currentwindow].info) {
       var D = new Date();
       text = '[' + (D.getHours() < 10 ? '0' + D.getHours() : D.getHours()) + ':' + (D.getMinutes() < 10 ? '0' + D.getMinutes() : D.getMinutes()) + '] ' + text;
    }
@@ -877,7 +880,7 @@ function sendcmd(cmd) {
 }
 
 function sendcmd_userlist(action, user) {
-   if(!Witem[currentwindow].channel) return;
+   if(!Witems[currentwindow].channel) return;
    if(!connected) {
       alert('Not connected to IRC!');
       return;
@@ -914,6 +917,10 @@ function send_option(name, value) {
 }
 
 function userlist() {
+   if(!parent.fuserlist.userlist) {
+      setTimeout(1000, "userlist()");
+      return;
+   }
    if(Witems[currentwindow] && Witems[currentwindow].channel == 1) {
       userlistupdate(channellist(currentwindow));
    }else{
