@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.48 2002/05/05 20:25:32 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.49 2002/05/06 13:38:00 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -77,11 +77,13 @@ sub net_hostlookup {
       getaddrinfo($host,undef, AF_UNSPEC, SOCK_STREAM);
       return undef unless $family;
 
-	  if($family == AF_INET) {
+	  if($family == AF_INET && length $saddr == 16) {
         return (unpack_sockaddr_in($saddr))[1];
-	  }elsif($family == AF_INET6) {
+	  }elsif($family == AF_INET6 && length $saddr == 28) {
         return (undef,(unpack_sockaddr_in6($saddr))[1]);
-	  }
+	  }else{
+        error("Unknown sockaddr returned");
+     }
    }else{ # IPv4
       return (gethostbyname($host))[4];
    }
