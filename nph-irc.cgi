@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.53 2002/05/09 19:21:36 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.54 2002/05/10 21:09:59 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -74,7 +74,7 @@ sub net_hostlookup {
 
    if($::IPV6) {
       my($family,$socktype, $proto, $saddr, $canonname, @res) = 
-      getaddrinfo($host,undef, AF_UNSPEC, SOCK_STREAM);
+      getaddrinfo($host, undef, AF_UNSPEC, SOCK_STREAM);
       return undef unless $family;
       my($addr, $port) = getnameinfo($saddr, NI_NUMERICHOST | NI_NUMERICSERV);
       
@@ -841,7 +841,8 @@ sub irc_ctcp {
 		 $irc->ctcpreply($nick, $command,
 			   scalar localtime());
 	  }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
-        my($type) = split ' ', $params;
+        my($type, $subtype) = split ' ', $params;
+        $type .= " $subtype";
         $type = substr($type, 0, 20);
         $irc->ctcpreply($nick, $command, "REJECT $type Not Supported");
      }
