@@ -49,6 +49,14 @@ my %options = (
       type => 'toggle',
       info => 'Store all scrollback data (uses more memory)'
    },
+   'actsound' => {
+      type => "toggle",
+      info => "Play a sound when activity directed at you occurs",
+   },
+   'joinsound' => {
+      type => "toggle",
+      info => "Play a sound when some one joins a channel",
+   },
 );
 
 sub new {
@@ -196,17 +204,21 @@ sub makeline {
 	  return $text;
    }
 
+   my $out = "";
    if(not exists $self->{$target}) {
       if(defined $info && ref $info && exists $info->{create} && $info->{create}) {
 	     $self->add($target, $info->{type} eq 'join' ? 1 : 0);
 	  }elsif($target ne '-all') {
          $target = 'Status';
 	  }
+   }elsif($info->{type} eq 'join') {
+      $out = "parent.joinsound();";
    }
+   
    if($info->{style}) {
       $html = "<span class=\"main-$info->{style}\">$html</span>";
    }
-   return _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0, 0);
+   return $out . _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0, 0);
 }
 
 sub lines {
@@ -254,10 +266,8 @@ sub active {
    _func_out('witemchg', $window);
 }
 
-sub smilie { # js runs in fmain.
-   shift; # object
-   return '<img src="'.$_[0].'" alt="' . $_[2] . '" style="display:none"
-   onload="this.nextSibling.style.display=\'none\';this.style.display=\'inline\'" /><span>'. $_ .'</span>';
+sub smilie { # js runs in fmain. (XXX: doesn't actually work?)
+   return '<img src="'.$_[1].'" alt="' . $_[2] . '">';
 }
 
 sub link {
@@ -359,7 +369,7 @@ sub options {
 
    my $out = "<html><head><title>CGI:IRC Options</title></head><body class=\"options-body\"><h1 class=\"options-title\">Options</h1>These options affect the appearence of CGI:IRC, they will stay between sessions provided cookies are turned on.<form><table border=0 class=\"options-table\"> ";
 
-   for my $option(keys %options) {
+   for my $option(sort keys %options) {
       my $o = $options{$option};
       my $value = defined $ioptions->{$option} ? $ioptions->{$option} : '';
       

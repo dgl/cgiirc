@@ -116,13 +116,13 @@ print <<EOF;
 </script>
 <title>CGI:IRC Login</title>
 </head>
-<body bgcolor="#ffffff" text="#000000" onload="setjs()">
+<body bgcolor="#ffffff" text="#000000">
 EOF
 if($notsupported) {
    print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading.</font>\n";
 }
 print <<EOF;
-<form method="post" action="$this" name="loginform" onsubmit="return nickvalid()">
+<form method="post" action="$this" name="loginform" onsubmit="setjs();return nickvalid()">
 EOF
 print "<input type=\"hidden\" name=\"interface\" value=\"" . 
    ($interface eq 'default' ? 'nonjs' : $interface) . "\">\n";

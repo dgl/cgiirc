@@ -274,6 +274,10 @@ function witemaddtext(name, text, activity, redraw) {
    if(!Witems[name].info)
       text = "<div class='main-item'>" + text + "</div>";
    Witems[name].text[Witems[name].text.length] = text;
+
+   if(options["actsound"] == 1 && activity >= 3)
+      playsound("actmsg");
+
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);
    if(redraw != 0 && currentwindow == name) witemredraw();
@@ -448,6 +452,22 @@ function fontset(font) {
       parent.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
+
+function playsound(soundname) {
+.$just ie
+   var sound = document.getElementById("sound-" + soundname);
+   if(sound)
+      sound.play();
+   else
+.$end
+      top.window.focus();
+}
+
+function joinsound() {
+   if(options["joinsound"] == 1)
+      playsound("join");
+}
+
 ~;
 # ' (fix syntax hilight)
 print <<EOF;
@@ -509,5 +529,14 @@ function do_quit() {
 <input type="hidden" name="name" value="">
 <input type="hidden" name="value" value="">
 </form>
+
+.$just ie
+<embed src="$config->{image_path}/join.wav" hidden="false" loop="false"
+autostart="false" type="audio/x-wav" id="sound-join">
+<embed src="$config->{image_path}/actmsg.wav" hidden="false" loop="false"
+autostart="false" type="audio/x-wav" id="sound-actmsg">
+.$end
+
+
 </body></html>
 EOF
