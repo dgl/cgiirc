@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.95 2004/02/18 08:46:51 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.96 2004/03/25 01:09:09 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -746,18 +746,23 @@ sub encode_ip {
 # proxy is listed in the trusted-proxy file).
 sub access_check_host {
    my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
+   my $ipn = inet_aton($ip);
 
    access_dnsbl($ip);
 
-   my($hostname) = gethostbyaddr(inet_aton($ip), AF_INET);
+   my($hostname) = gethostbyaddr($ipn, AF_INET);
    unless(defined $hostname && $hostname) {
       access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
 
    # Check reverse == forward
-   my $ip_check = scalar gethostbyname($hostname);
-   if(inet_aton($ip) ne $ip_check) {
+   my(undef,undef,undef,undef,@ips) = gethostbyname($hostname);
+   my $ok = 0;
+   for(@ips) {
+      $ok = 1 if $_ eq $ipn;
+   }
+   if(!$ok) {
       access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
