@@ -108,7 +108,12 @@ sub makeline {
 
 sub lines {
    my($self, @lines) = @_;
-   $self->_out(join("\r\n",@lines));
+   $self->_out($_) for @lines;
+}
+
+sub line {
+   my($self, $line) = @_;
+   $self->_out($self->makeline($line));
 }
 
 sub add {
@@ -132,12 +137,12 @@ sub active {
 
 sub error {
    my($self,$message) = @_;
-   $self->lines({ target => 'Status'}, $message);
+   $self->line($message);
 }
 
 sub help {
    my($self) = shift;
-   $self->lines({ target => 'Status'}, "Full help can be found at http://cgiirc.sourceforge.net/docs/usage.php");
+   $self->line("Full help can be found at http://cgiirc.sourceforge.net/docs/usage.php");
 }
 
 sub frameset {

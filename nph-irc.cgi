@@ -24,14 +24,14 @@ require 5.004;
 use strict;
 use lib qw{./modules ./interfaces};
 use vars qw(
-	  $VERSION @handles %inbuffer $select_bits @output
-	  $unixfh $ircfh $cookie $ctcptime $intime
-	  $timer $event $config $cgi $irc $format $interface $ioptions
-     $regexpicon %regexpicon
+      $VERSION @handles %inbuffer $select_bits @output
+      $unixfh $ircfh $cookie $ctcptime $intime
+      $timer $event $config $cgi $irc $format $interface $ioptions
+      $regexpicon %regexpicon
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.58 2002/06/30 15:07:30 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.59 2002/07/01 19:54:11 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -43,7 +43,7 @@ BEGIN {
    eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
    unless(defined $::IPV6) {
       $::IPV6 = 0;
-	  eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
+      eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
 }
 
@@ -98,20 +98,20 @@ sub net_tcpconnect {
 
    my $saddr;
    if($inet_addr !~ /:/) {
-	  $saddr = sockaddr_in($port, inet_aton($inet_addr));
-     if(config_set('vhost')) {
-        (my $vhost) = $config->{vhost} =~ /([^ ]+)/;
-        bind($fh, pack_sockaddr_in(0, inet_aton($vhost)));
-     }else{
-        bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
-     }
+      $saddr = sockaddr_in($port, inet_aton($inet_addr));
+      if(config_set('vhost')) {
+         (my $vhost) = $config->{vhost} =~ /([^ ]+)/;
+         bind($fh, pack_sockaddr_in(0, inet_aton($vhost)));
+      }else{
+         bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
+      }
    }else{
-	  $saddr = sockaddr_in6($port, inet_pton(AF_INET6, $inet_addr));
-     if(config_set('vhost6')) {
-        # this needs testing...
-        (my $vhost) = $config->{vhost6} =~ /([^ ]+)/;
-        bind($fh, pack_sockaddr_in6(0, inet_pton(AF_INET6, $vhost)));
-     }
+      $saddr = sockaddr_in6($port, inet_pton(AF_INET6, $inet_addr));
+      if(config_set('vhost6')) {
+         # this needs testing...
+         (my $vhost) = $config->{vhost6} =~ /([^ ]+)/;
+         bind($fh, pack_sockaddr_in6(0, inet_pton(AF_INET6, $vhost)));
+      }
    }
 
    if($family == AF_INET) {
@@ -136,7 +136,7 @@ sub net_unixconnect {
    my $fh = Symbol::gensym;
 
    if(-e $local) {
-	  return 0 unless unlink $local;
+      return 0 unless unlink $local;
    }
 
    socket($fh, PF_UNIX, SOCK_STREAM, 0) or return (0, $!);
@@ -177,12 +177,12 @@ sub select_del {
    my($fh) = @_;
    my $fileno = select_fileno($fh);
    if(!$fileno) {
-	  for(0 .. $#handles) {
-		 $fileno = $_, last if $handles[$_] == $fh;
-	  }
+      for(0 .. $#handles) {
+         $fileno = $_, last if $handles[$_] == $fh;
+      }
    }
    return unless defined $handles[$fileno];
-
+   
    $handles[$fileno] = undef;
    select_makebits();
 }
@@ -204,13 +204,13 @@ sub select_makebits {
 sub select_canread {
    my($timeout) = @_;
    my $read = $select_bits;
-
+   
    if(select($read, undef, undef, $timeout) > 0) {
-	  my @out;
-	  for(0 .. $#handles) {
-		 push(@out, $handles[$_]) if vec($read, $_, 1);
-	  }
-	  return @out;
+      my @out;
+      for(0 .. $#handles) {
+         push(@out, $handles[$_]) if vec($read, $_, 1);
+      }
+      return @out;
    }
    return ();
 }
@@ -229,7 +229,7 @@ sub select_close {
 sub load_format {
    my $formatname = $config->{format};
    if($cgi->{format} && $cgi->{format} !~ /[^A-Za-z0-9]/) {
-	  $formatname = $cgi->{format};
+      $formatname = $cgi->{format};
    }
    return parse_config('formats/' . $formatname);
 }
@@ -289,9 +289,9 @@ sub format_colourhtml {
          if(length $bg) {
             $me .= "style=\"background: ".$format->{$bg}."\" "
          }
-
-	      $me .= "color=\"$format->{$fg}\">$4<\/font>";
-	      $me
+         
+         $me .= "color=\"$format->{$fg}\">$4<\/font>";
+         $me
       /eg;
       $line =~ s/\002(.*?)(\002|\017|$)/<b>$1<\/b>/g;
       $line =~ s/\022(.*?)(\022|\017|$)/<u>$1<\/u>/g;
@@ -395,15 +395,15 @@ sub format_varexpand {
          return $irc->{server};
       }
    }elsif(s/^%//) {
-		if(/^_$/) {
+      if(/^_$/) {
          return "\002";
-		}elsif(/^n$/) {
-			return "\003$format->{fg},$format->{bg}";
+      }elsif(/^n$/) {
+         return "\003$format->{fg},$format->{bg}";
       }elsif(/^%$/) {
          return "%";
-		}elsif(/^\d+$/) {
-			return "\003$_";
-		}
+      }elsif(/^\d+$/) {
+         return "\003$_";
+      }
       return "\%$_";
    }
    return $_;
@@ -466,7 +466,7 @@ sub load_socket {
    close(IP);
 
    my($socket,$error) = 
-	  net_unixconnect($config->{socket_prefix}.$cgi->{R}.'/sock');
+      net_unixconnect($config->{socket_prefix}.$cgi->{R}.'/sock');
 
    error("Error opening socket: $error") unless ref $socket;
 
@@ -487,17 +487,16 @@ sub unix_in {
       return;
    }
 
-
    if($input->{cmd}) {
-     my $now = time;
-     utime($now, $now, "$config->{socket_prefix}$cgi->{R}/sock");
-	  input_command($input->{cmd}, $input, $fh);
+      my $now = time;
+      utime($now, $now, "$config->{socket_prefix}$cgi->{R}/sock");
+      input_command($input->{cmd}, $input, $fh);
    }
 
    net_send($fh, "Content-type: text/html\r\n\r\n");
 
    if(defined $input->{item} && $input->{item} =~ /^\w+$/) {
-	  net_send($fh, interface_show($input->{item}, $input));
+      net_send($fh, interface_show($input->{item}, $input));
    }
 
    select_close($fh);
@@ -521,38 +520,38 @@ sub input_command {
 sub say_command {
    my($say, $target) = @_;
    return unless length $say;
-   $say =~ s/(\n|\r|\0)//sg;
-   $target =~ s/(\n|\r|\0)//sg;
+   $say =~ s/(\n|\r|\0|\001)//sg;
+   $target =~ s/(\n|\r|\0|\001)//sg;
    $say =~ s/\%C/\003/g;
    $say =~ s/\%B/\002/g;
    $say =~ s/\%U/\037/g;
    if($say =~ m!^/!) {
-	  if($say =~ s!^/ /!/!) {
-		 irc_send_message($target, $say);
-	  }else{
-		 (my $command, my $params) = $say =~ m|^/([^ ]+)(?: (.+))?$|;
-		 unless(defined $command && length $command) {
-			return;
-		 }
-
-		 $command = Command->expand($command);
-		 unless(access_command($command)) {
-			message('command denied', $command);
-			return;
-		 }
-
-		 my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '', $config, $interface);
-		 return 1 if $error == 100;
-
-		 if($error == 2) {
-		    message('command notparams', $error);
-		 }else{
-		    message('command error', $error);
-		 }
-		 return 0;
-	  }
+      if($say =~ s!^/ /!/!) {
+         irc_send_message($target, $say);
+      }else{
+         (my $command, my $params) = $say =~ m|^/([^ ]+)(?: (.+))?$|;
+         unless(defined $command && length $command) {
+            return;
+         }
+         
+         $command = Command->expand($command);
+         unless(access_command($command)) {
+            message('command denied', $command);
+            return;
+         }
+         
+         my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '', $config, $interface);
+         return 1 if $error == 100;
+         
+         if($error == 2) {
+            message('command notparams', $error);
+         }else{
+            message('command error', $error);
+         }
+         return 0;
+      }
    }else{
-	  irc_send_message($target, $say);
+      irc_send_message($target, $say);
    }
 }
 
@@ -615,12 +614,12 @@ sub list_connected_ips {
    (my $dir, my $prefix) = $config->{socket_prefix} =~ /^(.*\/)([^\/]+)$/;
    opendir(TMPDIR, "$dir") or return ();
    for(readdir TMPDIR) {
-	  next unless /^\Q$prefix\E/;
-	  next unless -o $dir . $_ && -d $dir . $_;
-	  open(TMP, "<$dir$_/ip") or next;
-	  chomp(my $tmp = <TMP>);
-	  $ips{$tmp}++;
-	  close(TMP);
+      next unless /^\Q$prefix\E/;
+      next unless -o $dir . $_ && -d $dir . $_;
+      open(TMP, "<$dir$_/ip") or next;
+      chomp(my $tmp = <TMP>);
+      $ips{$tmp}++;
+      close(TMP);
    }
    closedir(TMPDIR);
    return %ips;
@@ -629,9 +628,9 @@ sub list_connected_ips {
 sub access_configcheck { 
    my($type, $check) = @_;
    if(config_set("default_$type")) {
-	  my %tmp;
-	  @tmp{split /,\s*/, lc $config->{"default_$type"}} = 1;
-	  return 1 if exists $tmp{lc $check};
+      my %tmp;
+      @tmp{split /,\s*/, lc $config->{"default_$type"}} = 1;
+      return 1 if exists $tmp{lc $check};
    }
    return 0 unless config_set('allow_non_default') && config_set("access_$type");
 
@@ -644,11 +643,11 @@ sub access_command {
    my($command) = @_;
    return 1 unless config_set('access_command');
    for(split / /, $config->{access_command}) {
-	  if(/^!(.*)/) {
-		 return 0 if $command =~ /^$1/i;
-	  }else{
-		 return 1 if $command =~ /^$_/i;
-	  }
+      if(/^!(.*)/) {
+         return 0 if $command =~ /^$1/i;
+      }else{
+         return 1 if $command =~ /^$_/i;
+      }
    }
    return 1;
 }
@@ -676,9 +675,14 @@ sub client_hostname {
 
 sub session_timeout {
    return unless defined $intime;
-   if((time - $config->{session_timeout}) > $intime) {
+   if(config_set('session_timeout') && 
+         (time - $config->{session_timeout}) > $intime) {
       message('session timeout');
       irc_close('Session timeout');
+   }elsif($interface->ping && $intime < time - 900) {
+      irc_close('Ping timeout');
+   }elsif($interface->ping && $intime < time - 600) {
+      $interface->sendping;
    }
 }
 
@@ -691,7 +695,7 @@ sub irc_connect {
 
    my($ipv4,$ipv6) = net_hostlookup($server);
    unless(defined $ipv4 or defined $ipv6) {
-	  error("Looking up address: $!");
+      error("Looking up address: $!");
    }
 
    my $ip = config_set('prefer_v6') 
@@ -767,8 +771,8 @@ sub irc_connected {
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {
-	  message('access channel denied', $cgi->{chan});
-	  $cgi->{chan} = (split /,/, $config->{default_channel})[0];
+      message('access channel denied', $cgi->{chan});
+      $cgi->{chan} = (split /,/, $config->{default_channel})[0];
    }
    $irc->join($cgi->{chan} . (defined $key ? ' ' . $key : ''));
 }
@@ -776,8 +780,12 @@ sub irc_connected {
 sub irc_send_message {
    my($target, $text) = @_;
    $event->handle('message ' .
-		($irc->is_channel($target) ? 'public' : 'private' . ($interface->query ? ' window' : '')) . ' own', 
-		{ target => $target, create => 1 }, $irc->{nick}, $irc->{myhost}, $text);
+          (
+           $irc->is_channel($target) ? 'public' : 'private' .
+           $interface->query ? ' window' : ''
+          ) . ' own',
+         { target => $target, create => 1 },
+         $irc->{nick}, $irc->{myhost}, $text);
    $irc->msg($target,$text);
 }
 
@@ -788,22 +796,28 @@ sub irc_event {
 
    if($name =~ /^raw/) {
 #message('default', "Unhandled numeric: $name");
-	  my $params = $params[0];
-	  $info->{activity} = 1;
-	  $info->{target} = defined $params->{params}->[2] ? $params->{params}->[2] : 'Status';
-	  @params = (join(' ', defined $params->{params}->[2] ? @{$params->{params}}[2 .. @{$params->{params}} - 1] : ''),
-		defined $params->{text} ? $params->{text} : '');
+      my $params = $params[0];
+      $info->{activity} = 1;
+      $info->{target} = defined $params->{params}->[2] ? $params->{params}->[2] : 'Status';
+      
+      @params = (join(' ', defined $params->{params}->[2] 
+                  ? @{$params->{params}}[2 .. @{$params->{params}} - 1] 
+                  : ''),
+                defined $params->{text} 
+                  ? $params->{text} 
+                  : '');
+      
    }elsif($name =~ /^ctcp/) {
-	  return irc_ctcp($name, $info, @params);
+      return irc_ctcp($name, $info, @params);
    }elsif($name eq 'message public' && $params[2] =~ /^\Q$irc->{nick}\E\W/i) {
-	  $info->{activity} = 3;
-	  $name = 'message public hilight';
+      $info->{activity} = 3;
+      $name = 'message public hilight';
    }elsif($name eq 'message private' && $interface->query) {
-	  $name = 'message private window';
+      $name = 'message private window';
    }
-
+   
    if(exists $format->{$name}) {
-	  format_out($name, $info, \@params);
+      format_out($name, $info, \@params);
    }else{
       format_out('default', $info, \@params);
    }
@@ -812,62 +826,69 @@ sub irc_event {
 sub irc_ctcp {
    my($name, $info, $to, $nick, $host, $command, $params) = @_;
    if($name eq 'ctcp own msg') {
-	  format_out('ctcp own msg', $info, [$nick, $host, $command, $params]);
+      format_out('ctcp own msg', $info, [$nick, $host, $command, $params]);
    }elsif($name =~ /^ctcp msg /) {
       if(uc($command) eq 'KILL') {
-        return unless config_set('admin password');
-        my $crypt = $config->{'admin password'};
-        my($password, $reason) = split ' ', $params, 2;
-        return unless length $password and length $crypt;
-
-        if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
-           message('kill ok', $nick, $reason);
-           net_send($ircfh, "QUIT :Killed ($nick ($reason))\r\n");
-           irc_close();
-        }else{
-           message('kill wrong', $nick, $reason);
-        }
-	  }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
-        format_out('action public', $info, [$nick, $host, $params]);
-        return;
-	  }elsif(uc($command) eq 'ACTION') {
-        format_out('action private', $info, [$nick, $host, $params]);
-        return;
-     }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
-        format_out('not supported', $info, [$nick, $host, $params, "DCC"]);
-	  }else{
-	     format_out('ctcp msg', $info, [$to, $nick, $host, $command, $params]);
-	  }
-
-	  if($ctcptime > time-4) {
-		 $ctcptime = time;
-		 return;
-	  }
-	  $ctcptime = time;
-	  
-	  if(uc($command) eq 'VERSION') {
-		 $irc->ctcpreply($nick, $command,
-			 "CGI:IRC $VERSION - http://cgiirc.sf.net/");
-	  }elsif(uc($command) eq 'PING') {
-		 return if $params =~ /[^0-9 ]/ || length $params > 50;
-		 $irc->ctcpreply($nick, $command, $params);
-	  }elsif(uc($command) eq 'USERINFO') {
-		 $irc->ctcpreply($nick, $command,
-			 "$ENV{REMOTE_ADDR} - $ENV{HTTP_USER_AGENT}");
-	  }elsif(uc($command) eq 'TIME') {
-		 $irc->ctcpreply($nick, $command,
-			   scalar localtime());
-	  }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
-        my($type, $subtype) = split ' ', $params;
-        $type .= " $subtype";
-        $type = substr($type, 0, 20);
-        $irc->ctcpreply($nick, $command, "REJECT $type Not Supported");
-     }
+         return unless config_set('admin password');
+         my $crypt = $config->{'admin password'};
+         my($password, $reason) = split ' ', $params, 2;
+         return unless length $password and length $crypt;
+         
+         if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
+            message('kill ok', $nick, $reason);
+            net_send($ircfh, "QUIT :Killed ($nick ($reason))\r\n");
+            irc_close();
+         }else{
+            message('kill wrong', $nick, $reason);
+         }
+      }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
+         format_out('action public', $info, [$nick, $host, $params]);
+         return;
+      }elsif(uc($command) eq 'ACTION') {
+         format_out('action private', $info, [$nick, $host, $params]);
+         return;
+      }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
+         format_out('not supported', $info, [$nick, $host, $params, "DCC"]);
+      }else{
+         format_out('ctcp msg', $info, [$to, $nick, $host, $command, $params]);
+      }
+      
+      if($ctcptime > time-4) {
+         $ctcptime = time;
+         return;
+      }
+      $ctcptime = time;
+      
+      if(uc($command) eq 'VERSION') {
+         $irc->ctcpreply($nick, $command.
+               "CGI:IRC $VERSION - http://cgiirc.sf.net/");
+      }elsif(uc($command) eq 'PING') {
+         return if $params =~ /[^0-9 ]/ || length $params > 50;
+         unless($interface->ctcpping($nick, $params)) {
+            $irc->ctcpreply($nick, $command, $params);
+         }
+      }elsif(uc($command) eq 'USERINFO') {
+         $irc->ctcpreply($nick, $command,
+               config_set('extra_userinfo') ?
+                 "IP: $ENV{REMOTE_ADDR} - Proxy: $ENV{HTTP_VIA} - " .
+                 "Forward IP: $ENV{HTTP_X_FORWARDED_FOR} - User Agent: " .
+                 "$ENV{HTTP_USER_AGENT} - Host: $ENV{SERVER_NAME}"
+                : "$ENV{REMOTE_ADDR} - $ENV$ENV{HTTP_USER_AGENT}"
+               );
+      }elsif(uc($command) eq 'TIME') {
+         $irc->ctcpreply($nick, $command,
+               scalar localtime());
+      }elsif(uc($command) eq 'DCC' && lc $to eq lc $irc->{nick}) {
+         my($type, $subtype) = split ' ', $params;
+         $type .= " $subtype";
+         $type = substr($type, 0, 20);
+         $irc->ctcpreply($nick, $command, "REJECT $type Not Supported");
+      }
    }else{
-	  if(uc($command) eq 'PING') {
-		 $params = time - $params . " seconds";
-	  }
-	  format_out('ctcp reply', $info, [$nick, $host, $command, $params]);
+      if(uc($command) eq 'PING') {
+         $params = time - $params . " seconds";
+      }
+      format_out('ctcp reply', $info, [$nick, $host, $command, $params]);
    }
 }
 
@@ -875,12 +896,12 @@ sub irc_ctcp {
 #### prints a very simple header
 sub header {
    print join("\r\n",
-		 'HTTP/1.0 200 OK',
-		 'Content-type: text/html',
-         'Pragma: no-cache',
-		 'Cache-control: must-revalidate, no-cache, no-store',
-         'Expires: -1',
-		 "\r\n");
+     'HTTP/1.0 200 OK',
+     'Content-type: text/html',
+     'Pragma: no-cache',
+     'Cache-control: must-revalidate, no-cache, no-store',
+     'Expires: -1',
+     "\r\n");
 }
 
 
@@ -890,11 +911,11 @@ sub error {
    header() unless $config;
    if(defined $interface && ref $interface) {
      if(ref $format) {
-        my $format = format_parse($format->{error}, {}, $message);
+        my $format = format_parse($format->{error}, {}, [$message]);
         $format = format_colourhtml($format);
         $interface->error($format);
      }else{
-	     $interface->error("Error: $message");
+        $interface->error("Error: $message");
      }
    }else{
       print "An error occured: $message\n";
@@ -920,8 +941,7 @@ sub init {
    $config->{access_command} = '!quote' unless exists $config->{access_command};
    $config->{format} ||= 'default';
 
-   $timer->addforever(interval => 60, code => \&session_timeout)
-      if config_set('session_timeout');
+   $timer->addforever(interval => 30, code => \&session_timeout);
 
    header();
 
@@ -948,19 +968,21 @@ sub init {
    access_ipcheck();
 
    unless(access_configcheck('server', $cgi->{serv})) {
-	  message('access server denied', $cgi->{serv});
-	  $cgi->{serv} = (split /,/, $config->{default_server})[0];
+      message('access server denied', $cgi->{serv});
+      $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
    ($cgi->{serv}) = $cgi->{serv} =~ /(.*)/; # untaint hack.
-
+      
    my $resolved = '';
    
    if(config_set('encoded_ip')) {
-     $resolved = client_hostname() if $config->{encoded_ip} > 2;
-	  $cgi->{name} = '[' .
-        ($config->{encoded_ip} <= 2 
-         ? # The real IP in realname if set to 3.
-           encode_ip($ENV{REMOTE_ADDR}) : $resolved)
+      $resolved = client_hostname() if $config->{encoded_ip} > 2;
+      $cgi->{name} = '[' .
+         ($config->{encoded_ip} <= 2 
+          ? encode_ip($ENV{REMOTE_ADDR})
+            # The resolved hostname in realname if set to 3.
+          : $resolved
+         )
        . '] ' . $cgi->{name};
    }
 
@@ -979,18 +1001,29 @@ sub init {
    }
 
    message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
+   $interface->sendping if $interface->ping;
 
    $ircfh = irc_connect($cgi->{serv}, $cgi->{port});
    $irc = IRC->new(
-		 event => $event,
-		 timer => $timer,
-		 fh => $ircfh,
-		 nick => $cgi->{nick},
-		 server => $cgi->{serv},
-		 password => defined $cgi->{pass} ? $cgi->{pass} : (config_set('server_password') ? $config->{server_password} : ''),
-		 realname => $cgi->{name},
-		 user => config_set('encoded_ip') && $config->{encoded_ip} > 1 ? encode_ip($ENV{REMOTE_ADDR}) : (config_set('default_user') ? $config->{default_user} : 'cgiirc'),
-   );
+         event => $event,
+         timer => $timer,
+         fh => $ircfh,
+         nick => $cgi->{nick},
+         server => $cgi->{serv},
+         password => defined $cgi->{pass}
+               ? $cgi->{pass} 
+               : (config_set('server_password') 
+                  ? $config->{server_password} 
+                  : ''
+                 ),
+         realname => $cgi->{name},
+         user => config_set('encoded_ip') && $config->{encoded_ip} > 1 
+            ? encode_ip($ENV{REMOTE_ADDR}) 
+            : (config_set('default_user') 
+               ? $config->{default_user} 
+               : 'cgiirc'
+            ),
+  );
 }
 
 
@@ -998,46 +1031,46 @@ sub init {
 
 sub main_loop {
    error("Required objects not loaded")
-	  unless ref $timer
-	   and ref $event
-	   and ref $config;
+      unless ref $timer
+       and ref $event
+       and ref $config;
 
    while(1) {
-	  my @ready = select_canread(2);
-	  for my $fh(@ready) {
-		 if($fh == $unixfh) {
-			my $newfh = Symbol::gensym;
-			if(accept($newfh, $fh)) {
-            net_autoflush($newfh);
-			   select_add($newfh);
-			}
-		 }else{
-		    my($tmp,$char);
-		    $tmp = sysread( $fh, $char, 4096 );
-
-		    select_close($fh) unless defined $tmp && length $char;
-
-		    $inbuffer{$fh} .= $char;
-
-		    while (my($theline,$therest)=$inbuffer{$fh} =~ /([^\n]*)\n(.*)/s ) {
-			   $inbuffer{$fh} = $therest;
-			   $theline =~ s/\r$//;
-
-			   if($fh == $ircfh) {
-				  $irc->in($theline);
-			   }else{
-				  unix_in($fh,$theline);
-			   }
-			}
-         
-         if(@output) {
-            $interface->lines(@output);
-            @output = ( );
+      my @ready = select_canread(2);
+      for my $fh(@ready) {
+         if($fh == $unixfh) {
+            my $newfh = Symbol::gensym;
+            if(accept($newfh, $fh)) {
+               net_autoflush($newfh);
+               select_add($newfh);
+            }
+         }else{
+            my($tmp,$char);
+            $tmp = sysread( $fh, $char, 4096 );
+            
+            select_close($fh) unless defined $tmp && length $char;
+            
+            $inbuffer{$fh} .= $char;
+            
+            while (my($theline,$therest)=$inbuffer{$fh} =~ /([^\n]*)\n(.*)/s ) {
+               $inbuffer{$fh} = $therest;
+               $theline =~ s/\r$//;
+               
+               if($fh == $ircfh) {
+                  $irc->in($theline);
+               }else{
+                  unix_in($fh,$theline);
+               }
+            }
+            
+            if(@output) {
+               $interface->lines(@output);
+               @output = ( );
+            }
          }
-		 }
-	  }
-	  irc_close() if $needtodie;
-	  $timer->run;
+      }
+      irc_close() if $needtodie;
+      $timer->run;
    }
 }
 

@@ -265,6 +265,20 @@ sub blank {
    return '';
 }
 
+sub ctcpping {
+   my($self, $nick, $params) = @_;
+   _func_out('sendcmd',"/ctcpreply $nick PING $params");
+   1;
+}
+
+sub ping {
+   1;
+}
+
+sub sendping {
+   _func_out('sendcmd',"/noop");
+}
+
 sub help {
    my($self,$config) = @_;
    my $help = <<EOF;

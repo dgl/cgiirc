@@ -3,6 +3,9 @@ use strict;
 my($package, $event, $irc, $command, $target, $params, $config, $interface);
 
 my %commands = (
+  noop => sub {
+     0;
+  },
   msg => sub {
      my($target, $text) = split(' ', $params, 2);
 	 return 2 unless(defined $text && defined $target);
@@ -167,6 +170,10 @@ my %commands = (
 	  $event->handle('ctcp own msg',
 	    { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
 	  $irc->ctcp($target,$text);
+  },
+  ctcpreply => sub {
+     my($target, $type, $text) = split(' ', $params, 3);
+     $irc->ctcpreply($target, $type, $text);
   },
   ping => sub {
      $target = $params if $params;

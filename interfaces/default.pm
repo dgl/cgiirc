@@ -54,6 +54,10 @@ sub options { 'DUMMY' }
 
 sub setoption { 'DUMMY' }
 
+# not supported by default interface
+sub ctcpping { 0 }
+sub ping { 0 }
+
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
