@@ -25,7 +25,9 @@ default_nick = CGI???
 default_user = cgiirc
 
 # Default quit message
-#quit_message=
+#quit_message = CGI:IRC
+# Quit prefix added to EOF messages and other quits not from /quit
+#quit_prefix = CGI:IRC
 
 # -----
 # System setup options
@@ -41,6 +43,14 @@ image_path = images
 # The place where tmp. files should be stored
 socket_prefix = /tmp/cgiirc-
 
+# Virtual Host - Bind to a specific IP address
+#vhost = 0.0.0.0
+# For IPv6
+#vhost6 = 
+
+# Prefer IPv6 addresses if both addresses resolve (default is IPv4).
+#prefer_v6 = 0
+
 # -----
 # Access related settings
 
@@ -54,7 +64,7 @@ encoded_ip = 2
 # contains ipaccess information then CGI:IRC will check this file.
 # See ipaccess.example for more information, rename it to ipaccess
 # and uncomment the line below to enable.
-# ip_access_file = ipaccess
+#ip_access_file = ipaccess
 
 # Allow access to servers and channels not set in the default
 # settings above and use access_channel and access_server below.
@@ -84,6 +94,16 @@ access_command =
 # 18000 is 5 hours
 session_timeout = 18000
 
+# Admin password (used for /ctcp kill)
+# Remember this is a crypt of the password - not the actual password.
+#admin password = 
+
+# If your server is password protected and you wish to provide the password in
+# the script rather than get the user to enter the password then set this
+# option to the password (The user can still override this with a password on
+# the login form).
+#server_password =
+
 # -----
 # Appearence settings
 
@@ -94,4 +114,26 @@ session_timeout = 18000
 
 # The default format to use
 format = default
+
+# Remove almost all colour from the output
+#removecolor = 0
+
+# By default CGI:IRC shorterns the text inside links to 120 characters to work
+# around browser bugs. This changes the length text is shortened to
+#linkshorten = 120
+
+# ----
+# Interface settings
+# These control the options for the user - the user can change these via the
+# options dialog.
+# Uncommenting the options below will change from the default value.
+
+# Enable Timestamps for all text
+#interface timestamp = 1
+# Convert :-) and so on into smilie images
+#interface smilies = 1
+# Default font to use
+#interface font = monospace
+# Show users nickname next to text entry area
+#interface shownick = 1
 

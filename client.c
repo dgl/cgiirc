@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.7 2002/05/02 18:57:09 dgl Exp $
+ * $Id: client.c,v 1.8 2002/05/10 21:19:19 dgl Exp $
  */
 
 #include <stdio.h>
@@ -134,7 +134,7 @@ int unix_connect(char *where) {
    /*size_t size;*/
    struct sockaddr_un saddr;
    int sock, len;
-   char filename[100], errmsg[50];
+   char filename[100], errmsg[100];
 
    len = strlen(TMPLOCATION) + strlen(where) + 6;
    if(len > 100) error("Too long");
@@ -156,7 +156,7 @@ int unix_connect(char *where) {
              case ENOENT:
                 error("No such file in connect()\n");
              default:
-				snprintf(errmsg, 50, "Unhandled error in connect(): %d\n", errno);
+                snprintf(errmsg, 99, "Unhandled error in connect(): %s\n", strerror(errno));
                 error(errmsg);
           }
    }

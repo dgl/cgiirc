@@ -2,16 +2,20 @@ TODO
 ----
 
 bugs:
-- ; in smilies
+- problems with the smilie regexps
+- horzontal scrolling with really long lines
 
---- Release 0.5 here.
-
+features:
 - pop-out needs to work in mozilla too
   mozilla seems to be being typically braindead about this
 - topic bar
   this is going to be difficult as it comes along with wanting to reposition
   the tab bar as well, i'm not sure of the best way of doing this (and
   interfaces are already too messy).
+- 0.4 had a status bar in text-* themes, make shownick into something better?
+- who list format
+- formats could be made more user friendly, allow selection of them on login
+  form?
 
 Might be done one day:
 - right click context menus
