@@ -1,0 +1,122 @@
+looking up = {prefix-client} Looking up {server $0}
+connecting = {prefix-client} Connecting to {server $0} [$1] port {hilight $2}
+
+access denied = {prefix-error} Access Denied: $0
+access server denied = {prefix-error} Access to that server is blocked
+access channel denied = {prefix-error} Access to that channel is blocked
+command denied = {prefix-error} Access to that command is blocked
+session timeout = {prefix-error} Timeout - Your session has been inactive too long
+
+command notparams = {prefix-client} Not enough parameters for command
+command error = {prefix-client} Error running command
+error = {prefix-error} An error occured: $0
+
+cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
+
+join = {prefix-channel} $0 has joined {channel $T}
+nick = {prefix-channel} $0 is now known as $2
+quit = {prefix-user} $0 Quit {reason $2}
+part = {prefix-channel} $0 left {channel $T} {reason $2}
+user mode = {prefix-channel} $0 sets mode: $2
+mode = {prefix-channel} $0 sets mode: $2
+topic = {prefix-channel} $0 changes topic to '$2'
+invite = {prefix-channel} $0 {host $1} invites you to join {channel $2}
+kick = {prefix-channel} $2 was kicked by $0 {reason $3}
+
+prefix-error = %04***
+prefix-info = %03***
+prefix-channel = %03***
+prefix-user = %02***
+prefix-client = %12***
+prefix-server = %05***
+prefix-ctcp = %04
+prefix-normal = ***
+
+notice public = {notice-target $0 $T} {text $2}
+notice special = {notice-target $0 $2} {text $3}
+notice private = {prefix-server}-{notice-nick $0}- {text $2}
+notice server = %05-$0%05-%n {text $2}
+
+notice-target = %05-$0:$1-
+notice-nick = %03$0%n
+notice-host = [$0]
+
+message public = {message-nick $0} {text $2}
+message public hilight = {message-nick-hilight $0} {text $2}
+message private window = {message-nick $0} {text $2}
+message private = [$0($1)] {text $2}
+message special = <$0:$2> {text $3}
+
+message-nick = %02<%n$0%02>%n
+message-nick-own = %03<%n$0%03>%n
+message-nick-hilight = %02<%07$0%02>%n
+
+message public own = {message-nick-own $0} {text $2}
+message private window own = {message-nick-own $0} {text $2}
+message private own = [msg->$T] {text $2}
+
+action-nick = %_*%_ $0
+action public = {action-nick $0} {text $2}
+action private = {action-nick $0} {text $2}
+
+action public own = {action-nick $0} {text $2}
+action private own = {action-nick $0} {text $2}
+
+ctcp own msg = {prefix-ctcp} CTCP to $T: $2
+ctcp msg = {prefix-ctcp} $0 requested CTCP %_$2%_ from $T: $3
+ctcp reply = {prefix-ctcp} CTCP %_$2%_ reply from $0: $3
+
+text = $0
+channel = %_$0%_
+reason = ($0)
+
+server = %_$0%_
+hilight = %_$0%_
+host = ($0)
+
+default = {prefix-normal} $0-
+
+reply away = {prefix-user} $T is away: $0
+reply nowaway = {prefix-user} You are now set as away
+reply unaway = {prefix-user} You are no longer set as away
+
+reply channel time = {prefix-channel} Channel created on $0
+reply notopic = {prefix-channel} No topic set
+reply topic = {prefix-channel} Topic is: $0
+reply topicwhotime = {prefix-channel} Topic set by $0 [$1]
+
+reply whois user = {prefix-user} $T [$0@$1]: $2
+reply whowas user = {prefix-user} $T [$0@$1]: $2
+reply whois channel = {prefix-user} channels: $0
+reply whois regnick = {prefix-user} registered: $0
+reply whois operator = {prefix-user} ircop: $0
+reply whois idle = {prefix-user} idle: $0 signon: $1
+reply whois server = {prefix-user} server: $0 [$1]
+
+reply end whois = $0
+reply end whowas = $0
+
+error nosuchnick = {prefix-server} %_$0%_ No such nick/channel
+error nickinuse = {prefix-server} Nickname $0 is already in use, type /nick newnick to use another.
+
+irc close = {prefix-error} Disconnected from IRC
+
+bg = 00
+fg = 01
+00 = #ffffff
+01 = #000000
+02 = #0000FF
+03 = #008000
+04 = #ff0000
+05 = #800000
+06 = #800080
+07 = #ff6600
+08 = #ffff00
+09 = #00ff00
+10 = #008080
+11 = #00ffff
+12 = #000099
+13 = #ff00ff
+14 = #808080
+15 = #c0c0c0
+
