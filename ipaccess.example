@@ -17,6 +17,7 @@
 # Examples (remove first # to enable)
 #192.168.1.* 0 # Ban access from 192.168.1.*
 #192.168.2.* 5 # Limit access from 192.168.2.* to 5 connections per IP address
+#192.168.3.0/24 0 # Ban access from 192.168.3.0/24
 #*.*.*.* 2 # Allow all connections but limit to 2 connections per IP address
 
 # Remember you must add at least one allow line if you enable ip_access to

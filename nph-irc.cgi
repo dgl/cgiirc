@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.57 2002/06/15 21:35:15 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.58 2002/06/30 15:07:30 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -565,28 +565,44 @@ sub config_set {
 }
 
 sub access_ipcheck {
-   my($ip) = $ENV{REMOTE_ADDR};
    return  1 unless config_set('ip_access_file');
+   my($ip) = $ENV{REMOTE_ADDR};
+   my($ipn) = inet_aton($ip);
+   my($ipaccess_match) = 0;
 
    open(IP, "<$config->{ip_access_file}") or return 1;
    my %ips = list_connected_ips();
    while(<IP>) {
-	  next if /^(#|\s*$)/;
-	  s/\s+#.*$//g;
-	  my($check,$limit) = split(' ', $_, 2);
-	  $check =~ s/\./\\./g;
-	  $check =~ s/\*/\\d+/g;
-	  if($ip =~ /^$check$/) {
-		 return 1 unless defined $limit;
-		 if($limit == 0) {
-		    message('access denied', 'No connections allowed');
-          irc_close();
-		 }elsif($ips{$ip} >= $limit) {
-		    message('access denied', 'Too many connections');
-          irc_close();
-		 }
-		 return 1;
-	  }
+      chomp;
+      next if /^(#|\s*$)/;
+      s/\s+#.*$//g;
+      my($check,$limit) = split(' ', $_, 2);
+      if ($check =~ /\//) {
+         my($addr,$mask) = split('/', $check, 2);
+         $mask = "1" x $mask . "0" x (32-$mask);
+         $mask = pack ("B32", $mask);
+         $mask = inet_ntoa($mask & $ipn);
+         if($addr eq $mask) {
+            $ipaccess_match = 1;
+         }
+      }else{
+         $check =~ s/\./\\./g;
+         $check =~ s/\*/\\d+/g;
+         if($ip =~ /^$check$/) {
+            $ipaccess_match = 1;
+         }
+      }
+      if($ipaccess_match == 1) {
+         return 1 unless defined $limit;
+         if($limit == 0) {
+            message('access denied', 'No connections allowed');
+            irc_close();
+         }elsif($ips{$ip} >= $limit) {
+            message('access denied', 'Too many connections');
+            irc_close();
+         }
+         return 1;
+      }
    }
    close(IP);
 
