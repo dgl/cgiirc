@@ -24,7 +24,7 @@ use vars qw($VERSION $PREFIX);
 $PREFIX = "/tmp/cgiirc-";
 
 ($VERSION =
-'$Name:  $ $Id: client-perl.cgi,v 1.1 2002/03/17 00:56:51 dgl Exp $'
+'$Name:  $ $Id: client-perl.cgi,v 1.2 2002/03/17 01:14:00 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -68,7 +68,7 @@ print while(<$fh>);
 exit;
 
 sub cgi_read {
-   return unless defined $ENV{REQUEST_METHOD};
+   return (undef,undef) unless defined $ENV{REQUEST_METHOD};
    if($ENV{REQUEST_METHOD} eq 'GET' && $ENV{QUERY_STRING}) {
       my $cgi = parse_query($ENV{QUERY_STRING});
 	  return($ENV{QUERY_STRING},$cgi->{R});

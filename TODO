@@ -39,9 +39,8 @@ nph-irc.cgi:
 - config fonts
 - config timestamps
 - config vhost
-- random value via http referer problem
-  cookie read on frameset load, if set write to ^^cookie file and check
-  future requests
+= random value via http referer problem (needs adding to client.c and doing in
+  nph-irc.cgi) cookie read on frameset load
 - session timeout if no data sent (set optionally)
 
 Abuse:
