@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.42 2002/05/02 20:23:03 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.43 2002/05/03 19:05:47 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -745,7 +745,7 @@ sub irc_connected {
    my($event, $self, $server, $nick) = @_;
    open(SERVER, ">>$config->{socket_prefix}$cgi->{R}/server")
       or error("Writing to server file; $!");
-   print SERVER "$server\n";
+   print SERVER "$server\n$nick\n";
    close(SERVER);
 
    my $key;
