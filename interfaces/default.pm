@@ -65,9 +65,10 @@ sub ping { 0 }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
-   if($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[|OmniWeb/i) {
+   if ($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[|OmniWeb|Safari|Mozilla\/4.\d+ .*Mac_PowerPC/i) {
       $notsupported++;
    }
+
 print <<EOF;
 $standardheader
 <html>
@@ -125,7 +126,7 @@ function setcharset() {
 <body bgcolor="#ffffff" text="#000000" onload="setcharset();">
 EOF
 if($notsupported) {
-   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading.</font>\n";
+	print "<font size=\"+1\" color=\"red\">This web-based IRC interface probably won't work well or at all with your browser.</font>\n<br /><b>You could try a <a href=\"http://irchelp.org\">non web-based IRC client</a> or a browser such as <a href=\"http://www.getfirefox.com/\">Mozilla Firefox</a>.</b><br /><br />\n";
 }
 print <<EOF;
 <form method="post" action="$this" name="loginform" onsubmit="setjs();return nickvalid()">
