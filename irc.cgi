@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.30 2005/01/05 23:15:29 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.31 2005/01/08 02:13:52 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -36,7 +36,7 @@ my $cgi = cgi_read();
 my $config = parse_config('cgiirc.config');
 
 if(!parse_cookie()) {
-   print "Set-cookie: cgiircauth=". random(25) .";path=/\n";
+   print "Set-cookie: cgiircauth=". random(25) .";path=/\r\n";
 }
 print join("\r\n",
 # Hack to make sure we print the correct type for stylesheets too..
