@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.67 2002/10/02 16:14:26 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.68 2002/10/02 16:33:07 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -271,16 +271,21 @@ sub message {
 sub format_colourhtml {
    my($line) = @_;
 
-   $line =~ s/\&/\&amp;/g;
-   $line =~ s/</\&lt;/g;
-   $line =~ s/>/\&gt;/g;
-   $line =~ s/"/\&quot;/g;
+   # Used as a token for replaces 
+   my $tok = "\004";
+
+   $line =~ s/$tok//g;
+
+   $line =~ s/\&/$tok\&amp;$tok/g;
+   $line =~ s/</$tok\&lt;$tok/g;
+   $line =~ s/>/$tok\&gt;$tok/g;
+   $line =~ s/"/$tok\&quot;$tok/g;
 
    $line =~ s!((https?|ftp):\/\/[^$ ]+)!$interface->link(format_remove($1), format_linkshorten($1))!gie;
    $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1 . $interface->link(format_remove("http://$1", $1)) . $3!gie;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
-      $line =~ s{(?:(?<!\&\w{4};)|(?<!\&\w{2};))(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
+      $line =~ s{(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
          my($sm, $tmp) = ($1, $1);
          for(keys %regexpicon) {
             next unless $sm =~ /^$_$/;
@@ -291,6 +296,7 @@ sub format_colourhtml {
       }ge;
    }
 
+   $line =~ s/$tok//g;
    $line =~ s/( {2,})/'&nbsp;' x (length $1)/eg;
 
    return format_remove($line) if $config->{removecolour};
