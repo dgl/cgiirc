@@ -110,9 +110,9 @@ my %commands = (
   invite => sub {
      my($atarget, $text) = split(' ', $params, 2);
 	 if($text) {
-	    $irc->invite($atarget, $text);
+	    $irc->invite($text, $atarget);
 	 }else{
-	    $irc->invite($target, $params);
+	    $irc->invite($params, $target);
 	 }
   },
   k => 'kick',
