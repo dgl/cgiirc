@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.14 2002/05/22 11:23:36 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.15 2002/05/22 11:36:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -49,8 +49,7 @@ EOF
 my $config = parse_config('cgiirc.config');
 my $cgi = cgi_read();
 
-my $scriptname = $config->{script_login} || $0;
-$scriptname =~ s!^.*/!!;
+my $scriptname = $config->{script_login} || 'irc.cgi';
 
 my $interface = ref $cgi && defined $cgi->{interface} ? $cgi->{interface} : 'default';
 $interface =~ s/[^a-z]//gi;
