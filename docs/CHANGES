@@ -1,5 +1,15 @@
 Summary of changes
 
+0.5.5
+- Various bugfixes including: Firefox CSS, paste
+- Proper UTF-8 support (uses Encode)
+- Now looks for configuration files in /etc as well
+- Multiple ipaccess files
+
+0.5.4
+- New options images
+- XMLHTTP support
+
 0.5.3
 - Lots of bug fixes (+/!channels, ( key in mozilla and some smaller things)
 - Use of iframes removed (IE sometimes does not load the JS needed properly)
