@@ -59,6 +59,8 @@ my %options = (
    },
 );
 
+my(%output_status, %output_none, %output_active);
+
 sub new {
    my($class,$event, $timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
@@ -81,6 +83,19 @@ sub new {
    _func_out('witemnospeak', 'Status');
    _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
    _func_out('enable_sounds') if ((exists $icookies->{actsound} || exists $icookies->{joinsound}) && ($icookies->{actsound} || $icookies->{joinsound}));
+
+   if(exists $::config->{'output status'}) {
+      @output_status{split /,\s*/, $::config->{'output status'}} = 1;
+   }
+
+   if(exists $::config->{'output none'}) {
+      @output_none{split /,\s*/, $::config->{'output none'}} = 1;
+   }
+   
+   if(exists $::config->{'output active'}) {
+      @output_active{split /,\s*/, $::config->{'output active'}} = 1;
+   }
+   
    return $self;
 }
 
@@ -199,6 +214,11 @@ sub makeline {
    }elsif($info->{type} eq 'join') {
       $out = "parent.joinsound();";
    }
+
+   $info->{type} =~ s/^(\w+ \w+) .*/$1/;
+   return if exists $output_none{$info->{type}};
+   $target = "Status" if exists $output_status{$info->{type}};
+   $target = "-active" if exists $output_active{$info->{type}};
    
    if($info->{style}) {
       $html = "<span class=\"main-$info->{style}\">$html</span>";
@@ -655,11 +675,14 @@ function countit(obj) {
 function witemaddtext(name, text, activity, redraw) {
    if(name == '-all') {
       for(var window in Witems) {
+        if(window == '-all') return
         if(Witems[window].info) continue;
 	     witemaddtext(window, text, activity, redraw);
 	  }
       return;
    }
+   if(name == '-active') name = currentwindow
+
    if(!Witems[name] && !(name = findwin(name))) {
       if(!Witems["Status"]) return;
 	  name = "Status";
@@ -1050,7 +1073,7 @@ function t(item,text) {
 function load() {
    fns();
 EOF
-if(!exists $config->{disable_format_input} || !$config->{disable_format_input}) {
+if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/ && (!exists $config->{disable_format_input} || !$config->{disable_format_input})) {
 print "document.getElementById('extra').style.display = 'none';"
 }
 print <<EOF;

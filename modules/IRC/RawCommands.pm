@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.24 2003/10/29 01:12:53 dgl Exp $
+# $Id: RawCommands.pm,v 1.25 2003/10/29 12:28:35 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -334,11 +334,11 @@ my %raw = (
 
    318 => sub { # RPL_ENDOFWHOIS
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply end whois', _info($params->{params}->[2], 1), $params->{text});
+	  $self->{event}->handle('reply whois end', _info($params->{params}->[2], 1), $params->{text});
    },
    369 => sub { # RPL_ENDOFWHOWAS
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply end whowas', _info($params->{params}->[2], 1), $params->{text});
+	  $self->{event}->handle('reply whowas end', _info($params->{params}->[2], 1), $params->{text});
    },
 
    # list
@@ -352,7 +352,7 @@ my %raw = (
    },
    323 => sub { # RPL_LISTEND
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply end list', _info('Status', 1), $params->{text});
+	  $self->{event}->handle('reply list end', _info('Status', 1), $params->{text});
    },
   
    # channel mode
@@ -461,7 +461,7 @@ my %raw = (
 		 delete($self->{_channels}->{$params->{params}->[2]}->{who_sync});
 		 return;
 	  }
-	  $self->{event}->handle('reply end who', $params, $params->{params}->[2]);
+	  $self->{event}->handle('reply who end', $params, $params->{params}->[2]);
    },
    
    # onjoin / names
@@ -504,7 +504,7 @@ my %raw = (
    },
    368 => sub { # RPL_ENDOFBANLIST
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply end ban', _info($params->{params}->[2], 1),$params->{params}->[2],$params->{text});
+	  $self->{event}->handle('reply ban end', _info($params->{params}->[2], 1),$params->{params}->[2],$params->{text});
    },
 
    372 => sub { # RPL_MOTD
@@ -523,7 +523,7 @@ my %raw = (
 		 $self->{connect_time} = time;
 		 $self->{event}->handle('server connected',$self, $self->{server},$self->{nick});
 	  }
-	  $self->{event}->handle('reply end motd',_info('Status', 1),$params->{text});
+	  $self->{event}->handle('reply motd end',_info('Status', 1),$params->{text});
    },
    391 => sub { # RPL_TIME
       my($event,$self,$params) = @_;

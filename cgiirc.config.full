@@ -138,6 +138,17 @@ session_timeout = 18000
 # The default format to use
 format = default
 
+# These options control where output goes. Parameters are comma seperated
+# and are the types (e.g. the names used in the format files), only the
+# first two words are matched.
+
+# Do not output joins, parts or quits.
+#output none = join, part, quit
+# Show whois in the active window
+#output active = reply whois
+# Show the names output in the Status window
+#output status = reply names
+
 # Remove almost all colour from the output
 #removecolor = 0
 

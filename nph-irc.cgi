@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.87 2003/10/29 11:33:13 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.88 2003/10/29 12:28:33 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -269,7 +269,7 @@ sub format_out {
 
 sub message {
    my($formatname, @params) = @_;
-   my $info = { target => 'Status', activity => 1 };
+   my $info = { target => 'Status', activity => 1, type => $formatname };
    format_out($formatname, $info, \@params);
 }
 

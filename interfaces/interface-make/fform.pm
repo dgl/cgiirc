@@ -33,7 +33,7 @@ function t(item,text) {
 function load() {
    fns();
 EOF
-if(!exists $config->{disable_format_input} || !$config->{disable_format_input}) {
+if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/ && (!exists $config->{disable_format_input} || !$config->{disable_format_input})) {
 print "document.getElementById('extra').style.display = 'none';"
 }
 print <<EOF;

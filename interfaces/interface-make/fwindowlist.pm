@@ -248,11 +248,14 @@ function countit(obj) {
 function witemaddtext(name, text, activity, redraw) {
    if(name == '-all') {
       for(var window in Witems) {
+        if(window == '-all') return
         if(Witems[window].info) continue;
 	     witemaddtext(window, text, activity, redraw);
 	  }
       return;
    }
+   if(name == '-active') name = currentwindow
+
    if(!Witems[name] && !(name = findwin(name))) {
       if(!Witems["Status"]) return;
 	  name = "Status";
