@@ -21,11 +21,11 @@
 # BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
 
 use strict;
-use vars qw($VERSION);
+use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.31 2005/01/08 02:13:52 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.32 2005/01/08 17:27:54 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -33,7 +33,12 @@ $VERSION =~ s/_/./g;
 require 'parse.pl';
 
 my $cgi = cgi_read();
-my $config = parse_config('cgiirc.config');
+
+for('', '/etc/cgiirc/', '/etc/') {
+   last if -r ($config_path = $_) . 'cgiirc.config';
+}
+
+my $config = parse_config($config_path . 'cgiirc.config');
 
 if(!parse_cookie()) {
    print "Set-cookie: cgiircauth=". random(25) .";path=/\r\n";
@@ -91,7 +96,7 @@ if(ref $cgi && defined $cgi->{item}) {
             ? $cgi->{Format} 
             : $config->{format} || 'default';
    $format =~ s/[^a-z]//gi;
-   $format = parse_config("formats/$format");
+   $format = parse_config($config_path . "formats/$format");
    $style = exists $format->{style} ? $format->{style} : 'default';
 
    $out .= "R=$r";
@@ -138,10 +143,10 @@ if(ref $cgi && defined $cgi->{item}) {
        $server = "-DISABLED- $server" unless ref $server;
    }
 
-   opendir(FORMATS, "formats");
+   opendir(FORMATS, $config_path . "formats");
    my @formats;
    for(sort readdir FORMATS) {
-      next unless !/^\./ && -f "formats/$_";
+      next unless !/^\./ && -f $config_path . "formats/$_";
       if($_ eq ($config->{format} || 'default')) {
          unshift(@formats, $_);
       }else{

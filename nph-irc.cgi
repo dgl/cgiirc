@@ -28,10 +28,11 @@ use vars qw(
       $unixfh $ircfh $cookie $ctcptime $intime $pingtime
       $timer $event $config $cgi $irc $format $interface $ioptions
       $regexpicon %regexpicon
+      $config_path
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.101 2005/01/06 00:44:18 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.102 2005/01/08 17:27:54 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -58,6 +59,10 @@ use Event;
 use IRC;
 use Command;
 require 'parse.pl';
+
+for('', '/etc/cgiirc/', '/etc/') {
+   last if -r ($config_path = $_) . 'cgiirc.config';
+}
 
 my $needtodie = 0;
 $SIG{HUP} = $SIG{INT} = $SIG{TERM} = sub { $needtodie = 1 };
@@ -261,7 +266,7 @@ sub load_format {
    if($cgi->{format} && $cgi->{format} !~ /[^A-Za-z0-9]/) {
       $formatname = $cgi->{format};
    }
-   return parse_config('formats/' . $formatname);
+   return parse_config($config_path . 'formats/' . $formatname);
 }
 
 ## Prints a nicely formatted line
@@ -638,9 +643,10 @@ sub access_ipcheck {
       message('access denied', 'Too many connections (global)');
    }
 
-   foreach my $ipaccess_file (split(',', $config->{ip_access_file})) {
-      # If the file or any of the file doesn't exist, we just skip it.
-      open(IP, "<$ipaccess_file") or next;
+   for my $ipaccess_file (split(',', $config->{ip_access_file})) {
+      # If any of the files don't exist, we just skip them.
+      open(IP, "<" . ($ipaccess_file =~ m!^/! ? '' : $config_path)
+            . $ipaccess_file) or next;
       while(<IP>) {
          chomp;
          next if /^\s*(#|$)/;
@@ -798,7 +804,7 @@ sub access_check_host {
       my $proxyip = $1;
       return($hostname, $ip) if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
 
-      open(TRUST, "<trusted-proxy") or return($hostname, $ip);
+      open(TRUST, "<${config_path}trusted-proxy") or return($hostname, $ip);
       while(<TRUST>) {
          chomp;
          s/\*/.*/g;
@@ -1080,7 +1086,7 @@ sub init {
    $event->add('unhandled', code => \&irc_event);
    $event->add('server connected', code => \&irc_connected);
 
-   $config = parse_config('cgiirc.config');
+   $config = parse_config($config_path . 'cgiirc.config');
    $config->{socket_prefix} ||= '/tmp/cgiirc-';
    $config->{'irc charset'} ||= 'utf8';
    ($config->{socket_prefix}) = $config->{socket_prefix} =~ /(.*)/;
