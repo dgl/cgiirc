@@ -1,4 +1,4 @@
-<Files config.cgiirc>
+<Files cgiirc.cgiirc>
    <Limit GET POST>
    deny from all
    </Limit>
