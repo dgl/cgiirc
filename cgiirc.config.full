@@ -1,0 +1,86 @@
+# This is the full access CGI:IRC 0.5 config file
+# It will allow access to all servers and channels
+
+# -----
+# These are the default settings to show on the login form
+
+# default server(s) to connect to, more than one server can
+# be entered as a comma seperated list
+default_server = irc.blitzed.org
+default_port = 6667
+
+# default channel(s), again this can be a comma seperated list
+default_channel = #cgiirc
+
+# Realname to use (in /whois)
+default_name = CGI:IRC User
+
+# default nickname, a ? is replaced with a random number
+default_nick=CGI???
+
+# The default username to send, this will only be sent if 
+# encode_ip (below) is set to 1 or less and will have no affect
+# if the system is running identd.
+default_user=cgiirc
+
+# -----
+# System setup options
+
+# You can change the default locations of the scripts with these
+# settings, generally they don't need to be changed
+script_nph = nph-irc.cgi
+script_form = client.cgi
+script_login = irc.cgi
+
+# The place where tmp. files should be stored
+socket_prefix=/tmp/cgiirc-
+
+# -----
+# Access related settings
+
+# encoded_ip, set to 2 to send hex encoded IP address in username  
+# and in realname, set to 1 to send only in realname and 0 to
+# disable.
+encoded_ip = 2
+
+# If the ip_access_file option is set to the filename that
+# contains ipaccess information then CGI:IRC will check this file.
+# See ipaccess.example for more information, rename it to ipaccess
+# and uncomment the line below to enable.
+# ip_access_file = ipaccess
+
+# Allow access to servers and channels not set in the default
+# settings above and use access_channel and access_server below.
+allow_non_default = 1
+
+# This is regular experssion that sets what channels access should
+# be allowed to.
+access_channel = .*
+
+# This is regular experssion that sets what servers access should
+# be allowed to.
+access_server = .*
+
+# A list of commands to allow and deny access to, this is a space
+# seperated list of commands to allow access to or if prefixed 
+# with an ! commands to disallow access to.
+# Eg to only allow access to, msg, me, whois, join, nick
+#   = msg me whois join nick ! 
+# Note the ! on the end, it disallows all other commands
+
+# It is recommened that you disable quote if you are limiting
+# access to channels.
+#access_command = !quote
+access_command = 
+
+# -----
+# Appearence settings
+
+# The options to show on the basic and advanced login forms.
+# Simply a space seperated list of the fields to display.
+#login basic = Nickname Channel
+#login advanced = Nickname Channel Server Password
+
+# The default format to use
+format = default
+

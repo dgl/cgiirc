@@ -21,7 +21,7 @@
 
 require 5.004;
 use strict;
-use lib qw/modules interfaces/;
+use lib qw/modules/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
 	  $unixfh $ircfh $cookie $ctcptime
@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.11 2002/03/14 00:11:26 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.12 2002/03/14 17:11:56 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -206,7 +206,7 @@ sub load_format {
    if($cgi->{format} && $cgi->{format} !~ /[^A-Za-z0-9]/) {
 	  $formatname = $cgi->{format};
    }
-   $format = parse_config($config->{format_dir} . '/' . $formatname);
+   $format = parse_config('formats/' . $formatname);
 }
 
 ## Prints a nicely formatted line
@@ -710,6 +710,10 @@ sub init {
    $event->add('server connected', code => \&irc_connected);
 
    $config = parse_config('cgiirc.config');
+   $config->{socket_prefix} ||= '/tmp/cgiirc-';
+   $config->{encoded_ip} = 2 unless exists $config->{encoded_ip};
+   $config->{access_command} = '!quote' unless exists $config->{access_command};
+   $config->{format} ||= 'default';
 
    header();
 

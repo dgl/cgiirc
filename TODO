@@ -21,7 +21,7 @@ Commands:
 = add commands
 + default pass through
 + access commands
-- commands that will call to interface: help, (un)query
+- commands that will call to interface: help, (un)query, clear
 + don't send blank lines
 + /nick doesn't work?
 + /part
