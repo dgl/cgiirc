@@ -49,6 +49,7 @@ sub new {
    _out('parent.connected = 1;');
    $self->add('Status', 0);
    _func_out('witemnospeak', 'Status');
+   _func_out('fontset', $icookies->{font}) if exists $icookies->{font};
    return $self;
 }
 
@@ -126,6 +127,7 @@ sub query {
 }
 
 sub style {
+   my($self, $cgi, $config) = @_;
    open(STYLE, '<interfaces/style.css') or die("Error opening stylesheet: $!");
    print <STYLE>;
    close(STYLE);
@@ -238,12 +240,7 @@ Work in progress.
 
 EOF
    $help =~ s/[\n\r]//g;
-   _func_out('witemadd', '-Help', 0);
-   _func_out('witemnospeak', '-Help');
-   _func_out('witeminfo', '-Help');
-   _func_out('witemclear', '-Help');
-   _func_out('witemaddtext', '-Help', $help, 0);
-   _func_out('witemchg', '-Help');
+   _func_out('doinfowin', '-Help', $help);
 }
 
 sub setoption {
@@ -267,7 +264,7 @@ sub options {
          $out .= "<input class=\"options-checkbox\" type=\"checkbox\" name=\"$option\" value=\"1\"" . 
             ($value? ' checked=1' : '')."\" onclick=\"parent.fwindowlist.send_option(this.name, this.checked == true ? this.value : 0);return true;\">";
       }elsif($o->{type} eq 'select') {
-         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option(this.name, this.options[this.selectedIndex].value);return true\" class=\"options-select\">";
+         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option('$option', this.options[this.selectedIndex].value);return true\" class=\"options-select\">";
          for(@{$o->{options}}) {
             $out .= "<option class=\"options-option\" name=\"$option\" value=\"$_\"".($_ eq $value ? ' selected=1' : '') . ">$_</option>";
          }
@@ -279,15 +276,10 @@ sub options {
    }
    
 $out .= "
-</table></form></body></html>
+</table></form><span onclick=\"parent.fwindowlist.witemdel('-Options')\" class=\"options-close\">close</span></body></html>
 ";
    $out =~ s/\n//g;
-   _func_out('witemadd', '-Options', 0);
-   _func_out('witemnospeak', '-Options');
-   _func_out('witeminfo', '-Options');
-   _func_out('witemchg', '-Options');
-   _func_out('witemclear', '-Options');
-   _func_out('witemaddtext', '-Options', $out, 0);
+   _func_out('doinfowin', '-Options', $out);
 }
 
 sub fuserlist {
@@ -780,7 +772,7 @@ function witemchg(name) {
 }
 
 function retitle() {
-   parent.document.title = 'CGI:IRC - ' + currentwindow + (Witems[currentwindow].channel == 1 ? ' [' + countit(Witems[currentwindow].users) + '] ' : '');
+   parent.document.title = 'CGI:IRC - ' + (Witems[currentwindow].info ? currentwindow.substr(1) : currentwindow) + (Witems[currentwindow].channel == 1 ? ' [' + countit(Witems[currentwindow].users) + '] ' : '');
 }
 
 function setoption(option, value) {
@@ -789,6 +781,8 @@ function setoption(option, value) {
       mynick(mynickname);
    }else if(option == 'shownick') {
       if(parent.fform && parent.fform.nickchange) parent.fform.nickchange('');
+   }else if(option == 'font') {
+      fontset(value);
    }
 }
 
@@ -825,7 +819,7 @@ function witemaddtext(name, text, activity) {
 	  name = "Status";
    }
    
-   if(options["timestamp"] == 1 && !Witems[currentwindow].info) {
+   if(options["timestamp"] == 1 && !Witems[name].info) {
       var D = new Date();
       text = '[' + (D.getHours() < 10 ? '0' + D.getHours() : D.getHours()) + ':' + (D.getMinutes() < 10 ? '0' + D.getMinutes() : D.getMinutes()) + '] ' + text;
    }
@@ -967,6 +961,21 @@ function disconnected() {
 	  connected = 0;
 	  do_quit();
 	  witemaddtext('-all', '<b>Disconnected</b>', 1);
+   }
+}
+
+function doinfowin(name, text) {
+   witemadd(name, 0);
+   witemnospeak(name);
+   witeminfo(name);
+   witemclear(name);
+   witemaddtext(name, text, 0);
+   witemchg(name);
+}
+
+function fontset(font) {
+   if(parent.fmain.document.getElementById('text')) {
+      parent.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
 
