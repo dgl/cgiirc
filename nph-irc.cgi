@@ -25,13 +25,13 @@ use strict;
 use lib qw{./modules ./interfaces};
 use vars qw(
       $VERSION @handles %inbuffer $select_bits @output
-      $unixfh $ircfh $cookie $ctcptime $intime
+      $unixfh $ircfh $cookie $ctcptime $intime $pingtime
       $timer $event $config $cgi $irc $format $interface $ioptions
       $regexpicon %regexpicon
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.71 2002/10/27 00:47:29 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.72 2002/11/02 21:08:45 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -284,7 +284,7 @@ sub format_colourhtml {
    $line =~ s/"/$tok\&quot;$tok/g;
 
    $line =~ s!((https?|ftp):\/\/[^$ ]+)!$interface->link(format_remove($1), format_linkshorten($1))!gie;
-   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1 . $interface->link(format_remove("http://$2"), $2) . $3!gie;
+   $line =~ s!(^|\s|\(|\002)(www\..*?)(\.?($|\s)|\)|\002)!$1 . $interface->link(format_remove("http://$2"), $2) . $3!gie;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
       $line =~ s{(?<![^\.a-zA-Z_ ])$regexpicon(?![^<]*>)}{
@@ -501,7 +501,6 @@ sub load_socket {
 
 sub unix_in {
    my($fh, $line) = @_;
-   $intime = time;
 
    my $input = parse_query($line);
    
@@ -510,6 +509,10 @@ sub unix_in {
       select_close($fh);
       return;
    }
+
+   $pingtime = time;
+   $intime = $pingtime unless $input->{cmd} eq 'say'
+       && $input->{say} eq '/noop';
 
    if($input->{cmd}) {
       my $now = time;
@@ -732,9 +735,9 @@ sub session_timeout {
          (time - $config->{session_timeout}) > $intime) {
       message('session timeout');
       irc_close('Session timeout');
-   }elsif($interface->ping && $intime < time - 900) {
+   }elsif($interface->ping && $pingtime < time - 900) {
       irc_close('Ping timeout');
-   }elsif($interface->ping && $intime < time - 600) {
+   }elsif($interface->ping && $pingtime < time - 600) {
       $interface->sendping;
    }
 }
