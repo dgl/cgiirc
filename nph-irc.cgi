@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.104 2005/02/08 21:17:37 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.105 2005/02/09 15:56:34 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1113,6 +1113,11 @@ sub init {
    if($cgi->{charset} && $::ENCODE && Encode::find_encoding($cgi->{charset})) {
       $config->{'irc charset'} = $cgi->{charset};
    }
+
+   eval {
+      binmode STDOUT, ":utf8";
+   };
+      
 
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
