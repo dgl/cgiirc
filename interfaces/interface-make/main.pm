@@ -283,7 +283,7 @@ function form_focus() {
 </script>
 </head>
 .$just konqueror
-<frameset rows="40,*,30,0" framespacing="0" border="0" frameborder="0"
+<frameset rows="40,*,50,0" framespacing="0" border="0" frameborder="0"
 onfocus="form_focus()" onload="form_focus()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style"
 scrolling="no">

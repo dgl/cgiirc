@@ -61,7 +61,7 @@ sub ping { 0 }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
-   if($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[/i) {
+   if($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[|OmniWeb/i) {
       $notsupported++;
    }
 print <<EOF;
@@ -76,6 +76,9 @@ print <<EOF;
 function setjs() {
  if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
+ }else if(navigator.appName == 'Microsoft Internet Explorer' &&
+    navigator.useragent.indexOf("Mac_PowerPC") > 0) {
+    document.loginform["interface"].value = 'konqueror';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
  document.getElementById && document.getElementById('ietest').innerHTML) {
    document.loginform["interface"].value = 'ie';
