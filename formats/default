@@ -8,6 +8,7 @@ command denied = {prefix-client} Access to that command is blocked
 
 command notparams = {prefix-client} Not enough parameters for command
 command error = {prefix-client} Error running command
+error = {prefix-error} An error occured: $0
 
 cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
 

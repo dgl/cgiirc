@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.4 2002/03/10 14:46:33 dgl Exp $
+ * $Id: client.c,v 1.5 2002/03/27 17:46:37 dgl Exp $
  */
 
 #include <stdio.h>
@@ -21,11 +21,18 @@ int main(void) {
    int fd;
    char params[2048]; /* Keep input in here */
    char rand[50]; /* Random value - used for the socket location */
-   char tmp[2048];
+   char tmp[2148]; /* I decided to stop adding comments after here */
+   char cookie[100];
    
    printf("Content-type: text/html\n\n");
    if(!readinput(params)) error("No input found\n");
    if(!get_rand(params, rand)) error("Random Value not found\n");
+
+   if(get_cookie(cookie)) {
+      char tmp2[2148]; /* I'm sure there's a better way of doing this.. */
+      strncpy(tmp2, params, 2147);
+      snprintf(params, 2148, "COOKIE=%s&%s", cookie, tmp2);
+   }
 
    fd = unix_connect(rand);
    send(fd, params, strlen(params), 0);
@@ -47,7 +54,7 @@ int error(char *error) {
 int readinput(char *params) {
    char request[10];
 
-   if(!getenv("REQUEST_METHOD")) return;
+   if(!getenv("REQUEST_METHOD")) return 0;
    strncpy(request, getenv("REQUEST_METHOD"), 9);
    request[9] = 0;
    if(!strlen(request)) return 0;
@@ -94,6 +101,30 @@ int get_rand(char *params, char *rand) {
    return 0;
 }
 
+int get_cookie(char *cookie) {
+   char ctmp[1024];
+   char *sptr, *end_ptr;
+   int i;
+
+   if(!getenv("HTTP_COOKIE")) return 0;
+   strncpy(ctmp, getenv("HTTP_COOKIE"), 1023);
+
+   sptr = strstr(ctmp, "cgiircauth=");
+   if(sptr == NULL) return 0;
+   if(strlen(sptr) < 12) return 0;
+   sptr += 11;
+   end_ptr = sptr + (strlen(sptr) < 99 ? strlen(sptr) : 99);
+
+   i = 0;
+   while((int)sptr < (int)end_ptr && *sptr != ';') {
+      cookie[i] = *sptr;
+      sptr++;
+      i++;
+   }
+   cookie[i] = '\0';
+   return 1;
+}
+
 int unix_connect(char *where) {
    /*size_t size;*/
    struct sockaddr_un saddr;
@@ -101,7 +132,7 @@ int unix_connect(char *where) {
    char filename[100], errmsg[50];
 
    len = strlen(TMPLOCATION) + strlen(where) + 6;
-   if(len > 100) return;
+   if(len > 100) error("Too long");
    snprintf(filename, len, "%s%s/sock", TMPLOCATION, where);
    filename[len] = 0;
 
@@ -111,7 +142,7 @@ int unix_connect(char *where) {
    saddr.sun_family = AF_UNIX;
    strcpy(saddr.sun_path, filename);
 
-   if(connect(sock, &saddr, SUN_LEN(&saddr)) == -1) {
+   if(connect(sock, (struct sockaddr *)&saddr, SUN_LEN(&saddr)) == -1) {
           switch(errno) {
              case EACCES:
                 error("Access Denied in connect()\n");

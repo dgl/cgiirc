@@ -16,8 +16,6 @@ Commands:
 
 Interfaces:
 Javascript Interface:
-- make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
-- maybe add nickname there..
 - options for userlist
 - right click context menus
 - pop-out needs to work in mozilla too

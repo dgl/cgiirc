@@ -1,7 +1,6 @@
-# $Id: RawCommands.pm,v 1.7 2002/03/17 00:56:51 dgl Exp $
+# $Id: RawCommands.pm,v 1.8 2002/03/27 17:46:37 dgl Exp $
 package IRC::RawCommands;
 use strict;
-my $ctcptime = 0;
 
 use IRC::Util;
 # Don't be fooled by the fact it's a package.. the self in the subroutines is
@@ -11,7 +10,10 @@ my %raw = (
    'nick' => sub {
       my($event,$self,$params) = @_;
 	  my $newnick = $params->{params}->[1] || $params->{text};
-	  if(lc $params->{nick} eq lc $self->{nick}) { $self->{nick} = $newnick }
+	  if(lc $params->{nick} eq lc $self->{nick}) {
+        $self->{nick} = $newnick;
+        $self->{event}->handle('user self', $newnick);
+     }
 
 	  my @channels = $self->find_nick_channels($params->{nick});
 	  for my $channel(@channels) {
@@ -225,6 +227,7 @@ my %raw = (
 	  $self->{server} = $params->{nick};
 	  $self->{connect_time} = time;
 	  $self->{event}->handle('server connected',$self, $self->{server},$self->{nick}, $params->{text});
+     $self->{event}->handle('user self', $self->{nick});
 	  $self->{event}->handle('reply welcome', _info('Status', 1), $params->{text});
    },
    '002' => sub { # RPL_YOURHOST
@@ -536,7 +539,8 @@ sub ctcpmsg {
       my($command,$params) = ($1,$2);
 
       $irc->{event}->handle($type . ' ' . lc $command,
-        _info($to, 1), $nick, $host, $command, $params);
+        _info($irc->is_channel($to) ? $to : $nick, 1), 
+        $nick, $host, $command, $params);
 
    }else{
       return undef;

@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.19 2002/03/19 23:08:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.20 2002/03/27 17:46:37 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -72,14 +72,14 @@ sub net_hostlookup {
    my($host) = @_;
 
    if($::IPV6) {
-	  my($family,$socktype, $proto, $saddr, $canonname, @res) = 
-		 getaddrinfo($host,undef, AF_UNSPEC, SOCK_STREAM);
-	  return undef unless $family;
+      my($family,$socktype, $proto, $saddr, $canonname, @res) = 
+      getaddrinfo($host,undef, AF_UNSPEC, SOCK_STREAM);
+      return undef unless $family;
 
 	  if($family == AF_INET) {
-		 return (unpack_sockaddr_in($saddr))[1];
+        return (unpack_sockaddr_in($saddr))[1];
 	  }elsif($family == AF_INET6) {
-		 return (undef,(unpack_sockaddr_in6($saddr))[1]);
+        return (undef,(unpack_sockaddr_in6($saddr))[1]);
 	  }
    }else{ # IPv4
       return (gethostbyname($host))[4];
@@ -243,8 +243,9 @@ sub format_colourhtml {
    $line =~ s/</\&lt;/g;
    $line =~ s/>/\&gt;/g;
    $line =~ s/"/\&quot;/g;
-   my $tmp = '/';
-   $line =~ s/((https?|ftp):\/\/[^$ ]*)/<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}">$1<${tmp}a>/g;
+   $line =~ s!((https?|ftp):\/\/[^$ ]+)!<a href="@{[format_remove($1)]}" target="cgiirc@{[int(rand(200000))]}">$1</a>!gi;
+   $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}">$2</a>$3!gi;
+
    return format_remove($line) if $config->{removecolour};
 
    $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^]*|.*?$)/
@@ -372,7 +373,7 @@ sub load_interface {
    my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
    $name =~ s/[^a-z]//gi;
    require('interfaces/' . $name . '.pm');
-   $interface = $name->new($event,$timer);
+   $interface = $name->new($event,$timer, $config);
    $interface->header($config, $cgi);
 
    return $interface;
@@ -424,6 +425,11 @@ sub unix_in {
    my($fh, $line) = @_;
    my $input = parse_query($line);
    
+   if($cookie && (!defined $input->{COOKIE} || $input->{COOKIE} ne $cookie)) {
+      select_close($fh);
+      return;
+   }
+
    if($input->{cmd}) {
 	  input_command($input->{cmd}, $input);
    }
@@ -707,16 +713,28 @@ sub irc_ctcp {
 
 #### prints a very simple header
 sub header {
-   print "HTTP/1.0 200 OK\r\nContent-type: text/html\r\nPragma: no-cache\r\nCache-control: must-revalidate, no-cache\r\nExpires: -1\r\n\r\n";
+   print join("\r\n",
+		 'HTTP/1.0 200 OK',
+		 'Content-type: text/html',
+         'Pragma: no-cache',
+		 'Cache-control: must-revalidate, no-cache, no-store',
+         'Expires: -1',
+		 "\r\n");
 }
 
 
 #### Error Reporting
 sub error {
-   my($message) = @_;
-   print "HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n" unless $config;
+   my $message = "@_";
+   header() unless $config;
    if(defined $interface && ref $interface) {
-	  $interface->error($message);
+     if(ref $format) {
+        my $format = format_parse($format->{error}, {}, $message);
+        $format = format_colourhtml($format);
+        $interface->error($format);
+     }else{
+	     $interface->error("Error: $message");
+     }
    }else{
       print "An error occured: $message\n";
 	  print STDERR "An error occured: $message\n";
@@ -765,7 +783,10 @@ sub init {
    }
 
    if(config_set('encoded_ip')) {
-	  $cgi->{name} = '[' . encode_ip($ENV{REMOTE_ADDR}) . '] ' . $cgi->{name};
+	  $cgi->{name} = '[' .
+        ($config->{encoded_ip} <= 2 ? # The real IP in realname if set to 3.
+          encode_ip($ENV{REMOTE_ADDR}) : $ENV{REMOTE_ADDR})
+       . '] ' . $cgi->{name};
    }
 
    $unixfh = load_socket();

@@ -95,6 +95,12 @@ sub add {
    _out('<script>u();f();</script>');
 }
 
+sub del {
+   my($self, $name) = @_;
+   delete($self->{$name});
+   $self->reload('f');
+}
+
 sub active {
    my($self, $name) = @_;
    $self->{_target} = $name;

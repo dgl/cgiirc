@@ -24,7 +24,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.7 2002/03/17 19:20:10 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.8 2002/03/27 17:46:37 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -33,10 +33,12 @@ require 'parse.pl';
 if(!parse_cookie()) {
    print "Set-cookie: cgiircauth=". random(25) .";path=/\n";
 }
-print "Content-type: text/html
-Pragma: no-cache
-Cache-control: must-revalidate, no-cache
-Expires: -1\n\n";
+print join("\r\n", 
+	  'Content-type: text/html',
+      'Pragma: no-cache',
+      'Cache-control: must-revalidate, no-cache',
+      'Expires: -1',
+	  "\r\n");
 
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />

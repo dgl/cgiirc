@@ -52,7 +52,8 @@ print <<EOF;
 function setjs() {
  if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
- }else if(navigator.appName == 'Microsoft Internet Explorer') {
+ }else if(navigator.appName == 'Microsoft Internet Explorer' &&
+ window["ietest"] && window["ietest"].innerHTML) {
    document.loginform["interface"].value = 'ie';
  }
 }
@@ -100,8 +101,7 @@ print <<EOF;
 <input type="submit" value="Login">
 </td></tr></table></form>
 
-<small>$copy</small>
-
+<small id="ietest">$copy</small>
 </body></html>
 EOF
 }
