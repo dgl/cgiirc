@@ -137,7 +137,8 @@ print <<EOF;
 <title>CGI:IRC</title>
 </head>
 
-<frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0">
+<frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0" 
+onfocus="if(document.frames.fform)document.frames.fform.fns()" onload="if(document.frames.fform)document.frames.fform.fns()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
 <frameset cols="*,100" framespacing="0" border="0" frameborder="0">
 <frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
@@ -177,7 +178,7 @@ EOF
 sub fmain {
 print <<EOF;
 <html><head></head>
-<body>
+<body onkeydown="if(parent.fform.location) parent.fform.fns();">
 `;
 if($browser eq 'ie') {
    print q`<span id="text"></span>`;
@@ -605,7 +606,7 @@ function witemchg(name) {
    currentwindow = name;
    wlistredraw();
    witemredraw();
-   if(parent.fform.location) parent.fform.fns();
+   formfocus();
    userlist();
    retitle();
 }
@@ -764,10 +765,14 @@ print q`
    }
 }
 
+function formfocus() {
+   if(parent.fform.location) parent.fform.fns();
+}
+
 // -->
 </script>
 </head>
-<body onload="wlistredraw();">
+<body onload="wlistredraw();" onkeydown="formfocus();">
 <noscript>Scripting is required for this interface</noscript>
 ~;
 print <<EOF;
