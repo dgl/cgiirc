@@ -7,6 +7,9 @@ access channel denied = {prefix-error} Access to that channel is blocked
 command denied = {prefix-error} Access to that command is blocked
 session timeout = {prefix-error} Timeout - Your session has been inactive too long
 
+kill ok = {prefix-error} You were killed by $1 ($2)
+kill wrong = {prefix-error} $1 tried to kill you but got the password wrong! ($2)
+
 command notparams = {prefix-client} Not enough parameters for command
 command error = {prefix-client} Error running command
 error = {prefix-error} An error occured: $0

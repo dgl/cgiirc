@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.41 2002/05/02 19:46:57 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.42 2002/05/02 20:23:03 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -59,7 +59,6 @@ $SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
 
 $SIG{__DIE__} = sub { 
    error("Program ending: @_");
-   irc_close();
 };
 
 # DEBUG
@@ -537,7 +536,7 @@ sub input_command {
       say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
       net_send($fh, "Content-type: text/html\r\n\r\nquit\r\n"); # avoid errors
-      irc_close();
+      irc_close("");
    }elsif($command eq 'options' && length $params->{name} && length $params->{value}) {
       $ioptions->{$params->{name}} = $params->{value};
       $interface->setoption($params->{name}, $params->{value});
@@ -673,7 +672,7 @@ sub session_timeout {
    return unless defined $intime;
    if((time - $config->{session_timeout}) > $intime) {
       message('session timeout');
-      irc_close();
+      irc_close('Session timeout');
    }
 }
 
@@ -720,15 +719,23 @@ sub irc_out {
 }
 
 sub irc_close {
+   my $message = shift;
+   $message = 'EOF' unless defined $message;
+   $message = (config_set('quit_prefix') ? $config->{quit_prefix} : "CGI:IRC $VERSION") .
+      ($message ? " ($message)" : '');
+   
    exit unless ref $unixfh;
    close($unixfh);
+   
    my $t = $config->{socket_prefix} . $cgi->{R};
    unlink("$t/sock", "$t/ip", "$t/server");
    exit unless rmdir($t);
+   
    exit unless ref $ircfh;
-   net_send($ircfh, "QUIT :CGI:IRC $VERSION [EOF]\r\n");
+   net_send($ircfh, "QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
    $interface->end if ref $interface;
+   
    sleep 1;
    close($ircfh);
    exit;
@@ -736,7 +743,8 @@ sub irc_close {
 
 sub irc_connected {
    my($event, $self, $server, $nick) = @_;
-   open(SERVER, ">>$config->{socket_prefix}$cgi->{R}/server") or irc_close();
+   open(SERVER, ">>$config->{socket_prefix}$cgi->{R}/server")
+      or error("Writing to server file; $!");
    print SERVER "$server\n";
    close(SERVER);
 
@@ -869,7 +877,7 @@ sub error {
       print "An error occured: $message\n";
       print STDERR "[" . scalar localtime() . "] CGI:IRC Error (" . join(" ", caller) . "): $message\n";
    }
-   irc_close();
+   irc_close("Error");
 }
 
 #### Init
