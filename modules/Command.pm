@@ -161,10 +161,11 @@ my %commands = (
   notice => sub {
      my($target, $text) = split(' ', $params, 2);
      my $display = $target;
-     $display =~ s/^[@+]+//;
+     $display =~ s/^[+@]+//;
      $event->handle('notice ' .
 	    ($irc->is_channel($display) ? 'public' : 'private') . ' own',
-		{ target => $display }, $irc->{nick}, $irc->{myhost}, $text);
+		 { target => $display }, $irc->{nick}, $irc->{myhost}, $text);
+
 	  $irc->notice($target,$text);
   },
   ctcp => sub {
