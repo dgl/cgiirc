@@ -30,7 +30,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.27 2002/04/15 22:18:00 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.28 2002/04/16 22:36:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -459,13 +459,17 @@ sub unix_in {
    my $input = parse_query($line);
    
    if($cookie && (!defined $input->{COOKIE} || $input->{COOKIE} ne $cookie)) {
+      net_send($fh, "Content-type: text/html\r\n\r\nInvalid cookie\r\n");
       select_close($fh);
       return;
    }
 
+
    if($input->{cmd}) {
-	  input_command($input->{cmd}, $input);
+	  input_command($input->{cmd}, $input, $fh);
    }
+
+   net_send($fh, "Content-type: text/html\r\n\r\n");
 
    if(defined $input->{item} && $input->{item} =~ /^\w+$/) {
 	  net_send($fh, interface_show($input->{item}, $input));
@@ -475,11 +479,14 @@ sub unix_in {
 }
 
 sub input_command {
-   my($command, $params) = @_;
+   my($command, $params, $fh) = @_;
    if($command eq 'say') {
-	  say_command($params->{say}, $params->{target});
+      say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
-	  irc_close();
+      irc_close();
+   }elsif($command eq 'options' && $params->{name} && $params->{value}) {
+      $interface->options($params->{name}, $params->{value});
+      net_send($fh, "Set-cookie: cgiirc$params->{name}=$params->{value};path=/;expires=Sun, 01-Jan-2011 00:00:00 GMT\r\n");
    }
 }
 

@@ -180,7 +180,7 @@
 
 .wlist-buttons {
     text-align: right;
-    width: 10%;
+    width: 30px;
 }
 
 .wlist-button {
@@ -189,7 +189,6 @@
 }
 
 .wlist-container {
-   width: 90%;
 }
 
 .wlist-table {

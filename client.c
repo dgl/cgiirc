@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.5 2002/03/27 17:46:37 dgl Exp $
+ * $Id: client.c,v 1.6 2002/04/16 22:36:26 dgl Exp $
  */
 
 #include <stdio.h>
@@ -17,6 +17,12 @@
 /* Change this to the tmpfile path set in the CGI:IRC Config */
 #define TMPLOCATION "/tmp/cgiirc-"
 
+int unix_connect(char *where);
+int error(char *error);
+int readinput(char *params);
+int get_rand(char *params, char *rand);
+int get_cookie(char *cookie);
+
 int main(void) {
    int fd;
    char params[2048]; /* Keep input in here */
@@ -24,7 +30,6 @@ int main(void) {
    char tmp[2148]; /* I decided to stop adding comments after here */
    char cookie[100];
    
-   printf("Content-type: text/html\n\n");
    if(!readinput(params)) error("No input found\n");
    if(!get_rand(params, rand)) error("Random Value not found\n");
 
@@ -46,6 +51,7 @@ int main(void) {
 }
 
 int error(char *error) {
+   printf("Content-type: text/html\n\n");
    printf("An error occured: %s\n",error);
    fwrite(error, strlen(error), 1, stderr);
    exit(1);

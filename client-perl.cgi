@@ -25,7 +25,7 @@ use vars qw($VERSION $PREFIX);
 $PREFIX = "/tmp/cgiirc-";
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.4 2002/04/14 13:02:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.5 2002/04/16 22:36:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -33,7 +33,6 @@ use Socket;
 use Symbol;
 $|++;
 require 'parse.pl';
-print "Content-type: text/html\r\n\r\n";
 
 sub net_unixconnect {
    my($local) = @_;
@@ -52,6 +51,7 @@ sub net_send {
 
 sub error {
    my($message) = @_;
+   print "Content-type: text/html\r\n\r\n";
    print "An error occured: $message\n";
    print STDERR "An error occured: $message\n";
    exit;

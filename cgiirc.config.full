@@ -77,6 +77,10 @@ access_server = .*
 #access_command = !quote
 access_command = 
 
+# Session timeout (timeout after this many seconds of inactivity).
+# 18000 is 5 hours
+session_timeout = 18000
+
 # -----
 # Appearence settings
 

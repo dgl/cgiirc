@@ -51,12 +51,13 @@ sub parse_cookie {
 
 sub parse_interface_cookie {
    my %tmp = ( );
-   if(exists $ENV{HTTP_COOKIE} && $ENV{HTTP_COOKIE} =~ /cioption/) {
+   if(exists $ENV{HTTP_COOKIE} && $ENV{HTTP_COOKIE} =~ /cgiirc/) {
       for(split /;/, $ENV{HTTP_COOKIE}) {
          s/^\s+//;
          my($name,$value) = split(/=/,$_,2);
          next if $name =~ /[^a-z]/i;
-         next unless $name =~ s/^cioption-//;
+         next unless $name =~ s/^cgiirc//;
+         next if $name eq 'auth';
          $tmp{$name} = $value;
       }
    }

@@ -25,6 +25,12 @@ my %colours = (
 	  '12' => '#0000FF', '13' => '#FF00FF', '14' => '#808080', 
 	  '15' => '#C0C0C0');
 
+my %options = (
+   timestamp => { type => 'toggle' },
+   font => { type => 'select', options => [qw/sans-serif serif monospace/] },
+   shownick => { type => 'toggle' },
+);
+
 sub new {
    my($class,$event, $timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
@@ -224,6 +230,30 @@ Work in progress.
 </html>
 
 EOF
+}
+
+sub options {
+   my($self, $cgi, $config) = @_;
+   my $icookies = main::parse_interface_cookie();
+   print "<html><head><title>CGI:IRC Options</title></head>
+<body>
+<form>
+<table border=0>
+";
+   for(keys %options) {
+      my $o = $options{$_};
+      print "<tr><td>$_</td><td>";
+      if($o->{type} eq 'toggle') {
+         print "<input type=\"radio\" name=\"\">";
+      }elsif($o->{type} eq 'select') {
+      }else{
+      }
+   }
+print "
+</table>
+</form>
+</body></html>
+";
 }
 
 sub fuserlist {
@@ -548,14 +578,14 @@ var mynickname = '';
 
 
 document.onselectstart = function() { return false; }
-//document.onmouseup = function() {
-//   if(event.button != 2) return true;
-//   event.returnVal = false;
-//   return false;
-//}
-//document.oncontextmenu = function() {
-//   return false;
-//}
+document.onmouseup = function() {
+   if(event.button != 2) return true;
+   event.returnVal = false;
+   return false;
+}
+document.oncontextmenu = function() {
+   return false;
+}
 
 function witemadd(name, channel) {
    if(Witems[name] || findwin(name)) return;
@@ -892,9 +922,11 @@ function do_quit() {
 </td>
 <td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
-<img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;">
-<img src="$config->{image_path}/optionsup.gif" onclick="alert('Not yet done');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;">
-<img src="$config->{image_path}/closeup.gif" onclick="if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit()}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;">
+<img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;" title="Help">
+</td><td class="wlist-buttons">
+<img src="$config->{image_path}/optionsup.gif" onclick="alert('Not yet done');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
+</td><td class="wlist-buttons">
+<img src="$config->{image_path}/closeup.gif" onclick="if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit()}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;" title="Close">
 </td></tr></table>
 
 <form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">
