@@ -26,7 +26,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.3 2002/03/05 20:31:06 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.4 2002/03/06 20:39:59 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 
 use Socket;
@@ -414,6 +414,8 @@ sub unix_in {
 
 sub input_command {
    my($command, $params) = @_;
+   $command =~ s/[\n\r\0]//g;
+   $params =~ s/[\n\r\0]//g;
    if($command eq 'say') {
 	  say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
@@ -434,10 +436,14 @@ sub say_command {
 
 		 $command = Command->expand($command);
 		 unless(access_command($command)) {
+			message('command denied', $command);
 			return;
 		 }
 
-		 Command->run($command, $target, defined $params ? $params : '');
+		 my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '');
+		 return 1 if $error == 100;
+		 message('command error', $error);
+		 return 0;
 	  }
    }else{
 	  irc_send_message($target, $say);
@@ -474,6 +480,7 @@ sub access_configcheck {
 }
 
 sub access_command {
+   return 1;
 }
 
 sub encode_ip {
@@ -485,7 +492,7 @@ sub encode_ip {
 ## Opens the connection to IRC
 sub irc_connect {
    my($server, $port) = @_;
-   message('looking_up', $server);
+   message('looking up', $server);
 
    my($ipv4,$ipv6) = net_hostlookup($server);
    unless(defined $ipv4 or defined $ipv6) {
@@ -551,7 +558,7 @@ sub irc_connected {
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {
-	  message('accessschanneldenied', $cgi->{chan});
+	  message('access channel denied', $cgi->{chan});
 	  $cgi->{chan} = (split /,/, $config->{default_channel})[0];
    }
    $irc->join($cgi->{chan} . (defined $key ? ' ' . $key : ''));
@@ -603,10 +610,10 @@ sub init {
    $interface = load_interface();
    $format = load_format($cgi->{format});
 
-   message('accessdenied'),exit unless access_ipcheck($ENV{REMOTE_ADDR});
+   message('access denied'),exit unless access_ipcheck($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
-	  message('accessserverdenied', $cgi->{serv});
+	  message('access server denied', $cgi->{serv});
 	  $cgi->{serv} = (split /,/, $config->{default_server})[0];
    }
 

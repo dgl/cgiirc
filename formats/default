@@ -1,8 +1,13 @@
-looking_up = {prefix-client} Looking up {server $0}
+looking up = {prefix-client} Looking up {server $0}
 connecting = {prefix-client} Connecting to {server $0} [$1] port {hilight $2}
 
-accessdenied = {prefix-client} Access from your IP address is blocked
-accesssserverdenied = {prefix-client} Access to that server is blocked
+access denied = {prefix-client} Access from your IP address is blocked
+access server denied = {prefix-client} Access to that server is blocked
+access channel denied = {prefix-client} Access to that channel is blocked
+command denied = {prefix-client} Access to that command is blocked
+
+command unknown = {prefix-client} Unknown command: $0
+command error = {prefix-client} Error running command
 
 cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
 

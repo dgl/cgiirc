@@ -18,9 +18,9 @@ IRC Module:
 
 Commands:
 = pass params
-- add commands
-- default pass through
-- access commands
+= add commands
+= default pass through
+= access commands
 - commands that will call to interface: help, (un)query
 
 Interfaces:

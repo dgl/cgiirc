@@ -81,8 +81,7 @@ sub line {
    }
 
    if(not exists $self->{lc $target}) {
-      if(defined $info && ref $info && defined $info->{type} &&
-	    $info->{type} =~ /^(join|message private)$/) {
+      if(defined $info && ref $info && exists $info->{create} && $info->{create}) {
 	     $self->add($target, $info->{type} eq 'join' ? 1 : 0);
 	  }elsif($target ne '-all') {
          $target = 'Status';
@@ -727,7 +726,7 @@ print q`
 `;
 }
 print q`
-<form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe-">
+<form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">
 <input type="hidden" name="s" value="say">

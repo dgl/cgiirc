@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.1 2002/03/05 16:34:19 dgl Exp $
+# $Id: RawCommands.pm,v 1.2 2002/03/06 20:39:59 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -46,7 +46,7 @@ my %raw = (
 	  );
 	  $self->{event}->handle('user add', [$params->{nick}], [$channel]);
 
-	  $self->{event}->handle('join', _info($channel, 1), $params->{nick}, $params->{host});
+	  $self->{event}->handle('join', _info($channel, 1, 1), $params->{nick}, $params->{host});
    },
    'part' => sub {
       my($event,$self,$params) = @_;
@@ -173,7 +173,7 @@ my %raw = (
 	     $self->{event}->handle('message server', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }elsif(is_vaild_nickname($to)) {
-	     $self->{event}->handle('message private', _info($params->{nick}, 3),
+	     $self->{event}->handle('message private', _info($params->{nick}, 3, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }else{
 	     $self->{event}->handle('message unknown', _info($to, 2), $params->{nick}, $params->{host}, $params->{text});
@@ -536,7 +536,7 @@ sub new {
 }
 
 sub _info {
-   return { target => $_[0], activity => $_[1] };
+   return { target => $_[0], activity => $_[1], create => (defined $_[2] ? 1 : 0)};
 }
 
 1;

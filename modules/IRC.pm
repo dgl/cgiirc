@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.1 2002/03/05 16:34:19 dgl Exp $
+# $Id: IRC.pm,v 1.2 2002/03/06 20:39:59 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -168,15 +168,15 @@ sub privmsg {
 }
 
 sub ctcp {
-   my($self, $channel, $type, $params) = @_;
+   my($self, $channel, $text) = @_;
    $channel = $channel->{name} if ref $channel;
-   $self->out("PRIVMSG $channel :\001$type".($params ? ' ' . $params : '') . "\001");
+   $self->out("PRIVMSG $channel :\001$text\001");
 }
 
 sub ctcpreply {
-   my($self, $channel, $type, $params) = @_;
+   my($self, $channel, $text) = @_;
    $channel = $channel->{name} if ref $channel;
-   $self->out("NOTICE $channel :\001$type".($params ? ' ' . $params : '') . "\001");
+   $self->out("NOTICE $channel :\001$text\001");
 }
 
 1;
