@@ -77,7 +77,7 @@ function setjs() {
  if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
-    navigator.useragent.indexOf("Mac_PowerPC") > 0) {
+    navigator.userAgent.indexOf("Mac_PowerPC") > 0) {
     document.loginform["interface"].value = 'konqueror';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
  document.getElementById && document.getElementById('ietest').innerHTML) {
