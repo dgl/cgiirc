@@ -1,10 +1,27 @@
-#!/usr/bin/perl
+#! /usr/bin/perl -w
+# CGI:IRC - http://cgiirc.sourceforge.net/
+# Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 use strict;
 use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ $Id: irc.cgi,v 1.2 2002/03/05 16:43:11 dgl Exp $'
+ '$Name:  $ $Id: irc.cgi,v 1.3 2002/03/05 20:31:06 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 
 require 'parse.pl';
@@ -23,9 +40,11 @@ my $scriptname = $ENV{SCRIPT_NAME} || $0;
 $scriptname =~ s!^.*/!!;
 
 my $config = parse_config('cgiirc.config');
-require('interfaces/' . $config->{interface} . '.pm');
-my $interface = $config->{interface};
 my $cgi = cgi_read();
+
+my $interface = ref $cgi && defined $cgi->{interface} ? $cgi->{interface} : 'default';
+$interface =~ s/[^a-z]//gi;
+require('interfaces/' . $interface . '.pm');
 
 if(ref $cgi && defined $cgi->{item}) {
    my $name = $cgi->{item};
@@ -34,30 +53,34 @@ if(ref $cgi && defined $cgi->{item}) {
 }elsif(ref $cgi && defined $cgi->{Nickname}) {
    my $r = join('',map(('a'..'z','0'..'9')[int rand 62], 0..15));
 
-   my $p = { Nickname => 'nick', 
+   my %p = ( Nickname => 'nick', 
 	         Channel => 'chan',
 			 Port => 'port',
 			 Server => 'serv',
 			 Realname => 'name',
-			 Password => 'pass'};
+			 interface => 'interface',
+			 Password => 'pass');
    my $out;
-   for(keys %$p) {
+   for(keys %p) {
 	  next unless exists $cgi->{$_};
-	  $out .= cgi_encode($p->{$_}) . '=' . cgi_encode($cgi->{$_}) . '&';
+	  $out .= cgi_encode($p{$_}) . '=' . cgi_encode($cgi->{$_}) . '&';
    }
    $out .= "R=$r";
    $out =~ s/\&$//;
-   $interface->frameset($scriptname, $config, $r, $out);
+   $interface->frameset($scriptname, $config, $r, $out, $interface);
 }else{
    my(%items,@order);
 
-   $items{Nickname} = $config->{default_nick};
+   %items = (
+      Nickname => $config->{default_nick},
+      Channel => dolist($config->{default_channel}),
+      Server => dolist($config->{default_server}),
+      Port => $config->{default_port},
+      Password => '',
+      Realname => $config->{default_name},
+   );
+
    $items{Nickname} =~ s/\?/int rand 10/eg;
-   $items{Channel} = dolist($config->{default_channel});
-   $items{Server} = dolist($config->{default_server});
-   $items{Port} = $config->{default_port};
-   $items{Password} = '';
-   $items{Realname} = $config->{default_name};
 
    if(ref $cgi && $cgi->{adv}) {
 	  if($config->{'login advanced'}) {
@@ -83,6 +106,7 @@ sub dolist {
 }
 
 sub cgi_read { 
+   return unless defined $ENV{REQUEST_METHOD};
    if($ENV{REQUEST_METHOD} eq 'GET' && $ENV{QUERY_STRING}) {
 	  return parse_query($ENV{QUERY_STRING});
    }elsif($ENV{REQUEST_METHOD} eq 'POST' && $ENV{CONTENT_LENGTH}) {

@@ -26,9 +26,20 @@ sub login {
 print <<EOF;
 <html>
 <head>
+<script><!--
+function setjs() {
+if(navigator.appName == 'Netscape' && navigator.appVersion.substr(0,1) == 5) {
+document.loginform["interface"].value = 'mozilla';
+}else if(navigator.appName == 'Microsoft Internet Explorer') {
+document.loginform["interface"].value = 'ie';
+}
+}
+//-->
+</script>
 <title>CGI:IRC Login</title>
-</head><body bgcolor="#ffffff">
+</head><body bgcolor="#ffffff" onload="setjs()">
 <form method="post" action="$this" name="loginform">
+<input type="hidden" name="interface" value="nonjs">
 <table border="0" cellpadding="5" cellspacing="0">
 <tr><td colspan="2" align="center" bgcolor="#c0c0dd"><b>CGI:IRC
 Login</b></td></tr>

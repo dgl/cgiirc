@@ -1,4 +1,21 @@
 #! /usr/bin/perl -w
+# CGI:IRC - http://cgiirc.sourceforge.net/
+# Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 require 5.004;
 use strict;
 use lib qw/modules interfaces/;
@@ -9,7 +26,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.2 2002/03/05 16:43:11 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.3 2002/03/05 20:31:06 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 
 use Socket;
@@ -341,16 +358,17 @@ sub format_varexpand {
 
 ## Loads the default interface.
 sub load_interface {
-# TODO
-   require('interfaces/' . $config->{interface} . '.pm');
-   $interface = $config->{interface}->new($event);
+   my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
+   $name =~ s/[^a-z]//gi;
+   require('interfaces/' . $name . '.pm');
+   $interface = $name->new($event);
 }
 
 sub interface_show {
    my($show, $input) = @_;
    return unless $interface->exists($show);
 
-   return "Content-type: text/html\n\n" . $interface->$show($input, $irc, $config);
+   return $interface->$show($input, $irc, $config);
 }
 
 sub interface_keepalive {
@@ -549,7 +567,11 @@ sub header {
 sub error {
    my($message) = @_;
    print "HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n" unless $config;
-   print "An error occured: $message\n";
+   if(defined $interface && ref $interface) {
+	  $interface->error($message);
+   }else{
+      print "An error occured: $message\n";
+   }
    exit;
 }
 
@@ -578,8 +600,8 @@ sub init {
 
    $cgi->{nick} =~ s/\?/int rand 10/eg;
 
-   $format = load_format($cgi->{format});
    $interface = load_interface();
+   $format = load_format($cgi->{format});
 
    message('accessdenied'),exit unless access_ipcheck($ENV{REMOTE_ADDR});
 

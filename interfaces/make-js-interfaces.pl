@@ -105,7 +105,7 @@ sub add {
 }
 
 sub frameset {
-   my($self, $scriptname, $config, $random, $out) = @_;
+   my($self, $scriptname, $config, $random, $out, $interface) = @_;
 print <<EOF;
 <html>
 
@@ -116,10 +116,10 @@ print <<EOF;
 <frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
 <frameset cols="*,100" framespacing="0" border="0" frameborder="0">
-<frame name="fmain" src="$scriptname?item=fmain" scrolling="yes">
-<frame name="fuserlist" src="$scriptname?item=fuserlist" scrolling="no">
+<frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
+<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="no">
 </frameset>
-<frame name="fform" src="$scriptname?item=fform" scrolling="no">
+<frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no">
 <frame name="hiddenframe" src="about:blank" scrolling="no">
 <noframes>
 This interface requires a browser that supports frames and javascript.
@@ -179,8 +179,8 @@ var tablen;
 var tabinc;
 
 function fns(){
-   if(!document.myform.say) return;
-   document.myform.say.focus();
+   if(!document.myform["say"]) return;
+   document.myform["say"].focus();
 }
 
 function t(item,text) {
@@ -200,7 +200,7 @@ function load() {
 }
 
 function append(a) {
-   document.myform.say.value += a;
+   document.myform["say"].value += a;
    fns();
 }
 
@@ -356,8 +356,9 @@ print q~
 <head>
 <style type="text/css"><!--
 BODY {
-   margin: 0;
+   margin: 0px;
    background: #f1f1f1;
+   border-bottom: 1px solid #999999;
 }
 
 .Wchooser { 
@@ -370,7 +371,6 @@ BODY {
    width: 100%;
    height: 100%;
    padding: 5px;
-   border-bottom: 1px solid #999999;
 }
 
 .Wmouseover {
@@ -550,8 +550,11 @@ function witemchg(name) {
    witemredraw();
    if(parent.fform.location) parent.fform.fns();
    userlist();
-   parent.document.title = 'CGI:IRC - ' + currentwindow + 
-       (Witems[name].channel == 1 ? ' [' + countit(Witems[name].users) + '] ' : '');
+   retitle();
+}
+
+function retitle() {
+   parent.document.title = 'CGI:IRC - ' + currentwindow + (Witems[currentwindow].channel == 1 ? ' [' + countit(Witems[currentwindow].users) + '] ' : '');
 }
 
 function witemchgnum(num) {
@@ -568,9 +571,6 @@ function countit(obj) {
    return i;
 }
 
-function w(name, text, activity) {
-   witemaddtext(name, text, activity)
-}
 function witemaddtext(name, text, activity) {
    if(name == '-all') {
       for(var window in Witems) {
@@ -683,6 +683,7 @@ function userlist() {
    }else{
       userlistupdate(['No channel']);
    }
+   retitle();
 }
 
 function userlistupdate(list) {
@@ -729,6 +730,7 @@ print q`
 <form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe-">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">
+<input type="hidden" name="s" value="say">
 <input type="hidden" name="say" value="">
 <input type="hidden" name="target" value="">
 </form>

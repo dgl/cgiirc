@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.1 2002/03/05 16:34:19 dgl Exp $
+ * $Id: client.c,v 1.2 2002/03/05 20:31:06 dgl Exp $
  */
 
 #include <stdio.h>
@@ -23,6 +23,7 @@ int main(void) {
    char rand[50]; /* Random value - used for the socket location */
    char tmp[2048];
    
+   printf("Content-type: text/html\n\n");
    if(!readinput(params)) error("No input found\n");
    if(!get_rand(params, rand)) error("Random Value not found\n");
 
@@ -38,7 +39,7 @@ int main(void) {
 }
 
 int error(char *error) {
-   printf("Content-type: text/html\n\nAn error occured: %s\n",error);
+   printf("An error occured: %s\n",error);
    fwrite(error, strlen(error), 1, stderr);
    exit(1);
 }
