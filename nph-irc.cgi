@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.74 2002/11/03 09:51:08 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.75 2002/11/03 20:43:17 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -947,9 +947,11 @@ sub irc_ctcp {
 
 #### prints a very simple header
 sub header {
+   my $charset = shift;
    print "HTTP/1.0 200 OK\r\n" if $0 =~ /nph-/;
    print join("\r\n",
-     'Content-type: text/html',
+     'Content-type: text/html' . (defined $charset ? "; charset=$charset" :
+        ''),
      'Pragma: no-cache',
      'Cache-control: must-revalidate, no-cache, no-store',
      'Expires: -1',
@@ -1003,11 +1005,13 @@ sub init {
 
    $timer->addforever(interval => 30, code => \&session_timeout);
 
-   header();
 
    $cgi = parse_query($ENV{QUERY_STRING});
    format_init_smilies();
+   $format = load_format($cgi->{format});
    $cookie = parse_cookie();
+
+   header($format->{charset} ? $format->{charset} : undef);
 
    error('No CGI Input') unless keys %$cgi;
    $cgi->{serv} ||= (split /,/, $config->{default_server})[0];
@@ -1026,7 +1030,6 @@ sub init {
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
-   $format = load_format($cgi->{format});
    $interface = load_interface();
  
    access_ipcheck();
