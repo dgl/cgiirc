@@ -1,11 +1,12 @@
 Summary of changes
 
 0.5.3
-- Lots of bug fixes (+/!channels, ( key in mozilla, 
+- Lots of bug fixes (+/!channels, ( key in mozilla)
 - Use of iframes removed (IE sometimes does not load the JS needed properly)
 - ipaccess can now use hostnames (see ipaccess.example)
 - config file updates (documented new options)
 - sound support (IE only?)
+- Opera 7 support
 
 0.5.2
 - New Icons (thanks to Johnny).

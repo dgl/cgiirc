@@ -291,6 +291,7 @@ function form_focus() {
    if(document.frames && document.frames.fform)
 	  document.frames.fform.fns();
 }
+document.onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
 //-->
 </script>
 </head>

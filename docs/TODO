@@ -1,36 +1,25 @@
 TODO
 ----
 
-- escape key
-
 bugs:
 - horzontal scrolling with really long lines
 
 features:
 - adding code to check for op to add op/voice/deop/devoice/ban/kick to userlist
-- /ban
 - scrolling locks if the window is scrolled upwards
-- pop-out needs to work in mozilla too
-  mozilla seems to be being typically braindead about this
 - topic bar
   this is going to be difficult as it comes along with wanting to reposition
   the tab bar as well, i'm not sure of the best way of doing this (and
   interfaces are already too messy).
 - 0.4 had a status bar in text-* themes, make shownick into something better?
 - who list format
-- icons in userlist for 005 prefix.
 - right click context menus
 - admin interface?
-- whois in active window
 - nonjs interface needs a few more features...
-- /server command, /reconnect command
-- @ prefix
-- make sure scrollback option is done
-- http://dgl.otherwize.co.uk/o/macos-screen.gif
 - fix nonjs - setbackground colour
+- @ prefix (in lines like <@user>)
 - css for login?
 - /quit window.close
-- trusted proxies
 - title
 - maxlength in input field
 - (tom) onbeforeonload = function() { return "Are you sure you want to close CGI:IRC?"; }
@@ -45,7 +34,4 @@ Sucky bits of code need rewriting:
 - Options
 - Formats could be in their own module
 - IPv6 handling, most stuff should work with IPv6, but some is messy :(
-
-<img src="smile.gif" style="display:none" 
-onload="this.nextSibling.style.display='none';this.style.display='inline'"><span>:)</span>
 
