@@ -1386,6 +1386,7 @@ function keypress(srcEl, keyCode, event) {
 	   var name = parent.fwindowlist.witemchgnum(num);
 	   if(!name) return false;
 	   parent.fwindowlist.witemchg(name);
+   }else if(keyCode == 27) { // ignore escape (to stop..)
    }else{
        return true;
    }

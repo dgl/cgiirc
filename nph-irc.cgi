@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.78 2002/11/23 22:40:25 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.79 2002/11/24 19:02:05 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -1091,7 +1091,7 @@ sub init {
             ? encode_ip($ENV{REMOTE_ADDR}) 
             : (config_set('default_user') 
                ? $config->{default_user} 
-               : 'cgiirc'
+               : $cgi->{nick}
             ),
   );
 
