@@ -25,6 +25,7 @@ Javascript Interface:
 = channel part
 - close windows
 -? quit in more than one channel
+- configurable things : timestamps - fonts and so on...
 
 NonJS Interface:
 + do this :)

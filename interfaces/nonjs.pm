@@ -6,9 +6,12 @@ use default;
 @ISA = qw/default/;
 
 sub new {
-   my($class,$event,$timer) = @_;
+   my($class,$event,$timer, $config) = @_;
    my $self = bless {}, $class;
    $timer->addforever(code => \&todo, data => $self, interval => 10);
+   $self->{':_timestamp'} = 0;
+   $self->{':_timestamp'}++ if exists $config->{'interface timestamp'} &&
+        $config->{'interface timestamp'};
    return $self;
 }
 
@@ -84,13 +87,18 @@ sub line {
    }elsif($info->{type} eq 'join') {
       $self->reload('u');
    }
+
+   if($self->{':_timestamp'}) {
+      my($sec,$min,$hour) = localtime;
+      $html = sprintf("[%02d:%02d] %s", $hour, $min, $html);
+   }
 	  
    _out($html . '<br>');
 }
 
 sub add {
    my($self, $name, $param) = @_;
-   $self->{_target} ||= $name;
+   $self->{':_target'} ||= $name;
    $self->{lc $name} = $param;
    _out('<script>u();f();</script>');
 }
@@ -103,7 +111,7 @@ sub del {
 
 sub active {
    my($self, $name) = @_;
-   $self->{_target} = $name;
+   $self->{':_target'} = $name;
    $self->reload('f');
 }
 
@@ -155,11 +163,11 @@ sub _page {
 
 sub userlist {
    my($self, $input, $irc, $config) = @_;
-   if(!defined $self->{_target} || !$irc->is_channel($self->{_target})) {
+   if(!defined $self->{':_target'} || !$irc->is_channel($self->{':_target'})) {
       return _page('No channel');
    }
 
-   my $channel = $irc->channel($self->{_target});
+   my $channel = $irc->channel($self->{':_target'});
    return _page('No channel') unless ref $channel;
 
    my $output = 'Users in <b>' . _escape($channel->{name}) . '</b><br>';
@@ -186,9 +194,9 @@ sub fform {
 sub form {
    my($self, $cgi, $irc, $config) = @_;
    if(defined $cgi->{target} && $cgi->{target}) {
-      $self->{_target} = $cgi->{target};
+      $self->{':_target'} = $cgi->{target};
    }
-   return _form_out($cgi->{R}, $config->{script_form}, $self->{_target}, [keys %$self]);
+   return _form_out($cgi->{R}, $config->{script_form}, $self->{':_target'}, [keys %$self]);
 }
 
 sub _form_out {
@@ -215,7 +223,7 @@ function fns(){
 EOF
 if(ref $targets eq 'ARRAY') {
    for(@$targets) {
-      next if /^_/;
+      next if /^:_/;
       $out .= "<option" . 
 	    (defined $target && lc $target eq lc $_ ? ' selected="1"' : '') 
 	  . ">" . _escape($_) . "</option>\n";

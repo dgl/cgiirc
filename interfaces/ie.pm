@@ -694,6 +694,12 @@ function witemaddtext(name, text, activity) {
       if(!Witems["Status"]) return;
 	  name = "Status";
    }
+   
+   if(options["timestamp"]) {
+      var D = new Date();
+      text = '[' + (D.getHours() < 10 ? '0' + D.getHours() : D.getHours()) + ':' + (D.getMinutes() < 10 ? '0' + D.getMinutes() : D.getMinutes()) + '] ' + text;
+   }
+   
    Witems[name].text[Witems[name].text.length] = text;
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);

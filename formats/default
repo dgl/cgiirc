@@ -43,11 +43,12 @@ message private window = {message-nick $0} {text $2}
 message private = [$0($1)] {text $2}
 message special = <$0:$2> {text $3}
 
-message-nick = <$0>
-message-nick-hilight = <%07$0%n>
+message-nick = %02<%n$0%02>%n
+message-nick-own = %03<%n$0%03>%n
+message-nick-hilight = %02<%07$0%02>%n
 
-message public own = {message-nick $0} {text $2}
-message private window own = {message-nick $0} {text $2}
+message public own = {message-nick-own $0} {text $2}
+message private window own = {message-nick-own $0} {text $2}
 message private own = [msg->$T] {text $2}
 
 action-nick = %_*%_ $0

@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.20 2002/03/27 17:46:37 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.21 2002/03/28 22:48:52 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -457,7 +457,7 @@ sub say_command {
    $target =~ s/(\n|\r|\0)//sg;
    $say =~ s/\%C/\003/g;
    $say =~ s/\%B/\002/g;
-   $say =~ s/\%U/\022/g;
+   $say =~ s/\%U/\037/g;
    if($say =~ m!^/!) {
 	  if($say =~ s!^/ /!/!) {
 		 irc_send_message($target, $say);
@@ -633,8 +633,8 @@ sub irc_connected {
 sub irc_send_message {
    my($target, $text) = @_;
    $event->handle('message ' .
-		($irc->is_channel($target) ? 'public' : 'private' . ($interface->query ? ' window ' : '')) . ' own', 
-		{ target => $target }, $irc->{nick}, $irc->{myhost}, $text);
+		($irc->is_channel($target) ? 'public' : 'private' . ($interface->query ? ' window' : '')) . ' own', 
+		{ target => $target, create => 1 }, $irc->{nick}, $irc->{myhost}, $text);
    $irc->msg($target,$text);
 }
 
