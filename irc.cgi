@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.23 2002/11/24 21:49:42 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.24 2003/01/17 16:40:57 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
@@ -121,7 +121,7 @@ if(ref $cgi && defined $cgi->{item}) {
 
    opendir(FORMATS, "formats");
    my @formats;
-   for(readdir FORMATS) {
+   for(sort readdir FORMATS) {
       next unless !/^\./ && -f "formats/$_";
       if($_ eq ($config->{format} || 'default')) {
          unshift(@formats, $_);
