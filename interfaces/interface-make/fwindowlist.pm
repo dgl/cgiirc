@@ -491,7 +491,7 @@ function do_quit() {
 .$end
 
 .$just ie
-<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()" name="hiddenframe"></iframe>
+<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="display:none;" name="hiddenframe"></iframe>
 .$else
 <iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="border:0" name="hiddenframe"></iframe>
 .$end
