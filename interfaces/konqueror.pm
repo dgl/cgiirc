@@ -684,6 +684,8 @@ function witemredraw() {
       setTimeout("witemredraw()", 1000);
 	  return;
    }
+   var doc = parent.fmain.document.body;
+   var scrollok = 1;
    if(!currentwindow) currentwindow = 'Status';
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
    if(Witems[currentwindow].info == 1) return;

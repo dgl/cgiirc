@@ -290,16 +290,22 @@ function witemredraw() {
       setTimeout("witemredraw()", 1000);
 	  return;
    }
+   var doc = parent.fmain.document.body;
+   var scrollok = 1;
    if(!currentwindow) currentwindow = 'Status';
+.$just ie
+   if(doc.scrollTop >= doc.scrollHeight- doc.clientHeight - 5)
+      scrollok = 0;
+.$end
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
    if(Witems[currentwindow].info == 1) return;
 .$just ie
    var count = 0;
-   var doc = parent.fmain.document.body;
-   while(doc.scrollTop < doc.scrollHeight && count < 20) {
-      doc.scrollTop = doc.scrollHeight;
-      count++;
-   }
+   if(scrollok)
+      while(doc.scrollTop < doc.scrollHeight && count < 20) {
+         doc.scrollTop = doc.scrollHeight;
+         count++;
+      }
 .$else
    var doc = parent.fmain.window;
    var scroll = -1;
