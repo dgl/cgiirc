@@ -20,7 +20,7 @@ default_name = CGI:IRC User
 default_nick = CGI???
 
 # The default username to send, this will only be sent if 
-# encode_ip (below) is set to 1 or less and will have no affect
+# encoded_ip (below) is set to 1 or less and will have no affect
 # if the system is running identd.
 default_user = cgiirc
 
