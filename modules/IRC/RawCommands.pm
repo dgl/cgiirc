@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.19 2002/05/21 14:48:17 dgl Exp $
+# $Id: RawCommands.pm,v 1.20 2002/07/05 16:52:58 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -513,7 +513,7 @@ my %raw = (
 
    372 => sub { # RPL_MOTD
       my($event,$self,$params) = @_;
-	  $self->{event}->handle('reply motd',_info('Status', 1),$params->{text});
+	  $self->{event}->handle('reply motd',_info('Status', 1, undef, 'motd'),$params->{text});
    },
    375 => sub { # RPL_MOTDSTART
       my($event,$self,$params) = @_;
@@ -578,7 +578,7 @@ sub new {
 }
 
 sub _info {
-   return { target => $_[0], activity => $_[1], create => (defined $_[2] ? 1 : 0)};
+   return { target => $_[0], activity => $_[1], create => (defined $_[2] ? 1 : 0), style => (defined $_[3] ? $_[3] : '')};
 }
 
 1;

@@ -114,7 +114,7 @@ session_timeout = 18000
 # The options to show on the basic and advanced login forms.
 # Simply a space seperated list of the fields to display.
 #login basic = Nickname Channel
-#login advanced = Nickname Channel Server Password
+#login advanced = Nickname Realname Channel Server Password Format
 
 # The default format to use
 format = default

@@ -133,7 +133,9 @@ sub query {
 
 sub style {
    my($self, $cgi, $config) = @_;
-   open(STYLE, '<interfaces/style.css') or die("Error opening stylesheet: $!");
+   my $style = $cgi->{style} || 'default';
+   $cgi->{style} =~ s/[^a-z]//gi;
+   open(STYLE, "<interfaces/style-$style.css") or die("Error opening stylesheet $style: $!");
    print <STYLE>;
    close(STYLE);
 }
@@ -158,6 +160,9 @@ sub makeline {
 	  }elsif($target ne '-all') {
          $target = 'Status';
 	  }
+   }
+   if($info->{style}) {
+      $html = "<span class=\"main-$info->{style}\">$html</span>";
    }
    return _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0, 0);
 }
@@ -208,7 +213,7 @@ sub active {
 }
 
 sub frameset {
-   my($self, $scriptname, $config, $random, $out, $interface) = @_;
+   my($self, $scriptname, $config, $random, $out, $interface, $style) = @_;
 print <<EOF;
 $standardheader
 <html>
@@ -227,13 +232,13 @@ function form_focus() {
 <frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0" 
 onfocus="form_focus()" onload="form_focus()">
 
-<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
+<frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist&style=$style" scrolling="no">
 <frameset cols="*,120" framespacing="0" border="0" frameborder="0">
-<frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
-<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="yes">
+<frame name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes">
+<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes">
 </frameset>
-<frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
-<frame name="hiddenframe" src="$scriptname?item=blank" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
+<frame name="hiddenframe" src="$scriptname?item=blank&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no">
 <noframes>
 This interface requires a browser that supports frames and javascript.
 </noframes>
@@ -422,7 +427,7 @@ function statushtml(status) {
 
 // -->
 </script>
-<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
 </head>
 
 <body class="userlist-body">
@@ -456,7 +461,7 @@ sub fmain {
 print <<EOF;
 $standardheader
 <html><head>
-<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
 </head>
 <body class="main-body"
 onkeydown="if((event && !event.ctrlKey) && parent.fform.location) 
@@ -472,7 +477,7 @@ sub say {
 }
 
 sub fform {
-   my($self, $name, $config) = @_;
+   my($self, $cgi, $config) = @_;
 print <<EOF;
 $standardheader
 <html>
@@ -627,7 +632,7 @@ function keypress(srcEl, keyCode, event) {
 }
 //-->
 </script>
-<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
 </head>
 <body onload="load()" onfocus="fns()" class="form-body">
 <form name="myform" onSubmit="return cmd();" class="form-form">
@@ -1079,7 +1084,7 @@ function do_quit() {
 
 // -->
 </script>
-<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style" />
+<link rel="stylesheet" href="$config->{script_login}?interface=mozilla&item=style&style=$cgi->{style}" />
 </head>
 <body onload="wlistredraw()" onkeydown="formfocus()" onbeforeunload="do_quit()" onunload="do_quit()" class="wlist-body">
 <noscript>Scripting is required for this interface</noscript>

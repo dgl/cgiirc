@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.17 2002/07/02 19:40:48 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.18 2002/07/05 16:52:56 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -61,7 +61,8 @@ if(ref $cgi && defined $cgi->{item}) {
    $interface->$name($cgi, $config, 0);
 }elsif(ref $cgi && defined $cgi->{Nickname}) {
    my $r = random();
-
+   my($format, $style);
+   
    my %p = ( 
          Nickname => 'nick', 
          Channel => 'chan',
@@ -77,9 +78,18 @@ if(ref $cgi && defined $cgi->{item}) {
 	  next unless exists $cgi->{$_};
 	  $out .= cgi_encode($p{$_}) . '=' . cgi_encode($cgi->{$_}) . '&';
    }
+
+   $format = exists $cgi->{Format}
+            ? $cgi->{Format} 
+            : $config->{format} || 'default';
+   $format =~ s/[^a-z]//gi;
+   $format = parse_config("formats/$format");
+   $style = exists $format->{style} ? $format->{style} : 'default';
+
    $out .= "R=$r";
    $out =~ s/\&$//;
-   $interface->frameset($scriptname, $config, $r, $out, $interface);
+   $interface->frameset($scriptname, $config, $r, $out, $interface, $style);
+
 }else{
    my(%items,@order);
 
@@ -171,3 +181,6 @@ sub cgi_encode { # from CGI.pm
    return $toencode;
 }
 
+sub error {
+   die(@_);
+}
