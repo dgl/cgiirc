@@ -1,6 +1,14 @@
 package nonjs;
 use strict;
-use vars qw/@ISA/;
+use vars qw/@ISA $standardheader/;
+
+$standardheader = <<EOF;
+<!-- This is part of CGI:IRC 0.5
+  == http://cgiirc.sourceforge.net/
+  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Released under the GNU GPL
+  -->
+EOF
 
 use default;
 @ISA = qw/default/;
@@ -56,6 +64,7 @@ sub query {
 sub header {
    my($self, $config, $cgi) = @_;
    print <<EOF;
+$standardheader
 <html><head>
 <title>CGI:IRC</title>
 <script><!--
@@ -63,10 +72,10 @@ function s() {
    window.scrollBy(0,2000);
 }
 function u() {
-   parent.fuserlist.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&s=userlist";
+   parent.fuserlist.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&item=userlist";
 }
 function f() {
-   parent.fform.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&s=form";
+   parent.fform.window.location = "$config->{script_form}?interface=$cgi->{interface}&R=$cgi->{R}&item=form";
 }
 //-->
 </script>
@@ -120,9 +129,15 @@ sub error {
    $self->line({ target => 'Status'}, $message);
 }
 
+sub help {
+   my($self) = shift;
+   $self->line({ target => 'Status'}, "Help!");
+}
+
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface) = @_;
 print <<EOF;
+$standardheader
 <html>
 
 <head>
@@ -148,8 +163,9 @@ EOF
 sub fuserlist {
    my($self, $cgi, $config) = @_;
 print <<EOF;
+$standardheader
 <html><head>
-<noscript><meta http-equiv="Refresh" content="15;URL=$config->{script_form}?R=$cgi->{R}&s=userlist"></noscript>
+<noscript><meta http-equiv="Refresh" content="15;URL=$config->{script_form}?R=$cgi->{R}&item=userlist"></noscript>
 </head><body bgcolor="#ffffff" text="#000000">
 Loading..
 </body></html>
@@ -217,7 +233,7 @@ function fns(){
 
 <form name="myform" method="post" action="$script">
 <input type="hidden" name="R" value="$rand">
-<input type="hidden" name="s" value="form">
+<input type="hidden" name="item" value="form">
 <input type="hidden" name="cmd" value="say">
 <select name="target">
 EOF

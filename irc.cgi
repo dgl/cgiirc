@@ -24,7 +24,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.8 2002/03/27 17:46:37 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.9 2002/04/03 23:52:42 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -114,7 +114,7 @@ sub random {
 sub dolist {
    my($var) = @_;
    my @tmp = split(/,\s*/, $var);
-   return [@tmp] if $#tmp;
+   return [@tmp] if $#tmp > 0;
    return $tmp[0];
 }
 

@@ -1,4 +1,13 @@
 package default;
+use vars qw/$standardheader/;
+use strict;
+$standardheader = <<EOF;
+<!-- This is part of CGI:IRC 0.5
+  == http://cgiirc.sourceforge.net/
+  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Released under the GNU GPL
+  -->
+EOF
 
 sub new {
    return bless {};
@@ -43,6 +52,7 @@ sub login {
       $notsupported++;
    }
 print <<EOF;
+$standardheader
 <html>
 <head>
 EOF
@@ -57,6 +67,14 @@ function setjs() {
    document.loginform["interface"].value = 'ie';
  }
 }
+function nickvalid() {
+   var nick = document.loginform.Nickname.value;
+   if(nick.match(/^[A-Za-z0-9\\[\\]\\{\\}^\\\\\\|\\_\\-\`]{1,32}\$/))
+      return true;
+   alert('Please enter a valid nickname');
+   document.loginform.Nickname.value = nick.replace(/[^A-Za-z0-9\\[\\]\\{\\}^\\\\\\|\\_\\-\`]/g, '');
+   return false;
+}
 //-->
 </script>
 EOF
@@ -70,7 +88,7 @@ if($notsupported) {
    print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur.</font>\n";
 }
 print <<EOF;
-<form method="post" action="$this" name="loginform">
+<form method="post" action="$this" name="loginform" onsubmit="return nickvalid()">
 EOF
 print "<input type=\"hidden\" name=\"interface\" value=\"" . 
    ($interface eq 'default' ? 'nonjs' : $interface) . "\">\n";

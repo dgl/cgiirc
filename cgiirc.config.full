@@ -16,12 +16,12 @@ default_channel = #cgiirc
 default_name = CGI:IRC User
 
 # default nickname, a ? is replaced with a random number
-default_nick=CGI???
+default_nick = CGI???
 
 # The default username to send, this will only be sent if 
 # encode_ip (below) is set to 1 or less and will have no affect
 # if the system is running identd.
-default_user=cgiirc
+default_user = cgiirc
 
 # Default quit message
 #quit_message=
@@ -36,13 +36,14 @@ script_form = client-perl.cgi
 script_login = irc.cgi
 
 # The place where tmp. files should be stored
-socket_prefix=/tmp/cgiirc-
+socket_prefix = /tmp/cgiirc-
 
 # -----
 # Access related settings
 
-# encoded_ip, set to 2 to send hex encoded IP address in username  
-# and in realname, set to 1 to send only in realname and 0 to
+# encoded_ip, set to 3 to send real IP in username, 
+# set to 2 to send hex encoded IP address in username  
+# and in realname, set to 1 to send only in realname and 0 to 
 # disable.
 encoded_ip = 2
 

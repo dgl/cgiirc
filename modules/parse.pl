@@ -19,6 +19,7 @@ sub parse_config {
 
 ## Parses a CGI input, returns a hash reference to the value within it.
 ## The clever regexp bit is from cgi-lib.pl
+## This now also removes certain characters that might not be a good idea.
 sub parse_query {
    my($query) = @_;
    return {} unless defined $query and length $query;
@@ -28,7 +29,10 @@ sub parse_query {
 	     s/\+/ /g;
 	     my($key, $val) = split(/=/,$_,2);
 	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
+        $key =~ s/[\r\n\0]//g;
 	     $val =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
+        $val =~ s/[\r\n\0]//g;
+
 	     $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)
    };

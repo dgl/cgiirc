@@ -24,12 +24,12 @@ use strict;
 use lib qw/modules interfaces/;
 use vars qw(
 	  $VERSION @handles %inbuffer $select_bits
-	  $unixfh $ircfh $cookie $ctcptime
+	  $unixfh $ircfh $cookie $ctcptime $intime
 	  $timer $event $config $cgi $irc $format $interface
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.21 2002/03/28 22:48:52 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.22 2002/04/03 23:52:42 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -423,6 +423,8 @@ sub load_socket {
 
 sub unix_in {
    my($fh, $line) = @_;
+   $intime = time;
+
    my $input = parse_query($line);
    
    if($cookie && (!defined $input->{COOKIE} || $input->{COOKIE} ne $cookie)) {
@@ -434,8 +436,8 @@ sub unix_in {
 	  input_command($input->{cmd}, $input);
    }
 
-   if(defined $input->{s} && $input->{s} =~ /^\w+$/) {
-	  net_send($fh, interface_show($input->{s}, $input));
+   if(defined $input->{item} && $input->{item} =~ /^\w+$/) {
+	  net_send($fh, interface_show($input->{item}, $input));
    }
 
    select_close($fh);
@@ -571,6 +573,13 @@ sub access_command {
 
 sub encode_ip {
    return join('',map(sprintf("%0.2x", $_), split(/\./,shift)));
+}
+
+sub session_timeout {
+   return unless defined $intime;
+   if((time - $config->{session_timeout}) < $intime) {
+      irc_close();
+   }
 }
 
 #### IRC Functions
@@ -758,6 +767,9 @@ sub init {
    $config->{access_command} = '!quote' unless exists $config->{access_command};
    $config->{format} ||= 'default';
 
+   $timer->addforever(interval => 60, code => \&session_timeout)
+      if config_set('session_timeout');
+
    header();
 
    $cgi = parse_query($ENV{QUERY_STRING});
@@ -771,6 +783,8 @@ sub init {
    $cgi->{name} ||= $config->{default_name};
 
    $cgi->{nick} =~ s/\?/int rand 10/eg;
+   # Only valid nickname characters
+   $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
    $interface = load_interface();
    $format = load_format($cgi->{format});

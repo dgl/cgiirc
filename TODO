@@ -40,9 +40,9 @@ nph-irc.cgi:
 - config fonts
 - config timestamps
 - config vhost
-= random value via http referer problem (needs adding to client.c and doing in
++ random value via http referer problem (needs adding to client.c and doing in
   nph-irc.cgi) cookie read on frameset load
-- session timeout if no data sent (set optionally)
+= session timeout if no data sent (set optionally)
 
 Abuse:
 - ctcp kill/ban

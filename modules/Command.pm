@@ -120,31 +120,31 @@ my %commands = (
      $event->handle('notice ' .
 	    ($irc->is_channel($target) ? 'public' : 'private') . ' own',
 		{ target => $target }, $irc->{nick}, $irc->{myhost}, $text);
-	 $irc->notice($target,$text);
+	  $irc->notice($target,$text);
   },
   ctcp => sub {
      my($target, $text) = split(' ', $params, 2);
-	 $event->handle('ctcp own msg',
-	   { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
-	 $irc->ctcp($target,$text);
+	  $event->handle('ctcp own msg',
+	    { target => $target }, $irc->{nick}, $irc->{myhost}, $text);
+	  $irc->ctcp($target,$text);
   },
   ping => sub {
      $target = $params if $params;
-	 $event->handle('ctcp own msg',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, 'PING');
-	 $irc->ctcp($target, 'PING ' . time);
+	  $event->handle('ctcp own msg',
+	    { target => $target }, $irc->{nick}, $irc->{myhost}, 'PING');
+	  $irc->ctcp($target, 'PING ' . time);
   },
   me => sub {
      $event->handle('action ' .
-	  ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
+	    ($irc->is_channel($target) ? 'public' : 'private') . ' own',
+	    { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
      $irc->ctcp($target, 'ACTION ' . $params);
   },
   action => sub {
-     my($target, $text) = split(' ', $params, 2);
+    my($target, $text) = split(' ', $params, 2);
 	 $event->handle('action ' .
-	  ($irc->is_channel($target) ? 'public' : 'private') . ' own',
-	  { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
+	   ($irc->is_channel($target) ? 'public' : 'private') . ' own',
+	   { target => $target }, $irc->{nick}, $irc->{myhost}, $params);
 	 $irc->ctcp($target, 'ACTION ' . $params);
   },
   quote => sub {
@@ -152,27 +152,31 @@ my %commands = (
   },
   version => sub {
      if($params) {
-	    $irc->out("VERSION $params");
-	 }else{
-	    message('default',"CGI:IRC $main::VERSION - David Leadbeater - http://cgiirc.sf.net/");
-		$irc->out('VERSION');
-	 }
+	     $irc->out("VERSION $params");
+	  }else{
+	     message('default',"CGI:IRC $main::VERSION - David Leadbeater - http://cgiirc.sf.net/");
+		  $irc->out('VERSION');
+	  }
   },
   winclose => sub {
      $interface->del($params ? $params : $target);
-	 return 0;
+	  return 0;
   },
   'close' => 'winclose',
   'unquery' => 'winclose',
   'query' => sub {
      return 2 unless $params;
-	 $interface->add($params);
-	 $interface->active($params);
-	 return 0;
+	  $interface->add($params);
+	  $interface->active($params);
+	  return 0;
   },
   clear => sub {
      $interface->clear($params ? $params : $target);
-	 return 0;
+	  return 0;
+  },
+  help => sub {
+     $interface->help($config);
+     return 0;
   },
 );
 

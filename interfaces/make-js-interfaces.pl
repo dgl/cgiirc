@@ -9,7 +9,14 @@ print q`
 # OK!
 
 use strict;
-use vars qw/@ISA/;
+use vars qw/@ISA $standardheader/;
+$standardheader = <<EOF;
+<!-- This is part of CGI:IRC 0.5
+  == http://cgiirc.sourceforge.net/
+  == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
+  == Released under the GNU GPL
+  -->
+EOF
 
 use default;
 @ISA = qw/default/;
@@ -161,8 +168,8 @@ sub active {
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface) = @_;
 print <<EOF;
+$standardheader
 <html>
-
 <head>
 <title>CGI:IRC</title>
 <script><!--
@@ -196,8 +203,20 @@ sub blank {
    return '';
 }
 
+sub help {
+   my($self,$config) = @_;
+   _out("window.open('$config->{script_login}?item=uhelp&interface=`;print $browser;print q`');");
+}
+
+sub uhelp {
+   print <<EOF;
+THIS IS HELP - IT NEEDS DOING.
+EOF
+}
+
 sub fuserlist {
 print <<EOF;
+$standardheader
 <html>
 <head>
 <style><!--
@@ -240,6 +259,7 @@ EOF
 
 sub fmain {
 print <<EOF;
+$standardheader
 <html><head></head>
 <body onkeydown="if(parent.fform.location) parent.fform.fns();">
 `;
@@ -260,14 +280,11 @@ sub say {
 
 sub fform {
 print <<EOF;
+$standardheader
 <html>
 <head>
 <html><head>
 <script><!--
-// This javascript code is released under the same terms as CGI:IRC itself
-// http://cgiirc.sourceforge.net/
-// Copyright (C) 2000-2002 David Leadbeater <cgiirc\\@dgl.cx>
-
 var history = [ ];
 var hispos;
 var tabtmp = [ ];
@@ -478,6 +495,7 @@ sub fwindowlist {
 	  $string .= main::cgi_encode($_) . '=' . main::cgi_encode($cgi->{$_}).'&';
    }
    $string =~ s/\&$//;
+print $standardheader;
 print q~
 <html>
 <head>
@@ -924,7 +942,7 @@ print q`
 <form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">
-<input type="hidden" name="s" value="say">
+<input type="hidden" name="item" value="say">
 <input type="hidden" name="say" value="">
 <input type="hidden" name="target" value="">
 </form>
