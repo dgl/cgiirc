@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.60 2002/07/01 20:04:25 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.61 2002/07/02 15:32:51 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -781,8 +781,9 @@ sub irc_send_message {
    my($target, $text) = @_;
    $event->handle('message ' .
           (
-           $irc->is_channel($target) ? 'public' : 'private' .
-           $interface->query ? ' window' : ''
+           $irc->is_channel($target) ? 'public' 
+           : 'private' . 
+             ($interface->query ? ' window' : '')
           ) . ' own',
          { target => $target, create => 1 },
          $irc->{nick}, $irc->{myhost}, $text);
