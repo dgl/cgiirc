@@ -55,7 +55,7 @@ sub options { 'DUMMY' }
 sub setoption { 'DUMMY' }
 
 sub login {
-   my($self, $this, $interface, $copy, $config, $order, $items) = @_;
+   my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
    if($ENV{HTTP_USER_AGENT} =~ /kde|konqueror/i) {
       $notsupported++;
@@ -139,8 +139,14 @@ bgcolor=\"#f1f1f1\">";
 }
 print <<EOF;
 <tr><td align="left" bgcolor="#d9d9d9">
+EOF
+if($adv) {
+   print <<EOF;
 <small><a href="$this?adv=1">Advanced..</a></small>
-</small></td><td align="right" bgcolor="#d9d9d9">
+EOF
+}
+print <<EOF;
+</td><td align="right" bgcolor="#d9d9d9">
 <input type="submit" value="Login" style="background-color: #d9d9d9">
 </td></tr></table></form>
 

@@ -25,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.12 2002/04/26 22:58:21 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.13 2002/05/19 11:04:57 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -46,11 +46,11 @@ my $copy = <<EOF;
 &copy;David Leadbeater 2000-2002
 EOF
 
-my $scriptname = $ENV{SCRIPT_NAME} || $0;
-$scriptname =~ s!^.*/!!;
-
 my $config = parse_config('cgiirc.config');
 my $cgi = cgi_read();
+
+my $scriptname = $config->{script_login} || $0;
+$scriptname =~ s!^.*/!!;
 
 my $interface = ref $cgi && defined $cgi->{interface} ? $cgi->{interface} : 'default';
 $interface =~ s/[^a-z]//gi;
@@ -87,6 +87,10 @@ if(ref $cgi && defined $cgi->{item}) {
    my $channel = dolist($config->{default_channel});
    my $port = dolist($config->{default_port});
 
+   if(ref $cgi && $cgi->{chan}) {
+      $channel = $cgi->{chan};
+   }
+
    if(!defined $config->{allow_non_default} || !$config->{allow_non_default}) {
        $server = "-DISABLED- $server" unless ref $server;
        $channel = "-DISABLED- $channel" unless ref $channel;
@@ -119,7 +123,9 @@ if(ref $cgi && defined $cgi->{item}) {
 		 @order = qw/Nickname Server Channel/;
 	  }
    }
-   $interface->login($scriptname, $interface, $copy, $config, \@order, \%items);
+   $interface->login($scriptname, $interface, $copy, $config, 
+         \@order, \%items,
+         (ref $cgi && $cgi->{adv} ? 0 : 1));
 }
 
 sub random {

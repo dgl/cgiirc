@@ -38,6 +38,7 @@ my %options = (
 sub new {
    my($class,$event, $timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
+   tie %$self, 'IRC::UniqueHash';
    my $tmp='';
    for(keys %$icookies) {
       $tmp .= "$_: " . _escapejs($icookies->{$_}) . ', ';
@@ -154,7 +155,7 @@ sub makeline {
 	  return $text;
    }
 
-   if(not exists $self->{lc $target}) {
+   if(not exists $self->{$target}) {
       if(defined $info && ref $info && exists $info->{create} && $info->{create}) {
 	     $self->add($target, $info->{type} eq 'join' ? 1 : 0);
 	  }elsif($target ne '-all') {
@@ -190,7 +191,7 @@ sub error {
 sub add {
    my($self,$add,$channel) = @_;
    return if not defined $add;
-   $self->{lc $add}++;
+   $self->{$add}++;
    _func_out('witemadd', $add, $channel);
    _func_out('witemchg', $add) if $channel;
 }
@@ -199,7 +200,7 @@ sub del {
    my($self, $del) = @_;
    return if not defined $del;
    _func_out('witemdel', $del);
-   return if not exists $self->{lc $del};
+   return if not exists $self->{$del};
    delete($self->{$del});
 }
 
@@ -413,7 +414,8 @@ $standardheader
 <link rel="stylesheet" href="$config->{script_login}?interface=`;print $browser;print q`&item=style" />
 </head>
 <body class="main-body"
-onkeydown="if(parent.fform.location) parent.fform.fns();">
+onkeydown="if((event && !event.ctrlKey) && parent.fform.location) 
+   parent.fform.fns();">
 <span class="main-span" id="text"></span>
 </body></html>
 EOF
@@ -1117,11 +1119,11 @@ print q`
 </td>
 <td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
-<img src="$config->{image_path}/helpup.gif" onclick="sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;" title="Help">
+<img src="$config->{image_path}/helpup.gif" onclick="if(connected == 0)return;sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;" title="Help">
 </td><td class="wlist-buttons">
-<img src="$config->{image_path}/optionsup.gif" onclick="senditem('options');" class="wlist-button" onmousedown="this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
+<img src="$config->{image_path}/optionsup.gif" onclick="senditem('options');" class="wlist-button" onmousedown="if(connected == 0)return;this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
 </td><td class="wlist-buttons">
-<img src="$config->{image_path}/closeup.gif" onclick="if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit()}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;" title="Close">
+<img src="$config->{image_path}/closeup.gif" onclick="if(connected == 0)return;if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit();parent.location='$config->{script_login}'}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;" title="Close">
 </td></tr></table>
 
 <form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">
