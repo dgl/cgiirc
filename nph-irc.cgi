@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.33 2002/04/25 17:34:51 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.34 2002/04/26 22:59:58 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -208,6 +208,8 @@ sub select_canread {
 	  for(0 .. $#handles) {
 		 push(@out, $handles[$_]) if vec($read, $_, 1);
 	  }
+     # Heavy-handed fix for some weird bug (NS4 only?!)
+     if($read && !@out){print "Weird netscape bug found; exiting!<br>\n";irc_close();}
 	  return @out;
    }
    return ();
@@ -597,10 +599,10 @@ sub access_ipcheck {
 		 return 1 unless defined $limit;
 		 if($limit == 0) {
 		    message('access denied', 'No connections allowed');
-			exit;
+          irc_close();
 		 }elsif($ips{$ip} >= $limit) {
 		    message('access denied', 'Too many connections');
-			exit;
+          irc_close();
 		 }
 		 return 1;
 	  }
@@ -608,7 +610,7 @@ sub access_ipcheck {
    close(IP);
 
    message('access denied', 'No connections allowed');
-   exit;
+   irc_close();
 }
 
 sub list_connected_ips {
@@ -858,7 +860,7 @@ sub error {
       print "An error occured: $message\n";
 	  print STDERR "An error occured: $message\n";
    }
-   exit;
+   irc_close();
 }
 
 #### Init
