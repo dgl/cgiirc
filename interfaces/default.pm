@@ -17,9 +17,14 @@ sub exists {
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
-sub line {
+sub makeline {
    my($self, $type, $target, $html) = @_;
-   print "$html<br>\n";
+   return "$html<br>\n";
+}
+
+sub lines {
+   my($self, @lines);
+   print @lines;
 }
 
 sub header {

@@ -24,14 +24,14 @@ require 5.004;
 use strict;
 use lib qw{./modules ./interfaces};
 use vars qw(
-	  $VERSION @handles %inbuffer $select_bits
+	  $VERSION @handles %inbuffer $select_bits @output
 	  $unixfh $ircfh $cookie $ctcptime $intime
 	  $timer $event $config $cgi $irc $format $interface $ioptions
      $regexpicon %regexpicon
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.45 2002/05/05 12:30:34 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.46 2002/05/05 17:38:45 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -273,11 +273,7 @@ sub format_colourhtml {
    $line =~ s!(^|\s|\()(www\..*?)(\.?($|\s)|\))!$1<a href="http://@{[format_remove($2)]}" target="cgiirc@{[int(rand(200000))]}" class="main-link">@{[format_linkshorten($2)]}</a>$3!gi;
 
    if(exists $ioptions->{smilies} && $ioptions->{smilies}) {
-      $line =~ s{
-         (?<![^\.a-zA-Z\s])
-         $regexpicon
-         (?![^<]*>)  # not inside HTML
-      }{
+      $line =~ s{(?<![^\.a-zA-Z ])$regexpicon(?![^<]*>)}{
          my($sm, $tmp) = ($1, $1);
          for(keys %regexpicon) {
             next unless $sm =~ /^$_$/;
@@ -285,7 +281,7 @@ sub format_colourhtml {
             last;
          }
          $tmp
-      }gexo;
+      }geo;
    }
 
    return format_remove($line) if $config->{removecolour};
@@ -313,8 +309,8 @@ sub format_colourhtml {
 
 sub format_init_smilies {
    %regexpicon = (
-      '\;-?\)'        => 'wink',
-      '\;D'           => 'grin',
+      '\;-\)'         => 'wink',
+#      '\;-?D'         => 'grin',
       ':\'\(?'        => 'cry',
       ':-?/(?!\S)'    => 'notsure',
       ':-?[xX]'       => 'confused',
@@ -323,7 +319,7 @@ sub format_init_smilies {
       '\&gt\;:\(',    => 'angry',
       ':-?[pP]'       => 'tongue',
       ':-?\)'         => 'happy',
-      '\:D'           => 'cheesy',
+      '\:-?D'         => 'cheesy',
       ':-?\('         => 'unhappy',
       ':-[oO]'        => 'surprised',
       '8-?\)'         => 'cool',
@@ -478,7 +474,7 @@ sub interface_keepalive {
 
 sub interface_lineout {
    my($type, $target, $html) = @_;
-   $interface->line($type, $target, $html);
+   push(@output, $interface->makeline($type, $target, $html));
 }
 
 #### Unix Domain Socket Functions
@@ -740,6 +736,10 @@ sub irc_close {
    exit unless ref $ircfh;
    net_send($ircfh, "QUIT :$message\r\n");
    format_out('irc close', { target => '-all', activity => 1 });
+   if(@output) {
+      $interface->lines(@output);
+      @output = ( );
+   }
    $interface->end if ref $interface;
    
    sleep 1;
@@ -991,12 +991,16 @@ sub main_loop {
 			   $theline =~ s/\r$//;
 
 			   if($fh == $ircfh) {
-#message('default', "<- Server: $theline");
 				  $irc->in($theline);
 			   }else{
 				  unix_in($fh,$theline);
 			   }
 			}
+         
+         if(@output) {
+            $interface->lines(@output);
+            @output = ( );
+         }
 		 }
 	  }
 	  irc_close() if $needtodie;

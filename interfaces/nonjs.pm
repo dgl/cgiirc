@@ -85,7 +85,7 @@ function f() {
 EOF
 }
 
-sub line {
+sub makeline {
    my($self, $info, $html) = @_;
    my $target = $info->{target};
    $target ||= 'Status';
@@ -103,7 +103,12 @@ sub line {
       $html = sprintf("[%02d:%02d] %s", $hour, $min, $html);
    }
 	  
-   $self->_out($html . '<br>');
+   return $html . '<br>';
+}
+
+sub lines {
+   my($self, @lines) = @_;
+   $self->_out(join("\r\n",@lines));
 }
 
 sub add {

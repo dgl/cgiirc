@@ -68,6 +68,9 @@ sub _out {
 sub _func_out {
    my($func,@rest) = @_;
    @rest = map(ref $_ eq 'ARRAY' ? _outputarray($_) : _escapejs($_), @rest);
+   if($func eq 'witemaddtext') {
+      return 'parent.' . $func . '(' . _jsp(@rest) . ');';
+   }
    _out('parent.' . $func . '(' . _jsp(@rest) . ');');
 }
 
@@ -137,17 +140,18 @@ sub style {
    close(STYLE);
 }
 
-sub line {
+sub makeline {
    my($self, $info, $html) = @_;
    my $target = defined $info->{target} ? $info->{target} : 'Status';
 
    if(ref $target eq 'ARRAY') {
-      my %tmp = %$info;
+     my %tmp = %$info;
+     my $text = '';
 	  for(@$target) {
 	     $tmp{target} = $_;
-         $self->line(\%tmp, $html);
+        $text .= $self->makeline(\%tmp, $html) . "\r\n";
 	  }
-	  return;
+	  return $text;
    }
 
    if(not exists $self->{lc $target}) {
@@ -157,9 +161,18 @@ sub line {
          $target = 'Status';
 	  }
    }
-   _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0);
+   return _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0, 0);
+}
+
+sub lines {
+   my($self, @lines) = @_;
+   _out(join("\r\n", @lines)."\r\nparent.witemredraw();");
 `;
-print "   print \"<!-- padding for mozilla -->\\n\";\n" if $browser eq 'mozilla';
+if($browser eq 'mozilla') {
+print q`
+   print "<!-- mozilla padding -->\r\n";
+`;
+}
 print q`
 }
 
@@ -170,7 +183,7 @@ sub header {
 
 sub error {
    my($self,$message) = @_;
-   $self->line({ target => 'Status'}, $message);
+   $self->lines($self->makeline({ target => 'Status'}, $message));
    _func_out('disconnected');
 }
 
@@ -873,11 +886,11 @@ function countit(obj) {
    return i;
 }
 
-function witemaddtext(name, text, activity) {
+function witemaddtext(name, text, activity, redraw) {
    if(name == '-all') {
       for(var window in Witems) {
         if(Witems[window].info) continue;
-	     witemaddtext(window, text, activity);
+	     witemaddtext(window, text, activity, redraw);
 	  }
       return;
    }
@@ -894,7 +907,7 @@ function witemaddtext(name, text, activity) {
    Witems[name].text[Witems[name].text.length] = text;
    if(currentwindow != name && activity > Witems[name].activity)
        witemact(name, activity);
-   if(currentwindow == name) witemredraw();
+   if(redraw != 0 && currentwindow == name) witemredraw();
 }
 
 function witemact(name, activity) {
@@ -1040,7 +1053,7 @@ function disconnected() {
    if(connected == 1) {
 	  connected = 0;
 	  do_quit();
-	  witemaddtext('-all', '<b>Disconnected</b>', 1);
+	  witemaddtext('-all', '<b>Disconnected</b>', 1, 1);
    }
 }
 
@@ -1049,7 +1062,7 @@ function doinfowin(name, text) {
    witemnospeak(name);
    witeminfo(name);
    witemclear(name);
-   witemaddtext(name, text, 0);
+   witemaddtext(name, text, 0, 1);
    witemchg(name);
 }
 
