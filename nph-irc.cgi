@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.73 2002/11/02 23:19:24 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.74 2002/11/03 09:51:08 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -700,13 +700,13 @@ sub client_hostname {
 
    my($hostname) = gethostbyaddr(inet_aton($ip), AF_INET);
    unless(defined $hostname && $hostname) {
-      return $ip;
+      return($ip, $ip);
    }
 
    my $ip_check = scalar gethostbyname($hostname);
 
    if(inet_aton($ip) ne $ip_check) {
-      return $ip;
+      return($ip, $ip);
    }
 
    if(exists $ENV{HTTP_X_FORWARDED_FOR}
@@ -716,7 +716,7 @@ sub client_hostname {
       return($hostname, $ip) if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
       
       access_dnsbl($proxyip);
-      open(TRUST, "<trusted-proxy") or return $hostname;
+      open(TRUST, "<trusted-proxy") or return($hostname, $ip);
       while(<TRUST>) {
          chomp;
          s/\*/.*/g;
