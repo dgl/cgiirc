@@ -236,8 +236,7 @@ sub active {
 
 sub smilie { # js runs in fmain.
    shift; # object
-   my $x = "sm" . int(rand(200000));
-   return '<img name="'.$x.'" alt=""><script>parent.fwindowlist.smilie(' . _jsp(map(_escapejs($_,'"'), $_[0], $x, $_[2])) . ');</script>';
+   return '<img src="'.$_[0].'" alt="" />';
 }
 
 sub link {
@@ -809,19 +808,6 @@ function fontset(font) {
       parent.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
-
-var smilies = { };
-function smilie(path, name, text) {
-   alert(path);
-   if(!smilies[path]) {
-      smilies[path] = new Image();
-      smilies[path].src = path;
-   }
-   parent.fmain.document.write('<img name="' + name + '">');
-   parent.fmain.document.images[name].src = smilies[path].src;
-   parent.fmain.document.images[name].alt = text;
-}
-
 ~;
 # ' (fix syntax hilight)
 print <<EOF;

@@ -1,0 +1,315 @@
+
+/* CGI:IRC gothic theme by Ron van Daal (Syntonix) ron@within-temptation.com
+ *
+ * Please use this theme with font-family "verdana,tahoma"
+ * and gray-colored toolbar buttons for the best effect.
+ */
+
+
+
+/* --- Frames
+ * The positions of the iframes that hold each part of CGI:IRC,
+ * If you radically change these you'll want to adjust where borders
+ * and so on are placed too.
+ */
+
+/* The body in the 'frameset' (it's really a set of iframes) */
+.frame-body {
+    margin: 0;
+}
+
+/* windowlist is the frame which holds the window buttons and 'toolbar' */
+.frame-windowlist {
+   position: absolute;
+   top: 0px;
+   width: 100%;
+   height: 40px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* main - where all talk goes */
+.frame-main {
+   position: absolute;
+   top: 40px;
+   bottom: 40px;
+   left: 0px;
+   right: 120px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* userlist - the list of users */
+.frame-userlist {
+   position: absolute;
+   top: 40px;
+   right: 0px;
+   bottom: 25px;
+   width: 120px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+/* userlist when it is inactive */
+.frame-userlist-inact {
+   display: none;
+}
+/* form - text entry form */
+.frame-form {
+   position: absolute;
+   bottom: 0px;
+   width: 100%;
+   height: 40px;
+   border: 0;
+   margin: 0;
+   padding: 0;
+}
+
+
+/* --- Userlist */
+.userlist-body {
+   margin: 0;
+   scrollbar-track-color:black;
+   scrollbar-base-color:black;
+   scrollbar-shadow-color:gray;
+   scrollbar-arrow-color:gray;
+   background-color:black;
+   border-left: 6x solid #555555;
+   font-size: 12px;
+}
+
+.userlist-div {
+   width: 100%;
+}
+
+.userlist-item {
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   cursor: default;
+   color: #bbbbbb;
+}
+
+.userlist-select {
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   background-color: black;
+   color: #bbbbbb;
+}
+
+.userlist-btn {
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   background-color: black;
+   color: gray;
+   cursor: default;
+   border: 1px solid gray;
+}
+
+.userlist-form {
+   float: right;
+}
+
+.userlist-hover {
+   width: 95%;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   cursor: default;
+   color: white;
+}
+
+.userlist-selected {
+   width: 95%;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   background-color: gray;
+   color: black;
+}
+
+.userlist-table TR {
+   vertical-align: top;
+   margin-bottom: 5px;
+}
+
+
+.userlist-status {
+   width: 12px;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+   text-align: center;
+}
+
+.userlist-item {
+   width: 95%;
+   font-size: 12px;
+}
+
+.userlist-op {
+   color: red;
+   background-color: black;
+}
+
+.userlist-voice {
+   color: purple;
+   background-color: black;
+}
+
+/* --- Main */
+
+.main-body { 
+   word-wrap: break-word;
+   scrollbar-track-color:black;
+   scrollbar-base-color:black;
+   scrollbar-shadow-color:gray;
+   scrollbar-arrow-color:gray;
+   background: black;
+   font-size: 12px;
+}
+
+.main-span IMG {
+   border: 0;
+}
+
+.main-link {
+   color: #999999;
+   text-decoration: underline;
+}
+
+/* RawCommands.pm styles */
+
+.main-motd {
+   font-family: monospace;
+}
+
+/* --- Form */
+
+.form-body {
+   border-top: 6px solid #555555;
+   background: black;
+   margin: 5px;
+}
+
+.form-form {
+   float: left;
+}
+
+.form-say {
+   border: 0;
+   width: 90%;
+   padding-left: 4px;
+   background: #222222;
+   color: white;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.form-nickname {
+   padding-left: 4px;
+   padding-right: 4px;
+   color: gray;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.form-econtain {
+   float: right;
+}
+
+.form-extra { 
+   display: none; 
+}
+
+.form-boldbutton { 
+   font-weight: bold;
+}
+
+.form-expand {
+   border: 0;
+   background: gray;
+}
+
+/* --- Window List (wlist) */
+
+.wlist-body {
+   margin: 0px;
+   background: black;
+   cursor: default;
+}
+
+.wlist-chooser { 
+   border: 1px solid #999999;
+   padding: 2px;
+   margin: 2px;
+   cursor: default;
+   background: #333333;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.wlist-container {
+   width: 100%;
+   height: 100%;
+   padding: 5px;
+   cursor: default;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.wlist-mouseover {
+   background-color: gray;
+   border: 1px solid white;
+   padding: 2px;
+   margin: 2px;
+   cursor: default;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.wlist-active {
+   background: gray;
+   border: 1px solid #999999;
+   padding: 2px;
+   margin: 2px;
+   cursor: default;
+   font-family: verdana,tahoma;
+   font-size: 12px;
+}
+
+.wlist-buttons {
+    text-align: right;
+    width: 30px;
+}
+
+.wlist-button {
+   border: 0;
+   cursor: default;
+}
+
+.wlist-container {
+}
+
+.wlist-table {
+   width: 100%;
+   height: 100%;
+   border-bottom: 6px solid #555555;
+}
+
+
+/* --- Options */
+
+.options-body {}
+.options-title {}
+.options-table {}
+.options-checkbox {}
+.options-select {}
+.options-option {}
+.options-input {}
+
+.options-close { /* http://www.tom.me.uk/scripting/links.asp */
+   text-decoration: underline;
+   text-align: right;
+   color: #00f;
+   cursor: pointer;
+   cursor: hand;
+}
+
+

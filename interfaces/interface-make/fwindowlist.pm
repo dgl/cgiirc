@@ -440,19 +440,6 @@ function fontset(font) {
       parent.fmain.document.getElementById('text').style.fontFamily = font;
    }
 }
-
-var smilies = { };
-function smilie(path, name, text) {
-   alert(path);
-   if(!smilies[path]) {
-      smilies[path] = new Image();
-      smilies[path].src = path;
-   }
-   parent.fmain.document.write('<img name="' + name + '">');
-   parent.fmain.document.images[name].src = smilies[path].src;
-   parent.fmain.document.images[name].alt = text;
-}
-
 ~;
 # ' (fix syntax hilight)
 print <<EOF;

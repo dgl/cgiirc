@@ -253,8 +253,7 @@ sub active {
 
 sub smilie { # js runs in fmain.
    shift; # object
-   my $x = "sm" . int(rand(200000));
-   return '<img name="'.$x.'" alt=""><script>parent.fwindowlist.smilie(' . _jsp(map(_escapejs($_,'"'), $_[0], $x, $_[2])) . ');</script>';
+   return '<img src="'.$_[0].'" alt="" />';
 }
 
 sub link {
