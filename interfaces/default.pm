@@ -57,7 +57,7 @@ sub setoption { 'DUMMY' }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
-   if($ENV{HTTP_USER_AGENT} =~ /kde|konqueror|Mozilla\/4.\d+ \[/i) {
+   if($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[/i) {
       $notsupported++;
    }
 print <<EOF;
@@ -75,6 +75,8 @@ function setjs() {
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
  window["ietest"] && window["ietest"].innerHTML) {
    document.loginform["interface"].value = 'ie';
+ }else if(navigator.appName == 'Konqueror') {
+    document.loginform["interface"].value = 'konqueror';
  }else if(window.opera) {
    document.loginform["interface"].value = 'opera';
  }
@@ -106,7 +108,7 @@ print <<EOF;
 <body bgcolor="#ffffff" text="#000000" onload="setjs()">
 EOF
 if($notsupported) {
-   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading to Internet Explorer or Mozilla.</font>\n";
+   print "<font size=\"+1\" color=\"red\">Your browser does not correctly support CGI:IRC, it might not work or other problems may occur. Please consider upgrading.</font>\n";
 }
 print <<EOF;
 <form method="post" action="$this" name="loginform" onsubmit="return nickvalid()">

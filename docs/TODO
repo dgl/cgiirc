@@ -6,11 +6,13 @@ done but need testing:
 - remove ban code.
 - ctrl+c in main frame
 - altgr
+- ctcp kill format.
+- formats could be made more user friendly, allow selection of them on login
+  form?
 
 bugs:
 - problems with the smilie regexps
 - horzontal scrolling with really long lines
-- ctcp kill format.
 
 features:
 - form_redirect optional.
@@ -25,8 +27,6 @@ features:
   interfaces are already too messy).
 - 0.4 had a status bar in text-* themes, make shownick into something better?
 - who list format
-- formats could be made more user friendly, allow selection of them on login
-  form?
 - icons in userlist for 005 prefix.
 - format selection
 - right click context menus
