@@ -55,8 +55,7 @@ sub parse_query {
 		  $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))}
 		    {
 				 if(defined($1)) {
-					 if(hex($1) > 0x7F && exists $ENV{CONTENT_TYPE}
-							 && $ENV{CONTENT_TYPE} =~ /utf-8/) {
+					 if(hex($1) > 0x7F) {
 						 make_utf8("00$1");
 					 }else{
 						 pack("C", hex($1));
@@ -71,6 +70,8 @@ sub parse_query {
         }else{
            $val =~ s/[\r\n\0\001]//g;
         }
+
+		  Encode::_utf8_on($val) if $::ENCODE;
 
 	     $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)
