@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.68 2002/10/02 16:33:07 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.69 2002/10/17 21:24:11 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -55,7 +55,9 @@ use Command;
 require 'parse.pl';
 
 my $needtodie = 0;
-$SIG{HUP} = $SIG{INT} = $SIG{TERM} = $SIG{PIPE} = sub { $needtodie = 1 };
+$SIG{HUP} = $SIG{INT} = $SIG{TERM} = = sub { $needtodie = 1 };
+# Pipe isn't bad..
+$SIG{PIPE} = 'IGNORE';
 
 $SIG{__DIE__} = sub { 
    error("Program ending: @_");
@@ -691,7 +693,7 @@ sub encode_ip {
 }
 
 sub client_hostname {
-   my $ip = $ENV{REMOTE_ADDR};
+   my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
 
    my($hostname) = gethostbyaddr(inet_aton($ip), AF_INET);
    unless(defined $hostname && $hostname) {
@@ -705,10 +707,11 @@ sub client_hostname {
    }
 
    if(exists $ENV{HTTP_X_FORWARDED_FOR}
-         && $ENV{HTTP_X_FORWARDED_FOR} =~ /^((\d{1,3}\.){3}\d{1,3})/
-         && !defined $_[0]) { # check proxy but only once
+         && $ENV{HTTP_X_FORWARDED_FOR} =~ /((\d{1,3}\.){3}\d{1,3})$/
+         && !defined $_[1]) { # check proxy but only once
       my $proxyip = $1;
-      return $hostname if $proxyip =~ /^(192\.168\.|127\.|10\.|172\.16\.)/;
+      return $hostname if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
+      
       access_dnsbl($proxyip);
       open(TRUST, "<trusted-proxy") or return $hostname;
       while(<TRUST>) {
@@ -919,7 +922,7 @@ sub irc_ctcp {
                  "IP: $ENV{REMOTE_ADDR} - Proxy: $ENV{HTTP_VIA} - " .
                  "Forward IP: $ENV{HTTP_X_FORWARDED_FOR} - User Agent: " .
                  "$ENV{HTTP_USER_AGENT} - Host: $ENV{SERVER_NAME}"
-                : "$ENV{REMOTE_ADDR} - $ENV$ENV{HTTP_USER_AGENT}"
+                : "$ENV{REMOTE_ADDR} - $ENV{HTTP_USER_AGENT}"
                );
       }elsif(uc($command) eq 'TIME') {
          $irc->ctcpreply($nick, $command,
@@ -1047,6 +1050,7 @@ sub init {
 
    if(config_set('realhost_as_password')) {
       $resolved = client_hostname() unless $resolved;
+      # XXX: should put actual ip here, oh well
       $cgi->{pass} = "CGIIRC_$ENV{REMOTE_ADDR}_$resolved";
    }
 
