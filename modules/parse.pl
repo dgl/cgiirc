@@ -18,10 +18,9 @@ sub parse_config {
 }
 
 sub make_utf8 {
-	# pack("U") works fine since 5.6
-	return pack("U", $_[0]) if $] >= 5.006;
-
-	# From http://www1.tip.nl/~t876506/utf8tbl.html so we still support <5.6
+	# Use perl's unicode support assuming we have 5.6 and Encode
+	return pack("U", $_[0]) if $] >= 5.006 && $INC{'Encode.pm'};
+	# From http://www1.tip.nl/~t876506/utf8tbl.html
    my $chr = unpack("n", pack("H*", shift));
    return chr $chr if $chr < 0x7F;
    return chr(192 + int($chr / 64)) . chr(128 + $chr % 64) if $chr <= 0x7FF;

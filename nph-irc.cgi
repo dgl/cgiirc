@@ -27,11 +27,11 @@ use vars qw(
       $VERSION @handles %inbuffer $select_bits @output
       $unixfh $ircfh $cookie $ctcptime $intime $pingtime
       $timer $event $config $cgi $irc $format $interface $ioptions
-      $regexpicon %regexpicon $iconv_out $iconv_in
+      $regexpicon %regexpicon
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.97 2005/01/05 14:01:26 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.98 2005/01/05 22:06:10 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -46,10 +46,10 @@ BEGIN {
       $::IPV6 = 0;
       eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
-   # then check for Text::Iconv
-   $::ICONV = 0;
-   eval("use Text::Iconv;");
-   $::ICONV = 1 unless $@;
+   # then check for Encode
+   $::ENCODE = 0;
+   eval("use Encode;");
+   $::ENCODE = 1 unless $@;
 }
 
 # My own Modules
@@ -182,8 +182,8 @@ sub net_autoflush {
 ## Send data to specific filehandle (and deal with encodings for irc)..
 sub net_send {
    my($fh,$data) = @_;
-   if(defined $iconv_out && $fh == $ircfh) {
-      my $output = $iconv_out->convert($data);
+   if($::ENCODE && $fh == $ircfh) {
+      my $output = Encode::encode($config->{'irc charset'}, $data);
       $output = $data unless defined $output;
       syswrite($fh, $output, length $output);
    }else{
@@ -633,8 +633,8 @@ sub access_ipcheck {
       message('access denied', 'Too many connections (global)');
    }
 
-   open(IP, "<$config->{ip_access_file}") or return;
-   while(<IP>) {
+   open(my $ip, "<$config->{ip_access_file}") or return;
+   while(<$ip>) {
       chomp;
       next if /^(#|\s*$)/;
       s/\s+#.*$//g;
@@ -677,7 +677,7 @@ sub access_ipcheck {
          return;
       }
    }
-   close(IP);
+   close($ip);
 
    message('access denied', 'No connections allowed');
    irc_close();
@@ -841,11 +841,6 @@ sub irc_write_server {
 sub irc_out {
    my($event,$fh,$data) = @_;
    $data = $fh, $fh = $event if !$data;
-   if(defined $iconv_out) {
-      my $output = $iconv_out->convert($data);
-      $data = $output if defined $output;
-   }
-#message('default', "-> Server: $data");
    net_send($fh, $data . "\r\n");
 }
 
@@ -1091,14 +1086,6 @@ sub init {
 
    $interface = load_interface();
 
-   # Here so errors are shown.
-   if($::ICONV && config_set('irc charset')
-         && $config->{"irc charset"} !~ /^utf-?8$/i) {
-      $iconv_in  = Text::Iconv->new($config->{"irc charset"}, "UTF-8");
-      $iconv_out = Text::Iconv->new("UTF-8", $config->{"irc charset"});
-      Text::Iconv->raise_error(0);
-   }
-
    my($resolved, $resolvedip) = access_check_host($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
@@ -1202,8 +1189,8 @@ sub main_loop {
                $theline =~ s/\r$//;
                
                if($fh == $ircfh) {
-                  if(defined $iconv_in) {
-                     my $input = $iconv_in->convert($theline);
+                  if($::ENCODE) {
+                     my $input = Encode::decode($config->{'irc charset'}, $theline);
                      $theline = $input if defined $input;
                   }
                   $irc->in($theline);

@@ -139,6 +139,10 @@ session_timeout = 18000
 # line.
 #realhost_as_password = 1
 
+# Check clients connecting against a DNSBL (deny access if their IP address is in
+# it), seperate with spaces to check more than one.
+#dnsbl = opm.blitzed.org
+
 # -----
 # Appearence settings
 
