@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.8 2002/05/09 19:21:37 dgl Exp $
+# $Id: IRC.pm,v 1.9 2002/05/21 14:48:17 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -107,8 +107,6 @@ sub sync_channel {
    my($self,$channel) = @_;
    $self->channel($channel)->{mode_sync} = 1;
    $self->out("MODE $channel");
-   $self->channel($channel)->{modeb_sync} = 1;
-   $self->out("MODE $channel b");
    $self->channel($channel)->{who_sync} = 1;
    $self->out("WHO $channel");
 }

@@ -1,17 +1,15 @@
-# $Id: Channel.pm,v 1.2 2002/03/17 00:56:51 dgl Exp $
+# $Id: Channel.pm,v 1.3 2002/05/21 14:48:17 dgl Exp $
 package IRC::Channel;
 use strict;
 use IRC::UniqueHash;
 use IRC::Util;
 use IRC::Channel::Nick;
-use IRC::Channel::Ban;
 
 sub new {
    my $class = shift;
    my $self = bless {}, $class;
    %$self = @_;
    $self->{_nicks} = { };
-   $self->{_bans} = { };
    tie %{$self->{_nicks}}, 'IRC::UniqueHash';
    return $self;
 }
@@ -88,44 +86,6 @@ sub get_umode {
 sub has_mode {
    my($self,$mode) = @_;
    return 1 if check_mode($self->{mode},$mode);
-   0;
-}
-
-sub addban {
-   my($self,$ban,%ban) = @_;
-   return 0 if exists $self->{_bans}->{$ban};
-   
-   $self->{_bans}->{$ban} = IRC::Channel::Ban->new(
-      setby => $ban{setby},
-	  'time' => $ban{'time'},
-   );
-		 
-}
-
-sub delban {
-   my($self,$ban) = @_;
-	
-   return 0 unless exists $self->{_bans}->{$ban};
-   return delete($self->{_bans}->{$ban});	   
-}
-
-sub ban {
-   my($self,$ban) = @_;
-
-   return 0 unless exists $self->{_bans}->{$ban};
-   return $self->{_bans}->{$ban};
-}
-
-sub bans {
-  my($self) = @_;
-  return keys %{$self->{_bans}};
-}
-
-sub is_banned {
-   my($self,$host) = @_;
-   for(keys %{$self->{_bans}}) {
-      return 1 if match_mask($host,$_);
-   }
    0;
 }
 

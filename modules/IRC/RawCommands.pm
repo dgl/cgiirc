@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.18 2002/05/05 20:25:54 dgl Exp $
+# $Id: RawCommands.pm,v 1.19 2002/05/21 14:48:17 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -118,15 +118,7 @@ my %raw = (
 			   $tmpevents{$_}{$nick} = (defined $tmpevents{$_}{$nick} && $tmpevents{$_}{$nick} eq '+') ? undef : '-' if $action eq '+';
 			   $tmpevents{$_}{$nick} = (defined $tmpevents{$_}{$nick} && $tmpevents{$_}{$nick} eq '-') ? undef : '+' if $action eq '-';
 			   $num++;
-			}elsif($action eq '-' && /b/) {
-			   my $ban = $params->{params}->[$num];
-			   if($channel->ban($ban)) {
-			      $channel->delban($ban);
-			   }
-			   $num++;
-			}elsif($action eq '+' && /b/) {
-			   my $ban = $params->{params}->[$num];
-			   $channel->addban($ban, setby => $params->{nick}) unless $channel->ban($ban);
+			}elsif(/b/) {
 			   $num++;
 			}
 		 }
@@ -512,19 +504,10 @@ my %raw = (
    367 => sub { # RPL_BANLIST
       my($event,$self,$params) = @_;
 	  my $channel = $params->{params}->[2];
-	  if(ref $self->{_channels}->{$channel}) {
-	     $self->{_channels}->{$channel}->addban($params->{params}->[3], setby => $params->{params}->[4], 'time' => $params->{params}->[5]);
-	  }
-	   return if $self->{_channels}->{$channel} && $self->{_channels}->{$channel}->{modeb_sync};
 	  $self->{event}->handle('reply ban', _info($channel, 1),$channel,@{$params->{params}}[3..5]);
    },
    368 => sub { # RPL_ENDOFBANLIST
       my($event,$self,$params) = @_;
-      if(exists $self->{_channels}->{$params->{params}->[2]} &&
-		 $self->{_channels}->{$params->{params}->[2]}->{modeb_sync}) {
-		   delete($self->{_channels}->{$params->{params}->[2]}->{modeb_sync});
-		   return;
-      }
 	  $self->{event}->handle('reply end ban', _info($params->{params}->[2], 1),$params->{params}->[2],$params->{text});
    },
 
