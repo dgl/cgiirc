@@ -509,22 +509,12 @@ function channeladdusers(channel, users) {
 }
 
 function channeladduser(channel, user) {
-<<<<<<< fwindowlist.pm
    var o = user.substr(0,1)
    if(prefixchars.lastIndexOf(o) != -1) {
       user = user.substr(1)
       while(prefixchars.lastIndexOf(user.substr(0,1)) != -1)
          user = user.substr(1)
    }
-=======
-   var o = user.substr(0,1)
-   if(prefixchars.lastIndexOf(o) != -1) {
-      var status
-      user = user.substr(1)
-      while(status = user.substr(0, 1) && prefixchars.lastIndexOf(status) != -1)
-         user = user.substr(1)
-   }
->>>>>>> 1.14
 
    if(!Witems[channel] && !(channel = findwin(channel))) return;
 
