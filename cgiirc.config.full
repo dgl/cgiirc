@@ -23,6 +23,9 @@ default_nick=CGI???
 # if the system is running identd.
 default_user=cgiirc
 
+# Default quit message
+#quit_message=
+
 # -----
 # System setup options
 

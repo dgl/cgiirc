@@ -1,6 +1,6 @@
 package Command;
 use strict;
-my($package, $event, $irc, $command, $target, $params, $config);
+my($package, $event, $irc, $command, $target, $params, $config, $interface);
 
 my %commands = (
   msg => sub {
@@ -158,6 +158,15 @@ my %commands = (
 		$irc->out('VERSION');
 	 }
   },
+  winclose => sub {
+     $interface->del($params ? $params : $target);
+  },
+  'close' => 'winclose',
+  'unquery' => 'winclose',
+  'query' => sub {
+     return 2 unless $params;
+	 $interface->add($params);
+  },
 );
 
 my %lcs;
@@ -174,7 +183,7 @@ sub expand {
 }
 
 sub run {
-   ($package, $event, $irc, $command, $target, $params, $config) = @_;
+   ($package, $event, $irc, $command, $target, $params, $config, $interface) = @_;
 
    if(exists $commands{$command}) {
       my $error = $commands{$command}->();

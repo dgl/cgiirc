@@ -8,9 +8,7 @@ sub exists {
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
-sub form { 
-   return "MOO\n";
-}
+sub form { 'DUMMY' }
 
 sub line {
    my($self, $type, $target, $html) = @_;
@@ -29,6 +27,9 @@ sub error {
    my($self, $error) = @_;
    $self->line({}, '', $error);
 }
+
+sub add { 'DUMMY' }
+sub del { 'DUMMY' }
 
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items) = @_;

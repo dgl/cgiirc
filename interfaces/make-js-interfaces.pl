@@ -111,6 +111,13 @@ sub add {
    _func_out('witemchg', $add) if $channel;
 }
 
+sub del {
+   my($self, $del) = @_;
+   return if not defined $del;
+   return if not exists $self->{lc $del};
+   _func_out('witemdel', $del);
+}
+
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface) = @_;
 print <<EOF;
@@ -463,7 +470,10 @@ function witemadd(name, channel) {
 
 function witemdel(name) {
    if(!Witems[name] && !(name = findwin(name))) return;
+   if(name == 'Status') return;
    delete Witems[name];
+   if(currentwindow == name) currentwindow = 'Status';
+   wlistredraw();
 }
 
 function channeladdusers(channel, users) {
