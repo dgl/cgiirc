@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.61 2002/07/02 15:32:51 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.62 2002/07/03 18:06:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -691,6 +691,8 @@ sub session_timeout {
 ## Opens the connection to IRC
 sub irc_connect {
    my($server, $port) = @_;
+   error("No server specified") unless $server;
+
    message('looking up', $server);
 
    my($ipv4,$ipv6) = net_hostlookup($server);
