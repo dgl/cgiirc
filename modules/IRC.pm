@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.7 2002/05/05 19:37:49 dgl Exp $
+# $Id: IRC.pm,v 1.8 2002/05/09 19:21:37 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -76,6 +76,7 @@ sub find_nick_channels {
 
 sub connect {
    my($self,%connect) = @_;
+   $connect{server} =~ s/://g;
    $self->{alternick} ||= $connect{alternick} || $connect{nick} . '_';
    $self->out("PASS $self->{password}") if $self->{password};
    $self->out('NICK '.($connect{nick} || $ENV{IRC_NICK} || $ENV{USER}));

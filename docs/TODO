@@ -16,3 +16,10 @@ bugs:
 Might be done one day:
 - right click context menus
 
+Sucky bits of code need rewriting:
+- The whole interface thing
+- Options
+- Formats could be in their own module
+- More use of handlers/events.
+- IPv6 handling, most stuff should work with IPv6, but some is messy :(
+

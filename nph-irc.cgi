@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.52 2002/05/06 15:37:33 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.53 2002/05/09 19:21:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -80,7 +80,8 @@ sub net_hostlookup {
       
       return (undef,$addr);
    }else{ # IPv4
-      return inet_ntoa((gethostbyname($host))[4]);
+      my $ip = (gethostbyname($host))[4];
+      return $ip ? inet_ntoa($ip) : undef;
    }
 }
 
@@ -89,8 +90,9 @@ sub net_hostlookup {
 sub net_tcpconnect {
    my($inet_addr, $port) = @_;
    my $fh = Symbol::gensym;
+   my $family = ($inet_addr !~ /:/ ? AF_INET : AF_INET6);
    
-   socket($fh, ($inet_addr !~ /:/ ? AF_INET : AF_INET6), SOCK_STREAM,
+   socket($fh, $family, SOCK_STREAM,
          getprotobyname('tcp')) or return(0, $!);
    setsockopt($fh, SOL_SOCKET, SO_KEEPALIVE, pack("l", 1)) or return(0, $!);
 
@@ -104,16 +106,21 @@ sub net_tcpconnect {
         bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
      }
    }else{
-	  $saddr = sockaddr_in6($port, inet_pton($inet_addr));
+	  $saddr = sockaddr_in6($port, inet_pton(AF_INET6, $inet_addr));
      if(config_set('vhost6')) {
         # this needs testing...
         (my $vhost) = $config->{vhost6} =~ /([^ ]+)/;
-        bind($fh, pack_sockaddr_in6(0, inet_pton($vhost)));
+        bind($fh, pack_sockaddr_in6(0, inet_pton(AF_INET6, $vhost)));
      }
    }
 
-   my($localport,$localip) = sockaddr_in getsockname $fh;
-   irc_write_server(inet_ntoa($localip), $localport, $inet_addr, $port);
+   if($family == AF_INET) {
+      my($localport,$localip) = sockaddr_in(getsockname $fh);
+      irc_write_server(inet_ntoa($localip), $localport, $inet_addr, $port);
+   }else{
+      my($localport,$localip) = sockaddr_in6(getsockname $fh);
+      irc_write_server(inet_pton(AF_INET6, $localip), $localport, $inet_addr, $port);
+   }
 
    connect($fh, $saddr) or return (0,$!);
 
