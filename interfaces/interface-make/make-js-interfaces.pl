@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # CGI:IRC JavaScript Interface builder
-# Copyright (C) 2002 David Leadbeater (cgiirc@dgl.cx)
+# Copyright (C) 2002 David Leadbeater (http://contact.dgl.cx/)
 # Licensed under the GPLv2
 use Symbol;
 use IO::Handle;
