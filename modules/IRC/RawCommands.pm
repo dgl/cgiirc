@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.20 2002/07/05 16:52:58 dgl Exp $
+# $Id: RawCommands.pm,v 1.21 2002/11/24 19:15:38 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -176,11 +176,9 @@ my %raw = (
 	  }elsif(is_vaild_server($params->{nick})) {
 	     $self->{event}->handle('message server', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
-	  }elsif(is_vaild_nickname($to)) {
+	  }else{
 	     $self->{event}->handle('message private', _info($params->{nick}, 3, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
-	  }else{
-	     $self->{event}->handle('message unknown', _info($to, 2), $params->{nick}, $params->{host}, $params->{text});
 	  }
    },
    'notice' => sub {
@@ -200,11 +198,9 @@ my %raw = (
 	  }elsif(is_vaild_server($params->{nick})) {
 	     $self->{event}->handle('notice server', _info('Status', 1),
 			 $params->{nick}, $params->{host}, $params->{text});
-	  }elsif(is_vaild_nickname($to)) {
+	  }else{
 	     $self->{event}->handle('notice private', _info($params->{nick}, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
-	  }else{
-	     $self->{event}->handle('notice unknown', _info($to, 1), $params->{nick}, $params->{host}, $params->{text});
 	  }
    },
    'kill' => sub {
