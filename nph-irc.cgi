@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.105 2005/02/09 15:56:34 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.106 2005/02/14 14:36:05 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1115,6 +1115,7 @@ sub init {
    }
 
    eval {
+      local $SIG{__DIE__};
       binmode STDOUT, ":utf8";
    };
       
