@@ -1,6 +1,7 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+# vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +25,7 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.9 2002/04/03 23:52:42 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.10 2002/04/14 13:02:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -62,13 +63,15 @@ if(ref $cgi && defined $cgi->{item}) {
 }elsif(ref $cgi && defined $cgi->{Nickname}) {
    my $r = random();
 
-   my %p = ( Nickname => 'nick', 
-	         Channel => 'chan',
-			 Port => 'port',
-			 Server => 'serv',
-			 Realname => 'name',
-			 interface => 'interface',
-			 Password => 'pass');
+   my %p = ( 
+         Nickname => 'nick', 
+         Channel => 'chan',
+         Port => 'port',
+         Server => 'serv',
+         Realname => 'name',
+         interface => 'interface',
+         Password => 'pass'
+      );
    my $out;
    for(keys %p) {
 	  next unless exists $cgi->{$_};
@@ -80,11 +83,21 @@ if(ref $cgi && defined $cgi->{item}) {
 }else{
    my(%items,@order);
 
+   my $server = dolist($config->{default_server});
+   my $channel = dolist($config->{default_channel});
+   my $port = $config->{default_port};
+
+   if(!defined $config->{allow_non_default} || !$config->{allow_non_default}) {
+       $server = "-DISABLED- $server" unless ref $server;
+       $channel = "-DISABLED- $channel" unless ref $channel;
+       $port = "-DISABLED- $port";
+   }
+   
    %items = (
       Nickname => $config->{default_nick},
-      Channel => dolist($config->{default_channel}),
-      Server => dolist($config->{default_server}),
-      Port => $config->{default_port},
+      Channel => $channel,
+      Server => $server,
+      Port => $port,
       Password => '-PASSWORD-',
       Realname => $config->{default_name},
    );

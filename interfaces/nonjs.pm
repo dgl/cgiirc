@@ -24,7 +24,7 @@ sub new {
 }
 
 sub _out {
-   print "$_[0]<script>s();</script>\r\n";
+   print "$_[1]<script>s();</script>\r\n";
 }
 
 sub _reloadreal {
@@ -42,14 +42,14 @@ sub _escape {
 
 sub reload {
    my($self, $w) = @_;
-   $self->{_reload} = $w;
+   $self->{':_reload'} = $w;
 }
 
 sub todo {
    my($timer, $self) = @_;
-   if(defined $self->{_reload} && $self->{_reload}) {
-	  _reloadreal($self->{_reload});
-      delete($self->{_reload});
+   if(defined $self->{':_reload'} && $self->{':_reload'}) {
+	  _reloadreal($self->{':_reload'});
+      delete($self->{':_reload'});
    }
 }
 
@@ -67,7 +67,7 @@ sub header {
 $standardheader
 <html><head>
 <title>CGI:IRC</title>
-<script><!--
+<script language="JavaScript"><!--
 function s() {
    window.scrollBy(0,2000);
 }
@@ -88,7 +88,7 @@ sub line {
    my($self, $info, $html) = @_;
    my $target = $info->{target};
    $target ||= 'Status';
-   if(not exists $self->{lc $target}) {
+   if(not exists $self->{lc $target} && $target ne 'Status') {
       if(defined $info && ref $info && exists $info->{create} &&
 	    $info->{create}) {
 	     $self->add($target, $info->{type} eq 'join' ? 1 : 0);
@@ -102,14 +102,14 @@ sub line {
       $html = sprintf("[%02d:%02d] %s", $hour, $min, $html);
    }
 	  
-   _out($html . '<br>');
+   $self->_out($html . '<br>');
 }
 
 sub add {
    my($self, $name, $param) = @_;
-   $self->{':_target'} ||= $name;
+   $self->{':_target'} ||= lc $name;
    $self->{lc $name} = $param;
-   _out('<script>u();f();</script>');
+   $self->_out('<script>u();f();</script>');
 }
 
 sub del {
@@ -144,7 +144,7 @@ $standardheader
 <title>CGI:IRC</title>
 </head>
 
-<frameset rows="*,50" framespacing="0" border="0" frameborder="0">
+<frameset rows="*,60" framespacing="0" border="0" frameborder="0">
 <frameset cols="*,120" framespacing="0" border="0" frameborder="0">
 <frame name="fmain" src="$config->{script_nph}?$out" scrolling="yes">
 <frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&R=$random" scrolling="no">
@@ -173,7 +173,7 @@ EOF
 }
 
 sub _page {
-   return '<html><head></head><body bgcolor="#ffffff" text="#000000">' . $_[0]
+   return '<html><head></head><body bgcolor="#ffffff">' . $_[0]
    . "</body></html>\r\n";
 }
 
@@ -196,7 +196,7 @@ sub userlist {
 		return $a cmp $b if ($am eq $bm);
 		return index($umap, $am) <=> index($umap, $bm);
       } @users) {
-	  $output .= "$_<br>";
+	  $output .= "<a href=\"$config->{script_form}?R=$input->{R}&item=userlist&cmd=say&say=/query+$_\">$_</a><br>";
    }
 
    return _page($output);
@@ -204,15 +204,16 @@ sub userlist {
 
 sub fform {
    my($self, $cgi, $config) = @_;
-   print _form_out($cgi->{R}, $config->{script_form}, undef, []);
+   print _form_out($cgi->{R}, $config->{script_form}, undef, {});
 }
 
 sub form {
    my($self, $cgi, $irc, $config) = @_;
-   if(defined $cgi->{target} && $cgi->{target}) {
+   if(defined $cgi->{target} && $cgi->{target} && $cgi->{target} ne $self->{':_target'}) {
       $self->{':_target'} = $cgi->{target};
+      $self->reload('u');
    }
-   return _form_out($cgi->{R}, $config->{script_form}, $self->{':_target'}, [keys %$self]);
+   return _form_out($cgi->{R}, $config->{script_form}, $self->{':_target'}, $self);
 }
 
 sub _form_out {
@@ -221,7 +222,7 @@ my $out = <<EOF;
 <html>
 <head>
 <html><head>
-<script><!--
+<script language="JavaScript"><!--
 function fns(){
    if(!document.myform["say"]) return;
    document.myform["say"].focus();
@@ -237,8 +238,8 @@ function fns(){
 <input type="hidden" name="cmd" value="say">
 <select name="target">
 EOF
-if(ref $targets eq 'ARRAY') {
-   for(@$targets) {
+if(ref $targets) {
+   for(keys %$targets) {
       next if /^:_/;
       $out .= "<option" . 
 	    (defined $target && lc $target eq lc $_ ? ' selected="1"' : '') 

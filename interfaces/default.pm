@@ -48,7 +48,7 @@ sub end { 'DUMMY' }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items) = @_;
    my $notsupported = 0;
-   if($ENV{HTTP_USER_AGENT} =~ /opera|kde|konqueror/i) {
+   if($ENV{HTTP_USER_AGENT} =~ /kde|konqueror/i) {
       $notsupported++;
    }
 print <<EOF;
@@ -58,13 +58,15 @@ $standardheader
 EOF
 if($interface eq 'default') {
 print <<EOF;
-<script><!--
+<script language="JavaScript"><!--
 function setjs() {
  if(navigator.product == 'Gecko') {
    document.loginform["interface"].value = 'mozilla';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
  window["ietest"] && window["ietest"].innerHTML) {
    document.loginform["interface"].value = 'ie';
+ }else if(window.opera) {
+   document.loginform["interface"].value = 'opera';
  }
 }
 function nickvalid() {
@@ -100,7 +102,7 @@ EOF
 for(@$order) {
    my $item = $$items{$_};
    print "<tr><td align=\"right\" bgcolor=\"#f1f1f1\">$_</td><td align=\"left\"
-bgcolor=\"#f1#f1#f1\">";
+bgcolor=\"#f1f1f1\">";
    if(ref $item eq 'ARRAY') {
       print "<select name=\"$_\" style=\"width: 100%\">";
       print "<option>$_</option>" for @$item;
@@ -108,7 +110,11 @@ bgcolor=\"#f1#f1#f1\">";
    }elsif($item eq '-PASSWORD-') {
       print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{
-      print "<input type=\"text\" name=\"$_\" value=\"$item\">";
+      my $tmp = '';
+      if($item =~ s/^-DISABLED- //) {
+         $tmp = " disabled=\"1\"";
+      }
+      print "<input type=\"text\" name=\"$_\" value=\"$item\"$tmp>";
    }
    print "</td></tr>\n";
 }

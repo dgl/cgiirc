@@ -129,6 +129,8 @@ sub line {
 	  }
    }
    _func_out('witemaddtext', $target, $html . '<br>', $info->{activity} || 0);
+   _out('<!-- padding -->');
+
 }
 
 sub error {
@@ -169,7 +171,7 @@ $standardheader
 <html>
 <head>
 <title>CGI:IRC</title>
-<script><!--
+<script language="JavaScript"><!--
 function form_focus() {
    if(document.frames.fform)
 	  document.frames.fform.fns();
@@ -181,9 +183,9 @@ function form_focus() {
 <frameset rows="40,*,25,0" framespacing="0" border="0" frameborder="0" 
 onfocus="form_focus()" onload="form_focus()">
 <frame name="fwindowlist" src="$scriptname?$out&item=fwindowlist" scrolling="no">
-<frameset cols="*,100" framespacing="0" border="0" frameborder="0">
+<frameset cols="*,120" framespacing="0" border="0" frameborder="0">
 <frame name="fmain" src="$scriptname?item=fmain&interface=$interface" scrolling="yes">
-<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="no">
+<frame name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface" scrolling="yes">
 </frameset>
 <frame name="fform" src="$scriptname?item=fform&interface=$interface" scrolling="no">
 <frame name="hiddenframe" src="$scriptname?item=blank" scrolling="no">
@@ -217,16 +219,88 @@ $standardheader
 <html>
 <head>
 <style><!--
-BODY { border-left: 1px solid #999999; margin: 0; }
-SELECT.userlist { border: 0; padding: 0;width: 100%; height: 95%; }
-SELECT.options { border: 0; padding: 0; }
+
+BODY {
+       margin: 0;
+       scrollbar-face-color: #e8e8e8;
+       scrollbar-shadow-color: #777;
+       scrollbar-highlight-color: #777;
+       scrollbar-3dlight-color: #fff;
+       scrollbar-darkshadow-color: #ccc;
+       scrollbar-track-color: #e8e8e8;
+       scrollbar-arrow-color: #777;
+}
+
+.userlist{
+   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
+   font-size: 10px;
+   background-color: #f1f1f1;
+   cursor: default;
+   /*border-top: 1px solid #808080;
+   border-left: 1px solid #808080;
+   border-bottom: 1px solid #f3f3f3;
+   border-right: 1px solid #f3f3f3;*/
+}
+
+.userlistbtn {
+   font-family: MS Sans Serif,arial,verdana,helvetica,sans serif,sans;
+   font-size: 10px;
+   background-color: #f1f1f1;
+   cursor: default;
+   border-bottom: 1px solid #808080;
+   border-right: 1px solid #808080;
+   border-top: 1px solid #f3f3f3;
+   border-left: 1px solid #f3f3f3;
+}
+
+.userlist A {
+   text-decoration: none;
+   color: #000;
+}
+
+.userlist A:hover {
+   cursor: default;
+   background-color: #a0c0ff;
+   width: 100%;
+}
+
+.userlist TR {
+   vertical-align: top;
+}
+
+
+.userliststat {
+   width: 14px;
+   font-size: 10px;
+   font-family: courier,monospace,fixed;
+   text-align: center;
+}
+
+.userlistuser {
+   width: 95%;
+   font-size: 10px;
+}
+
+.op {
+   color: #008000;
+   background-color: #20ff50;
+   border: 1px solid #30a030;
+}
+
+.voice {
+   color: #808000;
+   background-color: #ffff20;
+   border: 1px solid #a0a030;
+}
+
 // -->
 </style>
-<script>
-var user = '';
+<script language="JavaScript">
+<!--
 
 function fsubmit(form) {
    var action = form.action.options[form.action.selectedIndex].value;
+   var user = form.user.value;
 
    if(!user || !action) {
       alert("No user or action selected");
@@ -237,19 +311,57 @@ function fsubmit(form) {
    return false;
 }
 
+function userlist(users) {
+   var tmp = '<table class="userlist">';
+   for(var i = 0;i < users.length; i++) {
+      var status = users[i].substr(0, 1);
+      var user = users[i].substr(1);
+
+      tmp += '<tr><td class="userliststat"> ' + statushtml(status) + ' </td>'
+          + '<td class="userlistuser"> <a href="#" onclick="'
+          + 'document.mform.user.value = \\''
+          + user + '\\';return false;">'
+          + user + '</a></td></tr>';
+   }
+   tmp += '</table>';
+   document.getElementById('usertable').innerHTML = tmp;
+   document.mform.user.value = undefined;
+}
+
+function statushtml(status) {
+   if(status == "@") {
+      return '<div class="op">@</div>';
+   }else if(status == "+") {
+      return '<div class="voice">+</div>';
+   }else{
+      return '';
+   }
+}
+
+// -->
 </script>
 </head>
+
 <body>
+
+<div style="width:100%" id="usertable">
+
+<table class="userlist">
+<tr><td class="userliststat"> <!-- nothing --> </td><td class="userlistuser"> <a href="#" onClick="return false"> No channel </a> </td></tr>
+</table>
+
+</div>
+
 <form name="mform" onsubmit="return fsubmit(this)">
-<select size="2" name="userlist" class="userlist" onchange="user = this.options[this.selectedIndex].text">
-</select>
-<select name="action">
+<input type="hidden" name="user">
+<select name="action" class="userlist">
 <option value="query">Query</option>
 <option value="whois">Whois</option>
 <option value="kick">Kick</option>
 </select>
-<input type="submit" value="-&gt;">
+<input type="submit" class="userlistbtn" value="&gt;&gt;">
 </form>
+
 </body>
 </html>
 EOF
@@ -258,9 +370,13 @@ EOF
 sub fmain {
 print <<EOF;
 $standardheader
-<html><head></head>
+<html><head>
+<style>
+body { word-wrap: break-word; }
+</style>
+</head>
 <body onkeydown="if(parent.fform.location) parent.fform.fns();">
-<span name="text"></span>
+<span id="text"></span>
 </body></html>
 EOF
 }
@@ -276,7 +392,7 @@ $standardheader
 <html>
 <head>
 <html><head>
-<script><!--
+<script language="JavaScript"><!--
 var history = [ ];
 var hispos;
 var tabtmp = [ ];
@@ -377,7 +493,7 @@ function keypress(srcEl, keyCode, event) {
 	      tabtmp = [];
 	      var list = parent.frames.fwindowlist.channellist(parent.frames.fwindowlist.currentwindow);
 		  for(var i = 0;i < list.length; i++) {
-		     var item = list[i].replace(/^[+%@]/,'');
+		     var item = list[i].replace(/^[+%@ ]/,'');
 		     if(item.substr(0, tabStr.length).toLowerCase() == tabStr) {
 			    tabtmp[tabtmp.length] = item;
 			 }
@@ -465,18 +581,21 @@ BODY {
    margin: 0px;
    background: #f1f1f1;
    border-bottom: 1px solid #999999;
+   cursor: default;
 }
 
 .Wchooser { 
    border: 1px solid #f1f1f1;
    padding: 2px;
    margin: 2px;
+   cursor: default;
 }
 
 .Wcontainer {
    width: 100%;
    height: 100%;
    padding: 5px;
+   cursor: default;
 }
 
 .Wmouseover {
@@ -484,6 +603,7 @@ BODY {
    border: 1px solid black;
    padding: 2px;
    margin: 2px;
+   cursor: default;
 }
 
 .Wactive {
@@ -491,15 +611,12 @@ BODY {
    border: 1px solid #999999;
    padding: 2px;
    margin: 2px;
-}
-
-.hidden {
-   display: none;
+   cursor: default;
 }
 
 // -->
 </style>
-<script>
+<script language="JavaScript">
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
 // http://cgiirc.sourceforge.net/
@@ -613,6 +730,7 @@ function channellist(channel) {
       if(user.op) i = '@' + i
 	  else if(user.halfop) i = '%' + i;
 	  else if(user.voice) i = '+' + i;
+     else   i = ' ' + i;
 
       users[users.length] = i;
    }
@@ -718,9 +836,8 @@ function witemredraw() {
       setTimeout("witemredraw()", 1000);
 	  return;
    }
+   parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
 
-   parent.frames.fmain.document.getElementsByName("text").item(0).innerHTML = Witems[currentwindow].text.join('');
-   
    var doc = parent.frames.fmain.window;
    var scroll = -1;
    while(doc.scrollY > scroll) {
@@ -735,9 +852,7 @@ function wlistredraw() {
    for (var i in Witems) {
       output += '<span class="' + (i == currentwindow ? 'Wactive' : 'Wchooser') + '" style="color: ' + activity[Witems[i].activity] + ';" onclick="witemchg(\'' + (i == currentwindow ? escapejs(lastwindow) : escapejs(i)) + '\')" onmouseover="this.className = \'Wmouseover\'" onmouseout="this.className = \'' + (i == currentwindow ? 'Wactive' : 'Wchooser') + '\'">' + escapehtml(i) + '</span>\r\n';
    }
-document.getElementsByName("windowlist").item(0).innerHTML = output;
-
-
+   document.getElementById('windowlist').innerHTML = output;
 }
 
 function findwin(name) {
@@ -796,25 +911,14 @@ function userlist() {
    if(Witems[currentwindow] && Witems[currentwindow].channel == 1) {
       userlistupdate(channellist(currentwindow));
    }else{
-      userlistupdate(['No channel']);
+      userlistupdate([' No channel']);
    }
    retitle();
 }
 
 function userlistupdate(list) {
-   if(!parent.fuserlist.document.mform.userlist) return;
-   var sel = parent.fuserlist.document.mform.userlist;
-
-   for(var i = sel.length;i+1 > 0;i--) {
-      sel.remove(i);
-   }
-
-   for(var i = 0;i < list.length;i++) {
-      var opt = parent.fuserlist.document.createElement("OPTION");
-	   opt.text = list[i];
-sel.add(opt, null);
-
-   }
+   if(!parent.fuserlist.userlist) return;
+   parent.fuserlist.userlist(list);
 }
 
 function formfocus() {
@@ -847,8 +951,8 @@ print q~
 print <<EOF;
 
 <iframe src="$config->{script_nph}?$string" width="1" height="1"></iframe>
-<span class="Wcontainer" name="windowlist"></span>
 
+<span class="Wcontainer" id="windowlist"></span>
 <form name="hsubmit" class="hidden" method="post" action="$config->{script_form}" target="hiddenframe">
 <input type="hidden" name="R" value="$cgi->{R}">
 <input type="hidden" name="cmd" value="say">

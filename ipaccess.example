@@ -4,8 +4,8 @@
 # It can be used to limit access to CGI:IRC to a certain ip range
 # or to limit the number of connections from a particular IP
 
-# The file is read downwards and the first match for a particular mask is used
-# so if *.*.*.* is the first line then all connections would be allowed.
+# The file is read downwards and the first match for a particular mask is
+# used so if *.*.*.* is the first line then all connections would be allowed.
 
 # Format:
 # ipmask limit

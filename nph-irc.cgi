@@ -1,6 +1,7 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2002 David Leadbeater <cgiirc@dgl.cx>
+# vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.23 2002/04/05 22:02:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.24 2002/04/14 13:02:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -108,12 +109,13 @@ sub net_tcpconnect {
    if($family == AF_INET) {
 	  $saddr = sockaddr_in($port, $inet_addr);
      if(config_set('vhost')) {
-        bind($fh, pack_sockaddr_in(0, $config->{vhost}));
+        bind($fh, pack_sockaddr_in(0, inet_aton($config->{vhost})));
      }
    }elsif($family == AF_INET6) {
 	  $saddr = sockaddr_in6($port, $inet_addr);
      if(config_set('vhost6')) {
-        bind($fh, pack_sockaddr_in6(0, $config->{vhost6}));
+        # this needs testing...
+        bind($fh, pack_sockaddr_in6(0, inet_pton($config->{vhost6})));
      }
    }else{
 	  return 0;
@@ -125,7 +127,8 @@ sub net_tcpconnect {
    $|++;
    select(STDOUT);
 
-   return $fh;
+   my($localport,$localip) = sockaddr_in getsockname $fh;
+   return($fh, [$localport, inet_ntoa $localip]);
 }
 
 ## Opens a UNIX Domain Listening socket
@@ -601,10 +604,21 @@ sub irc_connect {
 	  error("Looking up address: $!");
    }
 
-   message('connecting', $server, net_ntoa($ipv4 ? $ipv4 : $ipv6), $port);
-   my($fh,$error) = net_tcpconnect($ipv4 ? $ipv4 : $ipv6, $port, $ipv4 ? AF_INET : AF_INET6);
+   my $ip = config_set('prefer_v6') 
+      ? ($ipv6 ? $ipv6 : $ipv4) 
+      : ($ipv4 ? $ipv4 : $ipv6);
+
+   message('connecting', $server, net_ntoa($ip), $port);
+   my($fh,$error) = net_tcpconnect($ip, $port, 
+         length $ip == 4 ? AF_INET : AF_INET6);
    
    error("Connecting to IRC: $error") unless ref $fh;
+   
+   open(S, ">$config->{socket_prefix}$cgi->{R}/server") 
+      or error("Opening server file: $!");
+   print S net_ntoa($ip) . ":$port\n$error->[1]:$error->[0]\n";
+   close(S);
+   
    select_add($fh);
    return $fh;
 }
@@ -634,9 +648,6 @@ sub irc_close {
 
 sub irc_connected {
    my($event, $self, $server, $nick) = @_;
-   open(S, ">$config->{socket_prefix}$cgi->{R}/server") or error("Server file: $!");
-   print S "$server\n";
-   close(S);
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {
@@ -687,14 +698,25 @@ sub irc_ctcp {
    if($name eq 'ctcp own msg') {
 	  format_out('ctcp own msg', $info, $nick, $host, $command, $params);
    }elsif($name =~ /^ctcp msg /) {
-	  if(uc($command) eq 'KILL') {
-		 return;
+      if(uc($command) eq 'KILL') {
+        return unless config_set('admin password');
+        my $crypt = $config->{'admin password'};
+        my($password, $reason) = split ' ', $params, 2;
+        return unless length $password and length $crypt;
+
+        if(crypt($password, substr($crypt, 0, 2)) eq $crypt) {
+           format_out('kill ok', $nick, $reason);
+           net_send($ircfh, "QUIT :Killed ($nick ($reason))\r\n");
+           irc_close();
+        }else{
+           format_out('kill wrong', $nick, $reason);
+        }
 	  }elsif(uc($command) eq 'ACTION' && $irc->is_channel($info->{target})) {
-	     format_out('action public', $info, $nick, $host, $params);
-		 return;
+        format_out('action public', $info, $nick, $host, $params);
+        return;
 	  }elsif(uc($command) eq 'ACTION') {
-		 format_out('action private', $info, $nick, $host, $params);
-		 return;
+        format_out('action private', $info, $nick, $host, $params);
+        return;
 	  }else{
 	     format_out('ctcp msg', $info, $nick, $host, $command, $params);
 	  }
