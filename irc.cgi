@@ -25,8 +25,9 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.22 2002/10/17 21:49:17 dgl Exp $'
-) =~ s/^.*?(\d\S+) .*$/$1/;
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.23 2002/11/24 21:49:42 dgl Exp $'
+) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
+$VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
 
 require 'parse.pl';
@@ -40,9 +41,9 @@ print join("\r\n",
       'Cache-control: must-revalidate, no-cache',
       'Expires: -1') . "\r\n";
 
+# Please leave this.
 my $copy = <<EOF;
 <a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
-&copy;David Leadbeater 2000-2002
 EOF
 
 my $config = parse_config('cgiirc.config');

@@ -31,8 +31,9 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.79 2002/11/24 19:02:05 dgl Exp $'
-) =~ s/^.*?(\d\S+) .*$/$1/;
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.80 2002/11/24 21:49:42 dgl Exp $'
+) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
+$VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
 $VERSION =~ s/_/./g;
 
 use Socket;
@@ -792,7 +793,7 @@ sub irc_out {
 sub irc_close {
    my $message = shift;
    $message = 'EOF' unless defined $message;
-   $message = (config_set('quit_prefix') ? $config->{quit_prefix} : "CGI:IRC $VERSION") .
+   $message = (config_set('quit_prefix') ? $config->{quit_prefix} : "CGI:IRC") .
       ($message ? " ($message)" : '');
    
    flushoutput();
@@ -917,7 +918,7 @@ sub irc_ctcp {
       $ctcptime = time;
       
       if(uc($command) eq 'VERSION') {
-         $irc->ctcpreply($nick, $command.
+         $irc->ctcpreply($nick, $command,
                "CGI:IRC $VERSION - http://cgiirc.sf.net/");
       }elsif(uc($command) eq 'PING') {
          return if $params =~ /[^0-9 ]/ || length $params > 50;
@@ -1073,6 +1074,7 @@ sub init {
       close(IDENT);
    }
 
+   message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
    $ircfh = irc_connect($cgi->{serv}, $cgi->{port});
    $irc = IRC->new(
          event => $event,
@@ -1099,7 +1101,6 @@ sub init {
   $event->handle("user connected", $irc);
 
   $interface->sendping if $interface->ping;
-  message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
   $intime = $pingtime = time;
 }
 
