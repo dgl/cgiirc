@@ -2,7 +2,7 @@
  * Copyright (c) David Leadbeater 2002
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.3 2002/03/10 14:35:26 dgl Exp $
+ * $Id: client.c,v 1.4 2002/03/10 14:46:33 dgl Exp $
  */
 
 #include <stdio.h>
@@ -100,9 +100,9 @@ int unix_connect(char *where) {
    int sock, len;
    char filename[100], errmsg[50];
 
-   len = strlen(TMPLOCATION) + strlen(where);
+   len = strlen(TMPLOCATION) + strlen(where) + 6;
    if(len > 100) return;
-   snprintf(filename, 100, "%s%s/sock", TMPLOCATION, where);
+   snprintf(filename, len, "%s%s/sock", TMPLOCATION, where);
    filename[len] = 0;
 
    sock = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -115,6 +115,8 @@ int unix_connect(char *where) {
           switch(errno) {
              case EACCES:
                 error("Access Denied in connect()\n");
+		     case ECONNREFUSED:
+				error("Connection refused in connect()\n");
              case ENOENT:
                 error("No such file in connect()\n");
              default:
