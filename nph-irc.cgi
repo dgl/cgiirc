@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.102 2005/01/08 17:27:54 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.103 2005/01/22 00:40:23 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -842,7 +842,7 @@ sub irc_connect {
 
    my $ip = net_hostlookup($server);
    unless(defined $ip) {
-      error("Looking up address: $!");
+      error("Looking up address: $?");
    }
 
    message('connecting', $server, $ip, $port);
