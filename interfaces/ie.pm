@@ -939,7 +939,7 @@ function witemredraw() {
    var doc = parent.fmain.document.body;
    var scrollok = 1;
    if(!currentwindow) currentwindow = 'Status';
-   if(doc.scrollTop >= doc.scrollHeight- doc.clientHeight - 5)
+   if(doc.scrollTop < doc.scrollHeight - doc.clientHeight - 5)
       scrollok = 0;
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
    if(Witems[currentwindow].info == 1) return;

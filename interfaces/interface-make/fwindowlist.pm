@@ -294,7 +294,7 @@ function witemredraw() {
    var scrollok = 1;
    if(!currentwindow) currentwindow = 'Status';
 .$just ie
-   if(doc.scrollTop >= doc.scrollHeight- doc.clientHeight - 5)
+   if(doc.scrollTop < doc.scrollHeight - doc.clientHeight - 5)
       scrollok = 0;
 .$end
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
