@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.21 2002/11/24 19:15:38 dgl Exp $
+# $Id: RawCommands.pm,v 1.22 2003/01/18 14:42:42 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -360,7 +360,7 @@ my %raw = (
       my($event,$self,$params) = @_;
 	  my $channel = $params->{params}->[2];
 	  my $mode = $params->{params}->[3];
-	  if($self->{_channels}->{$channel}) {
+	  if(ref $self->{_channels}->{$channel} eq "IRC::Channel") {
 	     $self->{_channels}->{$channel}->{mode} = $mode;
 		 my $tmp = 4;
 		 my %tmp;

@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.10 2002/07/03 18:03:31 dgl Exp $
+# $Id: IRC.pm,v 1.11 2003/01/18 14:42:42 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -68,7 +68,7 @@ sub find_nick_channels {
    my($self,$nick) = @_;
    my @tmp;
    for my $channel(keys %{$self->{_channels}}) {
-      next unless ref $self->{_channels}->{$channel};
+      next unless ref $self->{_channels}->{$channel} eq "IRC::Channel";
       push @tmp, $channel if $self->{_channels}->{$channel}->nick($nick);
    }
    return @tmp;
