@@ -328,7 +328,7 @@ function userlist(users) {
           + ' onmouseover="this.className=\\\'userlist-hover\\\'"'
           + ' onclick="' + 'this.className=\\\'userlist-selected\\\';'
           + 'deselect();selected = this;document.mform.user.value = \\\''
-          + user + '\\\';return false;" ondblclick="fsubmit(document.mform);"'
+          + parent.fwindowlist.escapejs(user) + '\\\';return false;" ondblclick="fsubmit(document.mform);"'
           : '') + '>' + user + '</td></tr>';
    }
    tmp += '</table>';

@@ -65,7 +65,6 @@ sub _out {
 sub _func_out {
    my($func,@rest) = @_;
    @rest = map(ref $_ eq 'ARRAY' ? _outputarray($_) : _escapejs($_), @rest);
-   print STDERR 'parent.' . $func . '(' . _jsp(@rest) . ");\n";
    _out('parent.' . $func . '(' . _jsp(@rest) . ');');
 }
 
@@ -327,7 +326,7 @@ function userlist(users) {
           + ' onmouseover="this.className=\\'userlist-hover\\'"'
           + ' onclick="' + 'this.className=\\'userlist-selected\\';'
           + 'deselect();selected = this;document.mform.user.value = \\''
-          + user + '\\';return false;" ondblclick="fsubmit(document.mform);"'
+          + parent.fwindowlist.escapejs(user) + '\\';return false;" ondblclick="fsubmit(document.mform);"'
           : '') + '>' + user + '</td></tr>';
    }
    tmp += '</table>';
