@@ -25,7 +25,7 @@ Commands:
 + don't send blank lines
 + /nick doesn't work?
 + /part
-- quit seperate from version
++ quit seperate from version
 
 Interfaces:
 - hilight text targeted at nickname
@@ -39,6 +39,7 @@ Javascript Interface:
 - better handling of stream disconnections (also config option to go to page)
 - channel part
 - close windows
+- quit in more than one channel
 
 NonJS Interface:
 - do this :)
@@ -64,7 +65,7 @@ nph-irc.cgi:
 - session timeout if no data sent (set optionally)
 
 Abuse:
-- multiple connects from the same IP (use ipaccess file for this)
+= multiple connects from the same IP (use ipaccess file for this)
 - ctcp kill/ban
 - limiting the number of connections to a server? (^^^ sock/server)
 - admin interface?

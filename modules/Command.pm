@@ -1,6 +1,6 @@
 package Command;
 use strict;
-my($package, $event, $irc, $command, $target, $params);
+my($package, $event, $irc, $command, $target, $params, $config);
 
 my %commands = (
   msg => sub {
@@ -46,7 +46,8 @@ my %commands = (
      $irc->nick($params);
   },
   quit => sub {
-     $irc->quit($params ? $params : "CGI:IRC $::VERSION");
+     $irc->quit($params ? $params : (defined $config->{quit_message} ? 
+	     $config->{quit_message} : "CGI:IRC $::VERSION"));
   },
   mode => sub {
 	return 2 unless defined $params;
@@ -176,7 +177,7 @@ sub expand {
 }
 
 sub run {
-   ($package, $event, $irc, $command, $target, $params) = @_;
+   ($package, $event, $irc, $command, $target, $params, $config) = @_;
 
    if(exists $commands{$command}) {
       my $error = $commands{$command}->();

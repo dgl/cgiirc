@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.10 2002/03/12 22:21:46 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.11 2002/03/14 00:11:26 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -452,7 +452,7 @@ sub say_command {
 			return;
 		 }
 
-		 my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '');
+		 my $error = Command->run($event, $irc, $command, $target, defined $params ? $params : '', $config);
 		 return 1 if $error == 100;
 
 		 if($error == 2) {

@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.5 2002/03/10 22:35:23 dgl Exp $
+# $Id: RawCommands.pm,v 1.6 2002/03/14 00:11:26 dgl Exp $
 package IRC::RawCommands;
 use strict;
 my $ctcptime = 0;
@@ -192,14 +192,14 @@ my %raw = (
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }elsif($to =~ /^[+@%]/) {
 	      my $target = $to;
-		  $target =~ s/^[+@%]//g;
+		  $target =~ s/^[+@%]+//;
 		  $self->{event}->handle('notice special', _info($target, 1),
 		     $params->{nick}, $params->{host}, $to, $params->{text});
 	  }elsif(is_vaild_server($params->{nick})) {
-	     $self->{event}->handle('notice server', _info($to, 1),
+	     $self->{event}->handle('notice server', _info('Status', 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }elsif(is_vaild_nickname($to)) {
-	     $self->{event}->handle('notice private', _info($to, 1),
+	     $self->{event}->handle('notice private', _info($params->{nick}, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }else{
 	     $self->{event}->handle('notice unknown', _info($to, 1), $params->{nick}, $params->{host}, $params->{text});
