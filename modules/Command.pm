@@ -143,6 +143,7 @@ my %commands = (
   },
   ignore => sub {
       if($params) {
+			$params =~ s/[!@].*//;
          $irc->ignore($params);
          message('ignored', $params);
       }else{
