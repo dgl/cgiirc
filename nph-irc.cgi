@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.72 2002/11/02 21:08:45 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.73 2002/11/02 23:19:24 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -511,8 +511,8 @@ sub unix_in {
    }
 
    $pingtime = time;
-   $intime = $pingtime unless $input->{cmd} eq 'say'
-       && $input->{say} eq '/noop';
+   $intime = $pingtime if $input->{cmd} eq 'say'
+       && $input->{say} ne '/noop';
 
    if($input->{cmd}) {
       my $now = time;
@@ -713,7 +713,7 @@ sub client_hostname {
          && $ENV{HTTP_X_FORWARDED_FOR} =~ /((\d{1,3}\.){3}\d{1,3})$/
          && !defined $_[1]) { # check proxy but only once
       my $proxyip = $1;
-      return $hostname if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
+      return($hostname, $ip) if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
       
       access_dnsbl($proxyip);
       open(TRUST, "<trusted-proxy") or return $hostname;
@@ -726,7 +726,7 @@ sub client_hostname {
       close TRUST;
    }
 
-   return $hostname;
+   return($hostname, $ip);
 }
 
 sub session_timeout {
@@ -1039,12 +1039,13 @@ sub init {
    ($cgi->{serv}) = $cgi->{serv} =~ /([^ ]+)/; # untaint hack.
       
    my $resolved = '';
+   my $resolvedip = '';
    
    if(config_set('encoded_ip')) {
-      $resolved = client_hostname() if $config->{encoded_ip} > 2;
+      ($resolved, $resolvedip) = client_hostname() if $config->{encoded_ip} > 2;
       $cgi->{name} = '[' .
          ($config->{encoded_ip} <= 2 
-          ? encode_ip($ENV{REMOTE_ADDR})
+          ? encode_ip($resolvedip)
             # The resolved hostname in realname if set to 3.
           : $resolved
          )
@@ -1053,8 +1054,7 @@ sub init {
 
    if(config_set('realhost_as_password')) {
       $resolved = client_hostname() unless $resolved;
-      # XXX: should put actual ip here, oh well
-      $cgi->{pass} = "CGIIRC_$ENV{REMOTE_ADDR}_$resolved";
+      $cgi->{pass} = "CGIIRC_${resolvedip}_${resolved}";
    }
 
    $unixfh = load_socket();
@@ -1067,6 +1067,7 @@ sub init {
    }
 
    message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
+   $intime = $pingtime = time;
    $interface->sendping if $interface->ping;
 
    $ircfh = irc_connect($cgi->{serv}, $cgi->{port});
