@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.90 2004/01/11 05:15:50 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.91 2004/01/29 11:24:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -765,7 +765,7 @@ sub access_check_host {
          chomp;
          s/\*/.*/g;
          s/\?/./g;
-         return access_resolve_host($proxyip, 1) if $hostname =~ /^$_$/i;
+         return access_check_host($proxyip, 1) if $hostname =~ /^$_$/i;
       }
       close TRUST;
    }
