@@ -31,7 +31,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.100 2005/01/05 23:50:10 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.101 2005/01/06 00:44:18 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -506,7 +506,11 @@ sub load_socket {
 
    open(IP, ">$config->{socket_prefix}$cgi->{R}/ip") or error("Open error: $!");
    print IP "$ENV{REMOTE_ADDR}\n";
-   print IP "$ENV{HTTP_X_FORWARDED_FOR}\n" if exists $ENV{HTTP_X_FORWARDED_FOR};
+
+   my $client_ip = $ENV{HTTP_X_FORWARDED_FOR};
+   $client_ip = $ENV{HTTP_CLIENT_IP} unless defined $client_ip;
+
+   print IP "$client_ip\n" if defined $client_ip;
    close(IP);
 
    my($socket,$error) = 
@@ -621,10 +625,11 @@ sub config_set {
 
 sub access_ipcheck {
    return unless config_set('ip_access_file');
-   
+
    my($ip, $hostname) = @_;
    my($ipn) = inet_aton($ip);
    my($ipaccess_match) = 0;
+   my($limit) = undef;
 
    my %ips = list_connected_ips();
    my $total = 0;
@@ -633,53 +638,66 @@ sub access_ipcheck {
       message('access denied', 'Too many connections (global)');
    }
 
-   open(my $ip, "<$config->{ip_access_file}") or return;
-   while(<$ip>) {
-      chomp;
-      next if /^(#|\s*$)/;
-      s/\s+#.*$//g;
-      my($check, $limit) = split(' ', $_, 2);
+   foreach my $ipaccess_file (split(',', $config->{ip_access_file})) {
+      # If the file or any of the file doesn't exist, we just skip it.
+      open(IP, "<$ipaccess_file") or next;
+      while(<IP>) {
+         chomp;
+         next if /^\s*(#|$)/;
+         s/\s+#.*$//g;
+         my($check);
+         ($check, $limit) = split(' ', $_, 2);
 
-      # IP address with subnet mask
-      if ($check =~ /\//) {
-         my($addr,$mask) = split('/', $check, 2);
-         $mask = "1" x $mask . "0" x (32-$mask);
-         $mask = pack ("B32", $mask);
-         $mask = inet_ntoa($mask & $ipn);
-         if($addr eq $mask) {
-            $ipaccess_match = 1;
+         if ($check =~ /\//) {
+            # IP address with subnet mask
+            my($addr,$mask) = split('/', $check, 2);
+            $mask = "1" x $mask . "0" x (32-$mask);
+            $mask = pack ("B32", $mask);
+            $mask = inet_ntoa($mask & $ipn);
+            if($addr eq $mask) {
+               $ipaccess_match = 1;
+            }
+         } else {
+            # IP or hostname (we check both)
+            # XXX: someone could make their hostname resolve to
+            # 127.0.0.1.foobar.com and it would match eg 127.*.*.*
+            # I don't think it's that serious and if it really is a
+            # problem, 127.0.0.0/8 wouldn't match.
+            $check =~ s/\./\\./g;
+            $check =~ s/\?/./g;
+            my $ipcheck = $check;
+            $ipcheck =~ s/\*/\\d+/g;
+            $check =~ s/\*/.*/g;
+
+            if($ip =~ /^$ipcheck$/) {
+               $ipaccess_match = 1;
+            } elsif($hostname =~ /^$check$/i) {
+               $ipaccess_match = 1;
+            }
          }
-      # IP or hostname (we check both)
-      # XXX: someone could make their hostname resolve to 127.0.0.1.foobar.com
-      # and it would match eg 127.*.*.*, I don't think it's that serious and
-      # if it really is a problem 127.0.0.0/8 wouldn't match..
-      } else {
-         $check =~ s/\./\\./g;
-         my $ipcheck = $check;
-         $ipcheck =~ s/\*/\\d+/g;
-         $check =~ s/\*/.*/g;
-         
-         if($ip =~ /^$ipcheck$/) {
-            $ipaccess_match = 1;
-         }elsif($hostname =~ /^$check$/) {
-            $ipaccess_match = 1;
-         }
+         # We stop parsing, if this line matched.
+         last if $ipaccess_match;
       }
-      if($ipaccess_match == 1) {
-         return unless defined $limit;
-         if($limit == 0) {
-            message('access denied', "No connections allowed (your hostname is $hostname and your IP address is $ip)");
-            irc_close();
-         }elsif($ips{$ip} >= $limit) {
-            message('access denied', 'Too many connections');
-            irc_close();
-         }
+      close(IP);
+      # We don't parse more files, if a line in the last file matched.
+      last if $ipaccess_match;
+   }
+
+   # If we got a matching line...
+   if($ipaccess_match) {
+      # We just accept the client, if there is no limit defined.
+      return unless defined $limit;
+      if($limit == 0) {
+         message('access denied', "No connections allowed from your hostname $hostname or your IP address $ip");
+      } elsif($ips{$ip} >= $limit) {
+         message('access denied', 'Too many connections');
+      } else {
          return;
       }
+   } else {
+      message('access denied', 'No connections allowed');
    }
-   close($ip);
 
-   message('access denied', 'No connections allowed');
    irc_close();
 }
 
@@ -771,8 +789,11 @@ sub access_check_host {
    
    access_ipcheck($ip, $hostname);
 
-   if(exists $ENV{HTTP_X_FORWARDED_FOR}
-         && $ENV{HTTP_X_FORWARDED_FOR} =~ /((\d{1,3}\.){3}\d{1,3})$/
+   my $client_ip = $ENV{HTTP_X_FORWARDED_FOR};
+   $client_ip = $ENV{HTTP_CLIENT_IP} unless defined $client_ip;
+
+   if(defined $client_ip
+         && $client_ip =~ /((\d{1,3}\.){3}\d{1,3})$/
          && !defined $_[1]) { # check proxy but only once
       my $proxyip = $1;
       return($hostname, $ip) if $proxyip =~ /^(192\.168|127|10|172\.(1[6789]|2\d|3[01]))\./;
@@ -980,10 +1001,14 @@ sub irc_ctcp {
             $irc->ctcpreply($nick, $command, $params);
          }
       }elsif(uc($command) eq 'USERINFO') {
+         my $client_ip = $ENV{HTTP_X_FORWARDED_FOR};
+         $client_ip = $ENV{HTTP_CLIENT_IP} unless defined $client_ip;
+         $client_ip = 'none' unless defined $client_ip;
+
          $irc->ctcpreply($nick, $command,
                config_set('extra_userinfo') ?
                  "IP: $ENV{REMOTE_ADDR} - Proxy: $ENV{HTTP_VIA} - " .
-                 "Forward IP: $ENV{HTTP_X_FORWARDED_FOR} - User Agent: " .
+                 "Forward IP: $client_ip - User Agent: " .
                  "$ENV{HTTP_USER_AGENT} - Host: $ENV{SERVER_NAME}"
                 : "$ENV{REMOTE_ADDR} - $ENV{HTTP_USER_AGENT}"
                );
@@ -1083,8 +1108,6 @@ sub init {
       $config->{'irc charset'} = $cgi->{charset};
    }
 
-   ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
-
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
@@ -1102,6 +1125,11 @@ sub init {
    if($cgi->{serv} =~ s/:(\d+)$//) {
       $cgi->{port} = $1;
    }
+   unless(access_configcheck('port', $cgi->{port})) {
+      message('access port denied', $cgi->{port});
+      $cgi->{port} = (split /,/, $config->{default_port})[0];
+   }
+   ($cgi->{port}) = $cgi->{port} =~ /(\d+)/;
    
    if(config_set('encoded_ip')) {
       $cgi->{name} = '[' .

@@ -22,7 +22,7 @@ use vars qw($VERSION);
 use Socket;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.3 2004/02/03 14:36:35 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: viewconnects.pl,v 1.4 2005/01/06 00:44:18 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -80,7 +80,8 @@ sub list_connects {
       close(TMP);
 
       # login time
-      my @t = localtime((stat("$path/sock"))[8]);
+      # ctime of the directory has highest chance to be the right one here
+      my @t = localtime((stat("$path"))[10]);
       my @today = localtime();
       my @days = qw/Sun Mon Tue Wed Thu Fri Sat/;
       # anyone logged on for longer than a week/(since sun) will be wrong
@@ -92,6 +93,7 @@ sub list_connects {
       }
       
       # idle time
+      # mtime of the socket is the right one here
       @t = gmtime(time - (stat("$path/sock"))[9]);
       $u[7] = sprintf '%02d:%02d', $t[2] + $t[7] * 24, $t[1];
 

@@ -83,15 +83,20 @@ encoded_ip = 2
 # contains ipaccess information then CGI:IRC will check this file.
 # See ipaccess.example for more information, rename it to ipaccess
 # and uncomment the line below to enable.
+# NOTE: If the file does not exist, all clients are denied!
 #ip_access_file = ipaccess
+# If the ip_access_file option is set to a comma-separated list
+# of filenames, they are checked sequentially, as if they were
+# concatenated.
+#ip_access_file = ipaccess.deny,ipaccess.allow
 
 # The maximum number of users that can connect to this CGI:IRC script at once
 # Please note, sometimes CGI:IRC leaves files in the socket_prefix location, if
 # it is killed (kill -9) or maybe a bug - this option still counts those as users.
 #max_users = 20
 
-# Allow access to servers and channels not set in the default
-# settings above and use access_channel and access_server below.
+# Allow access to servers, ports and channels not set in the default
+# settings above and use access_channel, access_port and access_server below.
 allow_non_default = 1
 
 # This is regular experssion that sets what channels access should
@@ -101,6 +106,10 @@ access_channel = .*
 # This is regular experssion that sets what servers access should
 # be allowed to.
 access_server = .*
+
+# This is regular experssion that sets what ports access should
+# be allowed to.
+access_port = .*
 
 # A list of commands to allow and deny access to, this is a space
 # seperated list of commands to allow access to or if prefixed 

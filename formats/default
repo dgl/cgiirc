@@ -2,8 +2,9 @@ looking up = {prefix-client} Looking up {server $0}
 connecting = {prefix-client} Connecting to {server $0} [$1] port {hilight $2}
 
 access denied = {prefix-client} Access Denied: $0
-access server denied = {prefix-client} Access to that server is blocked
-access channel denied = {prefix-client} Access to that channel is blocked
+access server denied = {prefix-client} Access to server $0 is blocked
+access port denied = {prefix-client} Access to port $0 is blocked
+access channel denied = {prefix-client} Access to channel $0 is blocked
 command denied = {prefix-client} Access to that command is blocked
 session timeout = {prefix-client} Timeout - Your session has been inactive too long
 
