@@ -54,6 +54,8 @@ function statushtml(status) {
       return '<div class="userlist-voice">+</div>';
    }else if(status == "%") {
       return '<div class="userlist-halfop">%</div>';
+   }else if(status == ' ') {
+      return '';
    }else{
       return '<div class="userlist-other">' + status + '</div>';
    }

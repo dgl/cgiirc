@@ -31,9 +31,9 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.85 2003/10/27 17:18:49 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.86 2003/10/29 08:37:22 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
-$VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
+$VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
 
 use Socket;
@@ -442,7 +442,7 @@ sub format_varexpand {
 ## Loads the default interface.
 sub load_interface {
    my $name = defined $cgi->{interface} ? $cgi->{interface} : 'default';
-   ($name) = $name =~ /([a-z]+)/i;
+   ($name) = $name =~ /([a-z0-9]+)/i;
    require("./interfaces/$name.pm");
 
    $ioptions = parse_interface_cookie();

@@ -93,11 +93,20 @@
    background-color: #20ff50;
    border: 1px solid #30a030;
 }
-
 .userlist-voice {
    color: #808000;
    background-color: #ffff20;
    border: 1px solid #a0a030;
+}
+.userlist-halfop {
+   color: #808000;
+   background-color: #20ffff;
+   border: 1px solid #30a0a0;
+}
+.userlist-other {
+   color: #808000;
+   background-color: #ff20ff;
+   border: 1px solid #a030a0;
 }
 
 /* --- Main */

@@ -80,6 +80,8 @@ print <<EOF;
 function setjs() {
  if(navigator.product == 'Gecko' || (window.opera && document.childNodes)) {
    document.loginform["interface"].value = 'mozilla';
+ }else if(window.opera && document.childNodes) {
+   document.loginform["interface"].value = 'opera7';
  }else if(navigator.appName == 'Microsoft Internet Explorer' &&
     navigator.userAgent.indexOf("Mac_PowerPC") > 0) {
     document.loginform["interface"].value = 'konqueror';

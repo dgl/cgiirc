@@ -201,7 +201,7 @@ function pastedata(text) {
 >
 </form>
 EOF
-
+.$not opera7
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/) {
 print <<EOF;
 <span class="form-econtain">
@@ -218,6 +218,7 @@ print <<EOF;
 </span>
 EOF
 }
+.$end
 print <<EOF;
 </body>
 </html>

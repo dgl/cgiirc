@@ -6,7 +6,7 @@ use Symbol;
 use IO::Handle;
 
 my(%fd, %current);
-my @browsers = qw/ie mozilla konqueror/;
+my @browsers = qw/ie mozilla konqueror opera7/;
 @current{@browsers} = @browsers;
 
 for(@browsers) {

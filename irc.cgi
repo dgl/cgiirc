@@ -25,9 +25,9 @@ use vars qw($VERSION);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.26 2003/10/27 17:18:49 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.27 2003/10/29 08:37:22 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
-$VERSION .= " ($2)" if index($VERSION, "CVS") > 0;
+$VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
 
 require 'parse.pl';
@@ -52,7 +52,7 @@ my $cgi = cgi_read();
 my $scriptname = $config->{script_login} || 'irc.cgi';
 
 my $interface = ref $cgi && defined $cgi->{interface} ? $cgi->{interface} : 'default';
-$interface =~ s/[^a-z]//gi;
+$interface =~ s/[^a-z0-9]//gi;
 require('interfaces/' . $interface . '.pm');
 
 if(ref $cgi && defined $cgi->{item}) {

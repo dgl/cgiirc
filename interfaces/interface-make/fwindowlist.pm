@@ -86,6 +86,14 @@ function channeladdusers(channel, users) {
 }
 
 function channeladduser(channel, user) {
+<<<<<<< fwindowlist.pm
+   var o = user.substr(0,1)
+   if(prefixchars.lastIndexOf(o) != -1) {
+      user = user.substr(1)
+      while(prefixchars.lastIndexOf(user.substr(0,1)) != -1)
+         user = user.substr(1)
+   }
+=======
    var o = user.substr(0,1)
    if(prefixchars.lastIndexOf(o) != -1) {
       var status
@@ -93,6 +101,7 @@ function channeladduser(channel, user) {
       while(status = user.substr(0, 1) && prefixchars.lastIndexOf(status) != -1)
          user = user.substr(1)
    }
+>>>>>>> 1.14
 
    if(!Witems[channel] && !(channel = findwin(channel))) return;
 
@@ -175,26 +184,12 @@ function usersort(user1,user2) {
    var m2 = user2.substr(0,1);
 
    if(m1 == m2) {
-      if(user1.toUpperCase() < user2.toUpperCase()) return -1;
-	  if(user2.toUpperCase() < user1.toUpperCase()) return 1;
-	  return 0; // shouldn't happen :-)
-   }else if(m1 == '@') {
-      return -1;
-   }else if(m2 == '@') {
-      return 1;
-   }else if(m1 == '%') {
-      return -1;
-   }else if(m2 == '%') {
-      return 1;
-   }else if(m1 == '+') {
-      return -1;
-   }else if(m2 == '+') {
-      return 1;
-   }else{
-      if(user1.toUpperCase() < user2.toUpperCase()) return -1;
-	  if(user2.toUpperCase() < user1.toUpperCase()) return 1;
-	  return 0;
+      if(user1.toUpperCase() < user2.toUpperCase()) return -1
+	   return 1
    }
+
+   if(prefixchars.lastIndexOf(m1) < prefixchars.lastIndexOf(m2)) return -1
+   return 1
 }
 
 function witemchg(name) {
@@ -241,6 +236,8 @@ function maincolor(bg, fg) {
 }
 
 function prefix(chars) {
+   if(!/ /.test(chars))
+      chars += ' '
    prefixchars = chars;
 }
 
