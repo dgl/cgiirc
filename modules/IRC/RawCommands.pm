@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.8 2002/03/27 17:46:37 dgl Exp $
+# $Id: RawCommands.pm,v 1.9 2002/04/14 22:18:00 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -475,8 +475,7 @@ my %raw = (
 
    366 => sub { # RPL_ENDOFNAMES
       my($event,$self,$params) = @_;
-	  return unless $self->{_channels}->{$params->{params}->[2]};
-	  $self->{event}->handle('reply end names', _info($params->{params}->[2], 1), scalar $self->{_channels}->{$params->{params}->[2]}->nicks);
+	   #return unless $self->{_channels}->{$params->{params}->[2]};
    },
 
    367 => sub { # RPL_BANLIST

@@ -1,11 +1,5 @@
 TODO
 ----
-KEY:
-- TODO
-= semi-done
-+ done
-? not sure
-! important
 
 IRC Module:
 - use 005 numeric if possible (mode can use PREFIX and CHANMODES)
