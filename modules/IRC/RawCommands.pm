@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.12 2002/04/27 18:49:42 dgl Exp $
+# $Id: RawCommands.pm,v 1.13 2002/04/27 19:43:21 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -507,7 +507,7 @@ my %raw = (
    367 => sub { # RPL_BANLIST
       my($event,$self,$params) = @_;
 	  my $channel = $params->{params}->[2];
-	  if(exists $self->{_channels}->{$channel}) {
+	  if(ref $self->{_channels}->{$channel}) {
 	     $self->{_channels}->{$channel}->addban($params->{params}->[3], setby => $params->{params}->[4], 'time' => $params->{params}->[5]);
 	  }
 	   return if $self->{_channels}->{$channel} && $self->{_channels}->{$channel}->{modeb_sync};
