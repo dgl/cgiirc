@@ -1,6 +1,6 @@
 #!/usr/bin/perl -T
 # Basically you need to add a line like this to /etc/inetd.conf and 
-# kill -HUP inetd
+# killall -HUP inetd
 # ident	stream	tcp	nowait	nobody	/usr/local/sbin/identd.pl
 # see the advanced section of the docs for more details about this.
 use strict;
