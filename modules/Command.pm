@@ -160,12 +160,19 @@ my %commands = (
   },
   winclose => sub {
      $interface->del($params ? $params : $target);
+	 return 0;
   },
   'close' => 'winclose',
   'unquery' => 'winclose',
   'query' => sub {
      return 2 unless $params;
 	 $interface->add($params);
+	 $interface->active($params);
+	 return 0;
+  },
+  clear => sub {
+     $interface->clear($params ? $params : $target);
+	 return 0;
   },
 );
 

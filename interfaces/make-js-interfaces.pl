@@ -118,6 +118,11 @@ sub del {
    _func_out('witemdel', $del);
 }
 
+sub clear {
+   my($self, $window) = @_;
+   _func_out('witemclear', $window);
+}
+
 sub active {
    my($self, $window) = @_;
    _func_out('witemchg', $window);
@@ -479,6 +484,13 @@ function witemdel(name) {
    delete Witems[name];
    if(currentwindow == name) currentwindow = 'Status';
    wlistredraw();
+   witemredraw();
+}
+
+function witemclear(name) {
+   if(!Witems[name] && !(name = findwin(name))) return;
+   Witems[name].text.length = 0;
+   witemredraw();
 }
 
 function channeladdusers(channel, users) {

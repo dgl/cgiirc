@@ -12,10 +12,9 @@ IRC Module:
 :www.polarhome.com 005 a SAFELIST SILENCE KNOCK IRCOPS WATCH=128 MODES=6 MAXCHANNELS=10 MAXBANS=60 MAXEXEMPTS=60 NICKLEN=30 TOPICLEN=307 CHANTYPES=#& CHANMODES=be,k,l,N PREFIX=(aohv)*@%+ NETWORK=BetaONE :are available on this server
 
 Commands:
-- commands that will call to interface: help, (un)query, clear
+- commands that will call to interface: help, clear
 
 Interfaces:
-= hilight text targeted at nickname
 Javascript Interface:
 - make bottom typing frame more obvious (re: m-saunders' and chunky's comments)
 - right click context menus

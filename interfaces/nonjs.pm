@@ -95,6 +95,12 @@ sub add {
    _out('<script>u();f();</script>');
 }
 
+sub active {
+   my($self, $name) = @_;
+   $self->{_target} = $name;
+   $self->reload('f');
+}
+
 sub error {
    my($self,$message) = @_;
    $self->line({ target => 'Status'}, $message);
