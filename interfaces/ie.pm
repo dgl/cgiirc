@@ -520,7 +520,6 @@ function form_focus() {
 <iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main"></iframe>
 <iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist"></iframe>
 <iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
-<iframe name="hiddenframe" src="$scriptname?item=blank&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" style="display:none;"></iframe>
 </body>
 </html>
 EOF
@@ -1121,103 +1120,8 @@ function do_quit() {
 <table class="wlist-table">
 <tr><td width="1">
 <iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
-</td>
-<td id="windowlist" class="wlist-container">
-</td><td class="wlist-buttons">
-<img src="$config->{image_path}/helpup.gif" onclick="if(connected == 0)return;sendcmd('/help');" class="wlist-button" onmousedown="this.src=imghelpdn.src" onmouseup="this.src=imghelpup.src;" onmouseout="this.src=imghelpup.src;" title="Help">
-</td><td class="wlist-buttons">
-<img src="$config->{image_path}/optionsup.gif" onclick="senditem('options');" class="wlist-button" onmousedown="if(connected == 0)return;this.src=imgoptionsdn.src" onmouseup="this.src=imgoptionsup.src;" onmouseout="this.src=imgoptionsup.src;" title="Options">
-</td><td class="wlist-buttons">
-<img src="$config->{image_path}/closeup.gif" onclick="if(connected == 0)return;if(currentwindow != 'Status'){sendcmd('/winclose')}else if(confirm('Are you sure you want to quit?')){do_quit();parent.location='$config->{script_login}'}" class="wlist-button" onmousedown="this.src=imgclosedn.src" onmouseup="this.src=imgcloseup.src;" onmouseout="this.src=imgcloseup.src;" title="Close">
-</td></tr></table>
 
-<form name="hsubmit" method="post" action="$config->{script_form}" target="hiddenframe">
-<input type="hidden" name="R" value="$cgi->{R}">
-<input type="hidden" name="cmd" value="say">
-<input type="hidden" name="item" value="say">
-<input type="hidden" name="say" value="">
-<input type="hidden" name="target" value="">
-<input type="hidden" name="name" value="">
-<input type="hidden" name="value" value="">
-</form>
-</body></html>
-EOF
-}
-sub fmain {
-   my($self, $cgi, $config) = @_;
-print <<EOF;
-$standardheader
-<html><head>
-<link rel="stylesheet" href="$config->{script_login}?interface=ie&item=style&style=$cgi->{style}" />
-</head>
-<body class="main-body"
-onkeydown="if((event && ((event.keyCode < 30 || event.keyCode > 40) && !event.ctrlKey)) && parent.fform.location) parent.fform.fns();">
-<span class="main-span" id="text"></span>
-</body></html>
-EOF
-}
-sub fuserlist {
-   my($self, $cgi, $config) = @_;
-print <<EOF;
-$standardheader
-<html>
-<head>
-<script language="JavaScript">
-<!--
-var selected;
-
-function fsubmit(form) {
-   var action = form.action.options[form.action.selectedIndex].value;
-   var user = form.user.value;
-
-   if(!user || !action) {
-      alert("No user or action selected");
-      return false;
-   }
-   user = user.replace(/^[@%+ ]/, '');
-   parent.fwindowlist.sendcmd_userlist(action, user);
-   return false;
-}
-
-function deselect() {
-   if(!selected) return;
-   selected.className = 'userlist-item';
-}
-
-function userlist(users) {
-   var tmp = '<table class="userlist-table">';
-   for(var i = 0;i < users.length; i++) {
-      var status = users[i].substr(0, 1);
-      var user = users[i].substr(1);
-
-      tmp += '<tr><td class="userlist-status"> ' + statushtml(status) + ' </td>'
-          + '<td class="userlist-item" ' + 
-        (user != 'No channel' ? 
-          ' onmouseout="this.className=(this == selected ?'
-          + '\\'userlist-selected\\':\\'userlist-item\\')"'
-          + ' onmouseover="this.className=\\'userlist-hover\\'"'
-          + ' onclick="' + 'this.className=\\'userlist-selected\\';'
-          + 'deselect();selected = this;document.mform.user.value = \\''
-          + parent.fwindowlist.escapejs(user) + '\\';return false;" ondblclick="fsubmit(document.mform);"'
-          : '') + '>' + user + '</td></tr>';
-   }
-   tmp += '</table>';
-   document.getElementById('usertable').innerHTML = tmp;
-   document.mform.user.value = '';
-}
-
-function statushtml(status) {
-   if(status == "@") {
-      return '<div class="userlist-op">@</div>';
-   }else if(status == "+") {
-      return '<div class="userlist-voice">+</div>';
-   }else if(status == "%") {
-      return '<div class="userlist-halfop">%</div>';
-   }else{
-      return '';
-   }
-}
-
+<iframe src="$config->{script_login}?item=blank&style=$style" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()" name="hiddenframe"></iframe>
 document.onselectstart = function() { return false; }
 // -->
 </script>

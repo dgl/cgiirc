@@ -267,7 +267,6 @@ function form_focus() {
 <iframe name="fmain" src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes" class="frame-main"></iframe>
 <iframe name="fuserlist" src="$scriptname?item=fuserlist&interface=$interface&style=$style" scrolling="yes" class="frame-userlist"></iframe>
 <iframe name="fform" src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" class="frame-form"></iframe>
-<iframe name="hiddenframe" src="$scriptname?item=blank&style=$style" scrolling="no" framespacing="0" border="0" frameborder="0" resize="no" style="display:none;"></iframe>
 </body>
 </html>
 EOF
@@ -855,6 +854,8 @@ function do_quit() {
 <table class="wlist-table">
 <tr><td width="1">
 <iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="border:0"></iframe>
+
+<iframe src="$config->{script_login}?item=blank&style=$style" id="iframe" width="1" height="1" style="border:0" name="hiddenframe"></iframe>
 </td>
 <td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
