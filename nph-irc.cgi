@@ -29,7 +29,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ $Id: nph-irc.cgi,v 1.15 2002/03/17 00:56:51 dgl Exp $'
+'$Name:  $ $Id: nph-irc.cgi,v 1.16 2002/03/17 10:21:54 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -437,8 +437,6 @@ sub unix_in {
 
 sub input_command {
    my($command, $params) = @_;
-   $command =~ s/[\n\r\0]//g;
-   $params =~ s/[\n\r\0]//g;
    if($command eq 'say') {
 	  say_command($params->{say}, $params->{target});
    }elsif($command eq 'quit') {
@@ -449,6 +447,8 @@ sub input_command {
 sub say_command {
    my($say, $target) = @_;
    return unless length $say;
+   $say =~ s/(\n|\r|\0)//sg;
+   $target =~ s/(\n|\r|\0)//sg;
    if($say =~ m!^/!) {
 	  if($say =~ s!^/ /!/!) {
 		 irc_send_message($target, $say);
