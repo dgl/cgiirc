@@ -1,4 +1,4 @@
-# $Id: Util.pm,v 1.2 2002/10/02 16:14:29 dgl Exp $
+# $Id: Util.pm,v 1.3 2002/11/19 23:30:16 dgl Exp $
 package IRC::Util;
 use Exporter;
 @ISA = qw(Exporter);
@@ -15,8 +15,8 @@ sub is_vaild_channel {
 
 sub is_vaild_nickname {
    return 0 if length $_[0] > 32 or length $_[0] < 1;
-   return 0 if $_[0] =~ /[^A-Za-z0-9-_\[\]\\\`\^\{\}]/;
-   return 0 if $_[0] =~ /^[^A-Za-z_\\\[\]\`\^\{\}]/;
+   return 0 if $_[0] =~ /[^A-Za-z0-9-_\[\]\\\`\^\{\}\|]/;
+   return 0 if $_[0] =~ /^[^A-Za-z_\\\[\]\`\^\{\}\|]/;
    return 1;
 }
 
