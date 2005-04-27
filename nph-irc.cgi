@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.107 2005/02/15 22:31:05 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.108 2005/04/27 16:14:11 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -708,12 +708,15 @@ sub access_ipcheck {
 }
 
 sub access_dnsbl {
+   my $ip = shift;
+
    return unless config_set('dnsbl');
-   my $arpa  = join '.', reverse split /\./, shift;
+   my $arpa  = join '.', reverse split /\./, $ip;
 
    for my $zone(split ' ', $config->{dnsbl}) {
-      if(defined net_hostlookup("$arpa.$zone")) {
-         message('access denied', "Found in DNS black list $zone");
+      my $res = net_hostlookup("$arpa.$zone.");
+      if(defined $res) {
+         message('access denied', "Found in DNS black list $zone (your IP is $ip, result: $res)");
          irc_close();
       }
    }
