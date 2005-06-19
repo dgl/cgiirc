@@ -1,4 +1,4 @@
-#! /usr/bin/perl -T
+#! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2004 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.109 2005/06/19 17:47:18 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.110 2005/06/19 17:52:15 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
