@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.25 2003/10/29 12:28:35 dgl Exp $
+# $Id: RawCommands.pm,v 1.26 2005/06/19 18:29:04 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -177,6 +177,7 @@ my %raw = (
 	     $self->{event}->handle('message server', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }else{
+		  #return unless $self->find_nick_channels($params->{nick});
 	     $self->{event}->handle('message private', _info($params->{nick}, 3, 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }
