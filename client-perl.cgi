@@ -25,7 +25,7 @@ use vars qw($VERSION $PREFIX);
 $PREFIX = "/tmp/cgiirc-";
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.8 2004/02/03 14:39:00 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: client-perl.cgi,v 1.9 2005/06/19 18:07:36 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*$/$1/;
 $VERSION =~ s/_/./g;
 
@@ -52,7 +52,7 @@ sub net_send {
 sub error {
    my($message) = @_;
    print "Content-type: text/html\r\n\r\n";
-   print "An error occured: $message\n";
+   print "An error occurred: $message\n";
    exit;
 }
 

@@ -13,7 +13,7 @@ kill wrong = {prefix-error} $1 tried to kill you but got the password wrong! ($2
 
 command notparams = {prefix-client} Not enough parameters for command
 command error = {prefix-client} Error running command
-error = {prefix-error} An error occured: $0
+error = {prefix-error} An error occurred: $0
 not supported = {prefix-client} $0 attempted to $3 to you but CGI:IRC does not support it ($2)
 
 cgiirc welcome = {prefix-client} Welcome to CGI:IRC $VERSION
