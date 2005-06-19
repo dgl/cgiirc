@@ -25,7 +25,7 @@ use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.34 2005/03/06 00:23:24 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.35 2005/06/19 18:13:08 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -49,7 +49,7 @@ print join("\r\n",
         $cgi->{item} eq 'style' ? 'css' : 'html')
 # We need this for some JavaScript magic that detects the character set.
 # Basically don't send a character set for the login page..
-         . (ref $cgi && $cgi->{item} ? '; charset=utf-8' : ''),
+         . (ref $cgi && ($cgi->{item} || $cgi->{Nickname}) ? '; charset=utf-8' : ''),
       'Pragma: no-cache',
       'Cache-control: must-revalidate, no-cache',
       'Expires: -1') . "\r\n";
