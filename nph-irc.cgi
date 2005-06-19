@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.108 2005/04/27 16:14:11 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.109 2005/06/19 17:47:18 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -189,6 +189,10 @@ sub net_send {
    my($fh,$data) = @_;
    if($::ENCODE && $fh == $ircfh) {
       my $output = Encode::encode($config->{'irc charset'}, $data);
+      $output = $data unless defined $output;
+      syswrite($fh, $output, length $output);
+   }elsif($::ENCODE) {
+      my $output = Encode::encode('utf8', $data);
       $output = $data unless defined $output;
       syswrite($fh, $output, length $output);
    }else{
