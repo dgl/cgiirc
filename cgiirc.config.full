@@ -181,6 +181,8 @@ format = default
 # Show the names output in the Status window
 #output status = reply names
 
+# Perform these commands (seperated with) ; on connect.
+#perform = 
 
 # Remove almost all colour from the output
 #removecolor = 0

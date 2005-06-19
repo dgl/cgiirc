@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.111 2005/06/19 18:13:29 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.112 2005/06/19 18:38:53 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -920,6 +920,8 @@ sub irc_connected {
       $cgi->{chan} = (split /,/, $config->{default_channel})[0];
    }
    $irc->join($cgi->{chan} . (defined $key ? ' ' . $key : ''));
+
+   say_command($_, 'Status') for split(/;/, $config->{perform});
 }
 
 sub irc_send_message {
