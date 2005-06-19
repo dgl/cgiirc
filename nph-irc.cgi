@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.110 2005/06/19 17:52:15 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.111 2005/06/19 18:13:29 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1121,12 +1121,13 @@ sub init {
       $config->{'irc charset'} = $cgi->{charset};
    }
 
-   eval {
-      local $SIG{__DIE__};
-      binmode STDOUT, ":utf8";
-   };
+   if($::ENCODE) {
+      eval {
+         local $SIG{__DIE__};
+         binmode STDOUT, ":utf8";
+      };
+   }
       
-
    $cgi->{nick} =~ s/\?/int rand 10/eg;
    # Only valid nickname characters
    $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
@@ -1180,6 +1181,7 @@ sub init {
 
    message('cgiirc welcome') if exists $format->{'cgiirc welcome'};
    $ircfh = irc_connect($cgi->{serv}, $cgi->{port});
+
    $irc = IRC->new(
          event => $event,
          timer => $timer,
