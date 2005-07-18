@@ -185,7 +185,7 @@ format = default
 #perform = 
 
 # Remove almost all colour from the output
-#removecolor = 0
+#removecolour = 0
 
 # By default CGI:IRC shorterns the text inside links to 120 characters to work
 # around browser bugs. This changes the length text is shortened to
