@@ -1,0 +1,130 @@
+looking up = {prefix-client} Verificare {server $0}
+connecting = {prefix-client} Conectare catre {server $0} [$1] port {hilight $2}
+
+access denied = {prefix-client} Acces interzis: $0
+access server denied = {prefix-client} Acces-ul la acest server este interzis
+access channel denied = {prefix-client} Acces-ul la acest canal este interzis
+command denied = {prefix-client} Acces-ul la aceasta comanda este interzis
+session timeout = {prefix-client} Timeout - Conexiunea ta a fost inactiva prea mult
+
+kill ok = {prefix-error} Ai primit 'kill' de la $0 ($1)
+kill wrong = {prefix-error} $0 a incercat sa iti dea 'kill' dar parola a fost incorecta! ($1)
+
+command notparams = {prefix-client} Parametrii insuficienti pentru aceasta comanda
+command error = {prefix-client} Eroare in timpul acestei comenzi
+error = {prefix-error} A aparut o eroare: $0
+not supported = {prefix-client} $0 a incercat la $3 catre tine dar CGI:IRC nu e compatibil  ($2)
+
+cgiirc welcome = {prefix-client} Bine ati venit la CGI:IRC $VERSION
+
+join = {prefix-user} $0 {host $1} a intrat {channel $T}
+nick = {prefix-user} $0 este acum $2
+quit = {prefix-user} $0 {host $1} a iesit {reason $2}
+part = {prefix-user} $0 a parasit {channel $T} {reason $2}
+user mode = {prefix-user} usermode/$0 $2
+mode = {prefix-user} mode/$T [$2] by $0
+topic = {prefix-user} $0 topicul schimbat: $2
+invite = {prefix-user} $0 te invita sa intri pe $2
+kick = {prefix-user} $2 a fost dat afara de pe $T de $0 {reason $3}
+
+prefix-error = %04***%n
+prefix-info = %03***%n
+prefix-user = %03***%n
+prefix-client = %02***%n
+prefix-server = %05***%n
+
+notice public = {notice-target $0 $T} {text $2}
+notice special = {notice-target $0 $2} {text $3}
+notice private = -{notice-nick $0}- {text $2}
+notice server = %05-$0%05-%n {text $2}
+notice public own = {notice-target $0 $T} {text $2}
+notice private own = [notice:$T] {text $2}
+
+notice-target = %05-$0:$1%05-%n
+notice-nick = %03$0%n
+notice-host = [$0]
+
+message public = {message-nick $0} {text $2}
+message public hilight = {message-nick-hilight $0} {text $2}
+message private window = {message-nick $0} {text $2}
+message private = [$0($1)] {text $2}
+message special = <$0:$2> {text $3}
+
+message-nick = %02<%n$0%02>%n
+message-nick-own = %03<%n$0%03>%n
+message-nick-hilight = %02<%07$0%02>%n
+
+message public own = {message-nick-own $0} {text $2}
+message private window own = {message-nick-own $0} {text $2}
+message private own = [msg->$T] {text $2}
+
+action-nick = %_*%_ $0
+action public = {action-nick $0} {text $2}
+action private = {action-nick $0} {text $2}
+
+action public own = {action-nick $0} {text $2}
+action private own = {action-nick $0} {text $2}
+
+ctcp own msg = {prefix-user} CTCP to $T: $1
+ctcp msg = {prefix-user} $1 requested CTCP %_$3%_ from $0: $4
+ctcp reply = {prefix-user} CTCP %_$2%_ reply from $0: $3
+
+text = $0
+channel = %_$0%_
+reason = [$0]
+
+server = %_$0%_
+hilight = %_$0%_
+host = [$0]
+
+default = {prefix-server} $0-
+raw = {prefix-server} $0-
+
+ignore list = {prefix-client} Lista de ignor: $0-
+ignored = {prefix-client} Ignorat: $0-
+unignored = {prefix-client} Ignor scos: $0-
+
+reply away = {prefix-user} $T este plecat: $0
+reply nowaway = {prefix-server} Ai fost marcat ca plecat
+reply unaway = {prefix-server} Nu mai figurezi ca fiind plecat
+
+reply channel time = {prefix-server} Canal creat pe $0
+reply notopic = {prefix-server} Nici un topic setat
+reply topic = {prefix-server} Topic-ul este: $0
+reply topicwhotime = {prefix-server} Topic setat de $0 [$1]
+
+reply whois user = {prefix-user} $T [$0@$1]: $2
+reply whowas user = {prefix-user} $T [$0@$1]: $2
+reply whois channel = {prefix-user} channels: $0
+reply whois regnick = {prefix-user} registered: $0
+reply whois operator = {prefix-user} ircop: $0
+reply whois idle = {prefix-user} idle: $0 signon: $1
+reply whois server = {prefix-user} server: $0 [$1]
+reply whois end = {prefix-user} $0
+
+error nosuchnick = {prefix-server} {hilight $T}: Nu exista canalul/nick-ul
+error nickinuse = {prefix-server} Nickname-ul $0 este ocupat, tasteaza /nick 'noul-tau_nick' pentru a folosi altul.
+
+irc close = {prefix-error} Deconectat de la IRC.
+
+
+bg = 00
+fg = 01
+00 = #ffffff
+01 = #000000
+02 = #000080
+03 = #008000
+04 = #ff0000
+05 = #800000
+06 = #800080
+07 = #ff6600
+08 = #ffff00
+09 = #00ff00
+10 = #008080
+11 = #00ffff
+12 = #0000ff
+13 = #ff00ff
+14 = #808080
+15 = #c0c0c0
+
+style = romanian

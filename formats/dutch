@@ -1,0 +1,133 @@
+looking up = {prefix-client} Bezig met opzoeken...
+connecting = {prefix-client} Verbinding aan het maken met de chatserver, even geduld...
+
+access denied = {prefix-error} Toegang Geweigerd: $0
+access server denied = {prefix-error} Verbinding tot deze server werd geweigerd !
+access channel denied = {prefix-error} Toegang tot dit kanaal werd geweigerd !
+command denied = {prefix-error} Toegang voor deze functie werd geweigerd  !
+session timeout = {prefix-error} Timeout - U bent te lang afwezig !
+
+kill ok = {prefix-error} Uw verbinding werd verbroken door $0 ($1)
+kill wrong = {prefix-error} $0 probeerde u te killen, maar had het paswoord verkeerd! ($1)
+
+command notparams = {prefix-client} Onvoldoende karakters voor deze functie
+command error = {prefix-client} Error tijdens funcite
+error = {prefix-error} Een fout deed zich voor: $0
+not supported = {prefix-client} $0 probeerde een $3 bij je, maar CGI:IRC ondersteund dit niet ($2)
+
+cgiirc welcome = {prefix-client} Welkom op de html webchat!
+
+join = {prefix-channel} $0 is kamer {channel $T} binnengekomen
+nick = {prefix-channel} $0 heeft zijn/haar naam veranderd naar $2
+quit = {prefix-user} $0 heeft de chat verlaten ($1)
+part = {prefix-channel} $0 heeft {channel $T} verlaten {reason $2}
+
+user mode = {prefix-user} usermode/$0 $2
+mode = {prefix-channel} $0 zet mode: $2
+topic = {prefix-channel} $0 past de topic aan naar '$2'
+invite = {prefix-channel} $0 {host $1} nodigt u uit naar {channel $2}
+kick = {prefix-channel} $2 werd gekicked door $0 {reason $3}
+
+prefix-error = %04***
+prefix-info = %03***
+prefix-channel = %03***
+prefix-user = %02***
+prefix-client = %12***
+prefix-server = %05***
+prefix-ctcp = %04
+prefix-normal = ***
+
+notice public = {notice-target $0 $T} {text $2}
+notice special = {notice-target $0 $2} {text $3}
+notice private = {prefix-user} -{notice-nick $0}- {text $2}
+notice server = 
+notice public own = {prefix-user} {notice-target $0 $T} {text $2}
+notice private own = {prefix-user} [notice:$T] {text $2}
+
+notice-target = %05-$0:$1-
+notice-nick = %03$0%n
+notice-host = [$0]
+
+message public = {message-nick $0} {text $2}
+message public hilight = {message-nick-hilight $0} {text $2}
+message private window = {message-nick $0} {text $2}
+message private = [$0($1)] {text $2}
+message special = <$0:$2> {text $3}
+
+message-nick = %02<%n$0%02>%n
+message-nick-own = %03<%n$0%03>%n
+message-nick-hilight = %02<%07$0%02>%n
+
+message public own = {message-nick-own $0} {text $2}
+message private window own = {message-nick-own $0} {text $2}
+message private own = [msg->$T] {text $2}
+
+action-nick = %06%_*%_ $0
+action public = {action-nick $0} {text $2}
+action private = {action-nick $0} {text $2}
+
+action public own = {action-nick $0} {text $2}
+action private own = {action-nick $0} {text $2}
+
+ctcp own msg = {prefix-ctcp} CTCP naar $T: $1
+ctcp msg = {prefix-ctcp} $1 aangevraagde CTCP %_$3%_ van $0: $4
+ctcp reply = {prefix-ctcp} CTCP %_$2%_ antwoord van $0: $3
+
+text = $0
+channel = %_$0%_
+reason = ($0)
+
+server = %_$0%_
+hilight = %_$0%_
+host = ($0)
+
+default = 
+raw =
+
+ignore list = {prefix-client} Blokeer: $0-
+ignored = {prefix-client} Geblokeerd: $0-
+unignored = {prefix-client} Deblokeerd: $0-
+
+reply away = {prefix-user} $T is afwezig: $0
+reply nowaway = {prefix-user} U staat nu als afwezig gemeld
+reply unaway = {prefix-user} U staat niet langer meer als afwezig gemeld
+
+reply channel time = 
+reply notopic = 
+reply topic = {prefix-channel} Chat Onderwerp: $0
+reply topicwhotime = {prefix-channel} Chat Onderwerp geplaatst door $0
+
+reply whois user = {prefix-user} $T [$0@$1]: $2
+reply whowas user = {prefix-user} $T [$0@$1]: $2
+reply whois channel = {prefix-user} Kanalen: $0
+reply whois regnick = {prefix-user} Geregistreerd: $0
+reply whois operator = {prefix-user} IRCop: $0
+reply whois idle = {prefix-user} Afwezig: $0 seconde(s) - Online sinds: $1
+reply whois server = {prefix-user} Server: $0
+
+error nosuchnick = {prefix-server} {hilight $T} Geen nick/kanaal gevonden
+error nickinuse = {prefix-server} Nickname $0 is al in gebruik, tik /nick nicknaam om een ander te gebruiken.
+
+irc close = {prefix-error} Verbinding met de chatserver werd verbroken !
+
+
+bg = 00
+fg = 01
+00 = #ffffff
+01 = #000000
+02 = #000080
+03 = #008000
+04 = #ff0000
+05 = #800000
+06 = #800080
+07 = #ff6600
+08 = #ffff00
+09 = #00ff00
+10 = #008080
+11 = #00ffff
+12 = #000099
+13 = #ff00ff
+14 = #808080
+15 = #c0c0c0
+
+style = dutch 
