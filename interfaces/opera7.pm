@@ -423,7 +423,7 @@ sub options {
          $out .= "<input class=\"options-checkbox\" type=\"checkbox\" name=\"$option\" value=\"1\"" . 
             ($value? ' checked=1' : '')."\" onclick=\"parent.fwindowlist.send_option(this.name, this.checked == true ? this.value : 0);return true;\">";
       }elsif($o->{type} eq 'select') {
-         $out .= "<select name\"$option\" onchange=\"parent.fwindowlist.send_option('$option', this.options[this.selectedIndex].value);return true\" class=\"options-select\">";
+         $out .= "<select name=\"$option\" onchange=\"parent.fwindowlist.send_option('$option', this.options[this.selectedIndex].value);return true\" class=\"options-select\">";
          for(@{$o->{options}}) {
             $out .= "<option class=\"options-option\" name=\"$option\" value=\"$_\"".($_ eq $value ? ' selected=1' : '') . ">$_</option>";
          }
