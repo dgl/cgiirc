@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2004 David Leadbeater <http://contact.dgl.cx/>
+# Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ use vars qw(
 no warnings 'uninitialized';
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.115 2006/04/30 14:22:54 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.116 2006/04/30 16:09:28 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1142,6 +1142,18 @@ sub init {
    $cgi->{nick} =~ s/\?/int rand 10/eg;
 
    $interface = load_interface();
+
+   if(config_set('login secret')) {
+      require Digest::MD5;
+      my $token = Digest::MD5::md5_hex($cgi->{time}
+         . $config->{'login secret'} . $cgi->{R});
+      if($token ne $cgi->{token}) {
+         error("Invalid login token!");
+      # 30 seconds should be enough (there's no user interaction)
+      } elsif((time - 30) > $cgi->{time}) {
+         error("Login token out of date, try logging in again!");
+      }
+   }
 
    my($resolved, $resolvedip) = access_check_host($ENV{REMOTE_ADDR});
 

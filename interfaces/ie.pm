@@ -6,10 +6,16 @@ use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2006 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
+
+if(defined $::config->{javascript_domain}) {
+  $standardheader .= "<script>
+  document.domain = '$::config->{javascript_domain}';
+  </script>\n";
+}
 
 use default;
 @ISA = qw/default/;
@@ -68,6 +74,9 @@ sub new {
    my($class,$event, $timer, $config, $icookies) = @_;
    my $self = bless {}, $class;
    tie %$self, 'IRC::UniqueHash';
+   if(defined $config->{javascript_domain}) {
+     _out("document.domain = " . _escapejs($config->{javascript_domain}) . ";");
+   }
    my $tmp='';
    for(keys %$icookies) {
       $tmp .= "$_: " . _escapejs($icookies->{$_}) . ', ';
@@ -349,6 +358,7 @@ sub help {
      _func_out('doinfowin', '-Help', "Help file not found!");
      return;
    };
+   eval { local $SIG{__DIE__}; binmode HELP, ':utf8'; };
    local $/;
    my $help = <HELP>;
    close HELP;
@@ -409,6 +419,14 @@ sub fwindowlist {
 	  $string .= main::cgi_encode($_) . '=' . main::cgi_encode($cgi->{$_}).'&';
    }
    $string =~ s/\&$//;
+
+   if($config->{balance_servers}) {
+     my @balance_servers = split /,\s*/, $config->{balance_servers};
+     my $s = $balance_servers[rand @balance_servers];
+     $config->{script_nph} = "$s/$config->{script_nph}";
+     $config->{script_form} = "$s/$config->{script_form}";
+   }
+
 print $standardheader;
 print q~
 <html>
@@ -740,7 +758,11 @@ function escapehtml(string) {
 function reconnect() {
 	  do_quit();
      Witems = { };
-     document.getElementById('iframe').src = document.getElementById('iframe').src + '&xx=yy';
+     if(document.getElementById('iframe').src.match(/\&token=/)) {
+       window.location.reload()
+     } else {
+       document.getElementById('iframe').src = document.getElementById('iframe').src + '&xx=yy';
+     }
 }
 
 function sendcmd(cmd) {

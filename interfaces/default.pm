@@ -4,7 +4,7 @@ use strict;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.sourceforge.net/
-  == Copyright (C) 2000-2005 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2006 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -143,11 +143,21 @@ bgcolor=\"#f1f1f1\">";
         shift @$item if $item->[0] eq '-DISABLED-';
         print ">";
       } else {
-        print " onchange=\"if(this.value == 'Other...'){var opt=document.createElement('option');opt.value=prompt('$_');opt.appendChild(document.createTextNode(opt.value));this.appendChild(opt);this.selectedIndex=this.length-1}\">";
+        print " onchange=\"
+          if(this.value == 'Other...') {
+            var opt=document.createElement('option');
+            if(opt.value=prompt('$_')) {
+              opt.appendChild(document.createTextNode(opt.value));
+              this.appendChild(opt);
+              this.selectedIndex=this.length-1
+            } else {
+              this.selectedIndex=0
+            }
+          }\">";
       }
       print "<option>$_</option>" for @$item;
-      print "<option>Other...</option>" unless $disabled;
-      print "</select>";
+      print "<script><!--\ndocument.write('<option>Other...</option>');\n//-->\n</script>" unless $disabled;
+      print "</select><noscript><small>Other: </small><input type='text' name='${_}_text'></noscript>\n";
    }elsif($item eq '-PASSWORD-') {
       print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{

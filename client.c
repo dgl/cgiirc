@@ -1,8 +1,8 @@
 /* CGI:IRC C Helper CGI
- * Copyright (c) David Leadbeater 2002
+ * Copyright (c) David Leadbeater 2002-2006
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.11 2006/04/30 11:54:00 dgl Exp $
+ * $Id: client.c,v 1.12 2006/04/30 16:09:28 dgl Exp $
  */
 
 #include <stdio.h>

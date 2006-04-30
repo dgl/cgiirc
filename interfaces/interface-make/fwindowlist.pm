@@ -5,6 +5,14 @@
 	  $string .= main::cgi_encode($_) . '=' . main::cgi_encode($cgi->{$_}).'&';
    }
    $string =~ s/\&$//;
+
+   if($config->{balance_servers}) {
+     my @balance_servers = split /,\s*/, $config->{balance_servers};
+     my $s = $balance_servers[rand @balance_servers];
+     $config->{script_nph} = "$s/$config->{script_nph}";
+     $config->{script_form} = "$s/$config->{script_form}";
+   }
+
 print $standardheader;
 print q~
 <html>
@@ -351,7 +359,11 @@ function escapehtml(string) {
 function reconnect() {
 	  do_quit();
      Witems = { };
-     document.getElementById('iframe').src = document.getElementById('iframe').src + '&xx=yy';
+     if(document.getElementById('iframe').src.match(/\&token=/)) {
+       window.location.reload()
+     } else {
+       document.getElementById('iframe').src = document.getElementById('iframe').src + '&xx=yy';
+     }
 }
 
 function sendcmd(cmd) {

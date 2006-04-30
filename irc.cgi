@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 # CGI:IRC - http://cgiirc.sourceforge.net/
-# Copyright (C) 2000-2004 David Leadbeater <http://contact.dgl.cx/>
+# Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -21,12 +21,12 @@
 # BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
 
 use strict;
-use vars qw($VERSION $config_path);
+use vars qw($VERSION $config $config_path);
 use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.38 2006/04/30 14:28:41 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.39 2006/04/30 16:09:28 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -39,7 +39,7 @@ for('', '/etc/cgiirc/', '/etc/') {
    last if -r ($config_path = $_) . 'cgiirc.config';
 }
 
-my $config = parse_config($config_path . 'cgiirc.config');
+$config = parse_config($config_path . 'cgiirc.config');
 
 if(!parse_cookie()) {
    print "Set-cookie: cgiircauth=". random(25) .";path=/\r\n";
@@ -90,6 +90,11 @@ if(ref $cgi && defined $cgi->{item}) {
       );
    my $out;
    for(keys %p) {
+     if(exists $cgi->{"${_}_text"}) {
+       if(!defined $cgi->{$_} or $cgi->{$_} eq '') {
+         $cgi->{$_} = $cgi->{"${_}_text"};
+       }
+     }      
 	  next unless exists $cgi->{$_};
 	  $out .= cgi_encode($p{$_}) . '=' . cgi_encode($cgi->{$_}) . '&';
    }
@@ -102,7 +107,14 @@ if(ref $cgi && defined $cgi->{item}) {
    $style = exists $format->{style} ? $format->{style} : 'default';
 
    $out .= "R=$r";
-   $out =~ s/\&$//;
+
+   if(defined $config->{'login secret'}) {
+      require Digest::MD5;
+      my $t = time;
+      my $token = Digest::MD5::md5_hex($t . $config->{'login secret'} . $r);
+      $out .= "&token=$token&time=$t";
+   }
+
    $interface->frameset($scriptname, $config, $r, $out, $interface, $style);
 
 }elsif(defined $config->{form_redirect}) {

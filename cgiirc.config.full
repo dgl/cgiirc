@@ -145,9 +145,13 @@ session_timeout = 18000
 # Send extra information (e.g. proxy headers) on ctcp USERINFO.
 #extra_userinfo = 1
 
-# If the irc server you are connecting to accepts hostnames encoded into passwords
-# (CGI:IRC host spoofing) and it has been setup for your host uncomment the following
-# line.
+# If the IRC server has been configured to allow CGI:IRC host spoofing (web irc
+# spoofing), then set this to the password to use.
+#webirc_password =
+
+# If the irc server you are connecting to accepts hostnames encoded into
+# passwords (old style CGI:IRC host spoofing) and it has been setup for your
+# host uncomment the following line.
 #realhost_as_password = 1
 
 # Check clients connecting against a DNSBL (deny access if their IP address is in
@@ -156,6 +160,22 @@ session_timeout = 18000
 
 # Redirect to a different URL (eg. custom login form) instead of the default.
 #form_redirect = http://cgiirc.sourceforge.net/docs/custom.php
+
+# List of URLs (seperated with ,) which this copy of CGI:IRC should
+# balance requests over. All the URLs should be within the domain set for
+# javascript_domain below and should point to the directory which the
+# CGI:IRC install is in without a trailing /.
+#balance_servers = http://a.cgiirc.org, http://foo.cgiirc.org/cgi-bin/cgiirc
+
+# Set JavaScript document.domain.
+#javascript_domain = cgiirc.org
+
+# Set the login secret (used to make it slightly harder to abuse CGI:IRC by
+# opening lots of connections to it). This should be a hard to guess sequence
+# of characters (you never need to type it in). If balance_servers is used this
+# should be set to the same value on all servers. This requires the Digest::MD5
+# module.
+#login secret = 
 
 # -----
 # Appearence settings
