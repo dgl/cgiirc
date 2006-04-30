@@ -88,7 +88,7 @@ sub find_socket {
         next unless /^\Q$prefix\E/;
         next unless -d $dir . $_ && -x $dir . $_;
 
-        next unless $cgiircprefixes{$cgiircprefix} eq (stat($dir . $_))[4];
+        next unless $cgiircprefixes{$cgiircprefix} == (stat($dir . $_))[4];
 
         local *TMP;
         open(TMP, "<$dir$_/server") or next;
