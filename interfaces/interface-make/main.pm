@@ -294,6 +294,10 @@ sub link {
 
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface, $style) = @_;
+   if($config->{balance_servers}) {
+      my @balance_servers = split /,\s*/, $config->{balance_servers};
+      $scriptname = $balance_servers[rand @balance_servers] . "/$scriptname";
+   }
 print <<EOF;
 $standardheader
 <html>

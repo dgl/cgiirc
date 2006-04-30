@@ -291,6 +291,10 @@ sub link {
 
 sub frameset {
    my($self, $scriptname, $config, $random, $out, $interface, $style) = @_;
+   if($config->{balance_servers}) {
+      my @balance_servers = split /,\s*/, $config->{balance_servers};
+      $scriptname = $balance_servers[rand @balance_servers] . "/$scriptname";
+   }
 print <<EOF;
 $standardheader
 <html>
@@ -424,13 +428,6 @@ sub fwindowlist {
 	  $string .= main::cgi_encode($_) . '=' . main::cgi_encode($cgi->{$_}).'&';
    }
    $string =~ s/\&$//;
-
-   if($config->{balance_servers}) {
-     my @balance_servers = split /,\s*/, $config->{balance_servers};
-     my $s = $balance_servers[rand @balance_servers];
-     $config->{script_nph} = "$s/$config->{script_nph}";
-     $config->{script_form} = "$s/$config->{script_form}";
-   }
 
 print $standardheader;
 print q~

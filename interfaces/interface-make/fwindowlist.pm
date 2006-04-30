@@ -6,13 +6,6 @@
    }
    $string =~ s/\&$//;
 
-   if($config->{balance_servers}) {
-     my @balance_servers = split /,\s*/, $config->{balance_servers};
-     my $s = $balance_servers[rand @balance_servers];
-     $config->{script_nph} = "$s/$config->{script_nph}";
-     $config->{script_form} = "$s/$config->{script_form}";
-   }
-
 print $standardheader;
 print q~
 <html>
