@@ -140,7 +140,7 @@ bgcolor=\"#f1f1f1\">";
       my $disabled = 0;
       if($_ eq 'Format' || $item->[0] eq '-DISABLED-') {
         $disabled = 1;
-        shift @$item;
+        shift @$item if $item->[0] eq '-DISABLED-';
         print ">";
       } else {
         print " onchange=\"if(this.value == 'Other...'){var opt=document.createElement('option');opt.value=prompt('$_');opt.appendChild(document.createTextNode(opt.value));this.appendChild(opt);this.selectedIndex=this.length-1}\">";

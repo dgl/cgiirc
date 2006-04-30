@@ -23,9 +23,10 @@
 use strict;
 use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
+no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.37 2006/04/30 14:15:12 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.38 2006/04/30 14:28:41 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
