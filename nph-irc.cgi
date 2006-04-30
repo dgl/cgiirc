@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#!/usr/bin/perl
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
@@ -20,7 +20,7 @@
 # Uncomment this if the server doesn't chdir (Boa).
 # BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
 
-require 5.006;
+require 5.004;
 use strict;
 use lib qw{./modules ./interfaces};
 use vars qw(
@@ -30,10 +30,9 @@ use vars qw(
       $regexpicon %regexpicon
       $config_path $help_path
    );
-no warnings 'uninitialized';
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.116 2006/04/30 16:09:28 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.117 2006/04/30 18:03:50 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -46,7 +45,6 @@ BEGIN {
    eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
    unless(defined $::IPV6) {
       $::IPV6 = 0;
-      no warnings 'redefine';
       eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
    # then check for Encode
@@ -1056,7 +1054,6 @@ sub irc_ctcp {
 
 #### prints a very simple header
 sub header {
-   my $charset = shift;
    print "HTTP/1.0 200 OK\r\n" if $0 =~ /nph-/;
    print join("\r\n",
      'Content-type: text/html; charset=utf-8',
@@ -1106,7 +1103,6 @@ sub init {
 
    $config = parse_config($config_path . 'cgiirc.config');
    $config->{socket_prefix} ||= '/tmp/cgiirc-';
-   $config->{'irc charset'} ||= 'utf8';
    ($config->{socket_prefix}) = $config->{socket_prefix} =~ /(.*)/;
    $config->{encoded_ip} = 2 unless exists $config->{encoded_ip};
    $config->{access_command} = '!quote' unless exists $config->{access_command};
@@ -1128,10 +1124,6 @@ sub init {
    $cgi->{nick} ||= $config->{default_nick};
    $cgi->{name} ||= $config->{default_name};
 
-   if($cgi->{charset} && $::ENCODE && Encode::find_encoding($cgi->{charset})) {
-      $config->{'irc charset'} = $cgi->{charset};
-   }
-
    if($::ENCODE) {
       eval {
          local $SIG{__DIE__};
@@ -1152,6 +1144,21 @@ sub init {
       # 30 seconds should be enough (there's no user interaction)
       } elsif((time - 30) > $cgi->{time}) {
          error("Login token out of date, try logging in again!");
+      }
+   }
+
+   $cgi->{charset} ||= $config->{'irc charset'} || 'utf8';
+   if($cgi->{charset} && $::ENCODE && Encode::find_encoding($cgi->{charset})) {
+      $config->{'irc charset'} = $cgi->{charset};
+   } elsif($cgi->{charset} && $::ENCODE) {
+      if($cgi->{charset} =~ /\(([^ )]+)/ || $cgi->{charset} =~ /([^ ]+)/) {
+         my $charset = $1;
+         if(Encode::find_encoding($charset)) {
+            $config->{'irc charset'} = $charset;
+         } else {
+            message('default', "Unknown encoding: $charset");
+            $config->{'irc charset'} = 'utf8';
+         }
       }
    }
 

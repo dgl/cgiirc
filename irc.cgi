@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#!/usr/bin/perl
 # CGI:IRC - http://cgiirc.sourceforge.net/
 # Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
@@ -26,7 +26,7 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.39 2006/04/30 16:09:28 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.40 2006/04/30 18:03:50 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -86,7 +86,7 @@ if(ref $cgi && defined $cgi->{item}) {
          interface => 'interface',
          Password => 'pass',
          Format => 'format',
-         'Character set' => 'charset',
+         'Character_set' => 'charset',
       );
    my $out;
    for(keys %p) {
@@ -135,17 +135,21 @@ if(ref $cgi && defined $cgi->{item}) {
    my $channel = dolist($config->{default_channel});
    my $port = dolist($config->{default_port});
    
-   my $charset = [ $config->{'irc charset'} ];
-   if(defined $ENV{HTTP_ACCEPT_CHARSET}) {
-      for(split ',', $ENV{HTTP_ACCEPT_CHARSET}) {
-         next if /;q=0($|\.0$)/ or /\*/;
-         s/;.*//;
-         push @$charset, $_; 
-      }
+   my $charset = [ $config->{'irc charset'} || 'Unicode (UTF-8)' ];
+
+   # Add some useful suggestions for character sets:
+   for my $set('Western (ISO-8859-1)', 'Cyrillic (ISO-8859-5)',
+     'Cyrillic (KOI8-R)', 'Japanese (ShiftJIS)', 'Chinese (Big5)',
+     'Chinese (GB2312)', 'Korean (EUC-KR)') {
+      push @$charset, $set unless grep { $set =~ /$_/i } @$charset
    }
-   if(@$charset == 1) {
-      $charset = $charset->[0];
-      $charset = '' unless defined $charset;
+
+   if(defined $ENV{HTTP_ACCEPT_CHARSET}) {
+      for my $set(split ',', $ENV{HTTP_ACCEPT_CHARSET}) {
+         next if $set =~ /;q=0($|\.0$)/ or $set =~ /\*/;
+         $set =~ s/;.*//;
+         push @$charset, $set unless grep { /$set/i } @$charset; 
+      }
    }
 
    if(ref $cgi && $cgi->{chan}) {

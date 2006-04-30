@@ -361,7 +361,7 @@ sub help {
    my %helpmap = ( "russian" => ".ru" );
    my $extra = $helpmap{$::formatname} || "";
 
-   open(HELP, "<$::help_path\help${extra}.html") or do {
+   open(HELP, "<$::{help_path}help${extra}.html") or do {
      _func_out('doinfowin', '-Help', "Help file not found!");
      return;
    };

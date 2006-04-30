@@ -107,8 +107,24 @@ EOF
 }
 print <<EOF;
 function setcharset() {
-	if(document.charset && document.loginform["Character set"])
-		document.loginform['Character set'].value = document.charset
+	if(document.charset && document.loginform["Character set"]) {
+                var opt = document.createElement("option")
+                opt.value = document.charset
+		document.loginform['Character set'].appendChild(opt)
+
+        }
+}
+function selectOther(sel) {
+  if(sel.value == '_Other...') {
+    var opt=document.createElement('option')
+    if(opt.value=prompt(sel.name.replace(/_/, ' '), '')) {
+      opt.appendChild(document.createTextNode(opt.value))
+      sel.insertBefore(opt, sel.lastChild)
+      sel.selectedIndex=sel.length-2
+    } else {
+      sel.selectedIndex=0
+    }
+  }
 }
 //-->
 </script>
@@ -135,6 +151,7 @@ for(@$order) {
    print "<tr><td align=\"right\" bgcolor=\"#f1f1f1\">$_</td><td align=\"left\"
 bgcolor=\"#f1f1f1\">";
    if(ref $item eq 'ARRAY') {
+      s/ /_/g;
       print "<select name=\"$_\" style=\"width: 100%\"";
 
       my $disabled = 0;
@@ -143,21 +160,11 @@ bgcolor=\"#f1f1f1\">";
         shift @$item if $item->[0] eq '-DISABLED-';
         print ">";
       } else {
-        print " onchange=\"
-          if(this.value == 'Other...') {
-            var opt=document.createElement('option');
-            if(opt.value=prompt('$_')) {
-              opt.appendChild(document.createTextNode(opt.value));
-              this.appendChild(opt);
-              this.selectedIndex=this.length-1
-            } else {
-              this.selectedIndex=0
-            }
-          }\">";
+        print " onchange=\"selectOther(this)\">";
       }
-      print "<option>$_</option>" for @$item;
-      print "<script><!--\ndocument.write('<option>Other...</option>');\n//-->\n</script>" unless $disabled;
-      print "</select><noscript><small>Other: </small><input type='text' name='${_}_text'></noscript>\n";
+      print "<option value='$_'>$_</option>" for @$item;
+      print "<script><!--\ndocument.write('<option value=\"_Other...\">Other...</option>');\n//-->\n</script>" unless $disabled;
+      print "</select>\n<noscript><small>Other: </small><input type='text' name='${_}_text'></noscript>\n";
    }elsif($item eq '-PASSWORD-') {
       print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{
