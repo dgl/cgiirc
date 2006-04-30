@@ -138,7 +138,7 @@ bgcolor=\"#f1f1f1\">";
       print "<select name=\"$_\" style=\"width: 100%\"";
 
       my $disabled = 0;
-      if($item->[0] eq '-DISABLED-') {
+      if($_ eq 'Format' || $item->[0] eq '-DISABLED-') {
         $disabled = 1;
         shift @$item;
         print ">";
@@ -148,8 +148,6 @@ bgcolor=\"#f1f1f1\">";
       print "<option>$_</option>" for @$item;
       print "<option>Other...</option>" unless $disabled;
       print "</select>";
-      if(defined $config->{allow_non_default} and
-        $config->{allow_non_default} and not /^Format$/) {
    }elsif($item eq '-PASSWORD-') {
       print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{
