@@ -135,9 +135,21 @@ for(@$order) {
    print "<tr><td align=\"right\" bgcolor=\"#f1f1f1\">$_</td><td align=\"left\"
 bgcolor=\"#f1f1f1\">";
    if(ref $item eq 'ARRAY') {
-      print "<select name=\"$_\" style=\"width: 100%\">";
+      print "<select name=\"$_\" style=\"width: 100%\"";
+
+      my $disabled = 0;
+      if($item->[0] eq '-DISABLED-') {
+        $disabled = 1;
+        shift @$item;
+        print ">";
+      } else {
+        print " onchange=\"if(this.value == 'Other...'){var opt=document.createElement('option');opt.value=prompt('$_');opt.appendChild(document.createTextNode(opt.value));this.appendChild(opt);this.selectedIndex=this.length-1}\">";
+      }
       print "<option>$_</option>" for @$item;
+      print "<option>Other...</option>" unless $disabled;
       print "</select>";
+      if(defined $config->{allow_non_default} and
+        $config->{allow_non_default} and not /^Format$/) {
    }elsif($item eq '-PASSWORD-') {
       print "<input type=\"password\" name=\"$_\" value=\"\">";
    }else{

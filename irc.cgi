@@ -25,7 +25,7 @@ use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.36 2006/04/30 13:48:35 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.37 2006/04/30 14:15:12 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -140,11 +140,13 @@ if(ref $cgi && defined $cgi->{item}) {
    }
 
    if(!defined $config->{allow_non_default} || !$config->{allow_non_default}) {
-       $server = "-DISABLED- $server" unless ref $server;
-       $channel = "-DISABLED- $channel" unless ref $channel;
-       $port = "-DISABLED- $port" unless ref $port;
-   }elsif(!defined $config->{access_server} || !$config->{access_server}) {
-       $server = "-DISABLED- $server" unless ref $server;
+       add_disabled($server);
+       add_disabled($channel);
+       add_disabled($port);
+   }else{
+       add_disabled($server) unless defined $config->{access_server};
+       add_disabled($port) unless defined $config->{access_port};
+       add_disabled($channel) unless defined $config->{access_channel};
    }
 
    opendir(FORMATS, $config_path . "formats");
@@ -207,6 +209,14 @@ sub dolist {
    my @tmp = split(/,\s*/, $var);
    return [@tmp] if $#tmp > 0;
    return $var;
+}
+
+sub add_disabled {
+   if(ref $_[0]) {
+      unshift @{$_[0]}, "-DISABLED-";
+   } else {
+      $_[0] = "-DISABLED- $_[0]";
+   }
 }
 
 sub cgi_read { 
