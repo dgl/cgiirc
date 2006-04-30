@@ -1,5 +1,16 @@
 Summary of changes
 
+0.5.8
+- Translations into German, Dutch, Romanian and Norwegian (thanks
+  OUTsider/scarynet)
+- Russian translation of help
+- Some more UTF-8 fixes (including joining channels with non-ASCII chars,
+  thanks to Jonas Liljegren)
+- Server balancing support
+- Identd supports multiple installs
+- Fix buffer overflow in client.cgi
+- Other misc fixes (see http://cvs.cgiirc.org/timeline?d=300&e=2006-Apr-30&c=2)
+
 0.5.7
 - Fixed to work on Perl <5.8
 - Perform config option
