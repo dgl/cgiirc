@@ -25,7 +25,7 @@ use vars qw($VERSION $config_path);
 use lib qw/modules interfaces/;
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.35 2005/06/19 18:13:08 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.36 2006/04/30 13:48:35 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -113,6 +113,9 @@ if(ref $cgi && defined $cgi->{item}) {
 }else{
    print "\r\n"; # send final header
 
+   my $have_entities = 0;
+   eval { require HTML::Entities; $have_entities = 1; };
+
    my(%items,@order);
 
    my $server = dolist($config->{default_server});
@@ -167,7 +170,12 @@ if(ref $cgi && defined $cgi->{item}) {
       'Character set' => $charset
    );
 
-   @items{keys %items} = map(ref $_ ? $_ : escape_html($_), values %items);
+   my $func = \&escape_html;
+   $func = \&HTML::Entities::encode_entities if $have_entities;
+   @items{keys %items} = map { ref $_
+         ? [map { $func->($_) } @$_]
+         : $func->($_) }
+      values %items;
 
    $items{Nickname} =~ s/\?/int rand 10/eg;
 

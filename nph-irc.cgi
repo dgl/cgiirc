@@ -33,7 +33,7 @@ use vars qw(
 no warnings 'uninitialized';
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.113 2006/04/30 12:51:55 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.114 2006/04/30 13:48:35 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -921,10 +921,6 @@ sub irc_connected {
       or error("Writing to server file; $!");
    print SERVER "$server\n$nick\n";
    close(SERVER);
-
-   if($::ENCODE) {
-     $cgi->{chan} = Encode::encode_utf8($cgi->{chan});
-   }
 
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;

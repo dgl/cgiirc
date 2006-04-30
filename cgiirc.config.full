@@ -49,6 +49,8 @@ image_path = images
 # See perldoc Encode::Supported for a list of supported encodings.
 # If you see the wrong characters in CGI:IRC or with a normal IRC client
 # you probably need to change this or set it on the login form.
+# Note that this config file should be encoded in UTF8, regardless of this
+# setting.
 # Extended ASCII:
 #irc charset = iso-8859-1
 
