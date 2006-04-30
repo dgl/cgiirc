@@ -108,7 +108,7 @@ reply whois server = {prefix-user} Server: $0
 error nosuchnick = {prefix-server} {hilight $T} Kein Nick/Kanaal gefunden
 error nickinuse = {prefix-server} Nickname $0 wirdt bereits benutzt, gebrauche /nick neuername um einen anderen zu probieren.
 
-irc close = {prefix-error} Verbindung mit dem chatserver wurde unterbrochen !
+irc close = {prefix-error} Verbindung mit dem chatserver wurde unterbrochen ! (reconnect)
 
 bg = 00
 fg = 01

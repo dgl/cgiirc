@@ -411,6 +411,11 @@ sub say {
    return 'ok';
 }
 
+sub reconnect {
+  my($self, $url, $text) = @_;
+  return "<a href=\"$url\" target=\"_top\" onclick='if(parent.fwindowlist.reconnect){parent.fwindowlist.reconnect();return false;}'>$text</a>";
+}
+
 sub fwindowlist {
    my($self, $cgi, $config) = @_;
    my $string;

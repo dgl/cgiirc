@@ -106,7 +106,7 @@ reply whois end = {prefix-user} $0
 error nosuchnick = {prefix-server} {hilight $T}: Nu exista canalul/nick-ul
 error nickinuse = {prefix-server} Nickname-ul $0 este ocupat, tasteaza /nick 'noul-tau_nick' pentru a folosi altul.
 
-irc close = {prefix-error} Deconectat de la IRC.
+irc close = {prefix-error} Deconectat de la IRC. (reconnect)
 
 
 bg = 00

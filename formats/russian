@@ -105,7 +105,7 @@ reply whois end = {prefix-user} $0
 error nosuchnick = {prefix-server} %_$0%_ Нет такого ника/канала
 error nickinuse = {prefix-server} Ник $0 уже используется, наберите /nick новый_ник для смены ника.
 
-irc close = {prefix-error} Потеря связи с IRC
+irc close = {prefix-error} Потеря связи с IRC (reconnect)
 
 bg = 00
 fg = 01

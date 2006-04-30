@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.117 2006/04/30 18:03:50 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.118 2006/04/30 19:08:55 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -902,7 +902,12 @@ sub irc_close {
    
    exit unless ref $ircfh;
    net_send($ircfh, "QUIT :$message\r\n");
-   format_out('irc close', { target => '-all', activity => 1 });
+
+   my $info = { target => '-all', activity => 1 };
+   my $close = format_colourhtml(format_parse($format->{'irc close'}, $info));
+   my $url = defined $config->{form_redirect} ? $config->{form_redirect} : $config->{script_login};
+   $close =~ s/\((.*?)\)/"(" . $interface->reconnect($url, $1) . ")"/e;
+   interface_lineout($info, $close);
 
    flushoutput();
 

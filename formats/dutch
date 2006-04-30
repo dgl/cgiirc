@@ -109,7 +109,7 @@ reply whois server = {prefix-user} Server: $0
 error nosuchnick = {prefix-server} {hilight $T} Geen nick/kanaal gevonden
 error nickinuse = {prefix-server} Nickname $0 is al in gebruik, tik /nick nicknaam om een ander te gebruiken.
 
-irc close = {prefix-error} Verbinding met de chatserver werd verbroken !
+irc close = {prefix-error} Verbinding met de chatserver werd verbroken ! (reconnect)
 
 
 bg = 00

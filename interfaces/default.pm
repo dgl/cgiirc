@@ -194,4 +194,9 @@ print <<EOF;
 EOF
 }
 
+sub reconnect {
+  my($self, $url, $text) = @_;
+  return "<a href=\"$url\" target=\"_top\">$text</a>";
+}
+
 1;
