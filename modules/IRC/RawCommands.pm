@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.29 2006/04/30 13:09:43 dgl Exp $
+# $Id: RawCommands.pm,v 1.30 2006/04/30 13:10:37 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -326,7 +326,7 @@ my %raw = (
    },
    317 => sub { # RPL_WHOISIDLE
       my($event,$self,$params) = @_;
-      my $time = ::format_parse($format->{time}, {}, [gmtime $params->{params}->[3]]);
+      my $time = ::format_parse($::format->{time}, {}, [gmtime $params->{params}->[3]]);
 	  $self->{event}->handle('reply whois idle', _info($params->{params}->[2], 1), $time, scalar gmtime($params->{params}->[4]), $params->{text});
    },
    319 => sub { # RPL_WHOISCHANNELS
