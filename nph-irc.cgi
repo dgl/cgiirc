@@ -33,7 +33,7 @@ use vars qw(
 no warnings 'uninitialized';
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.114 2006/04/30 13:48:35 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.115 2006/04/30 14:22:54 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -66,7 +66,7 @@ for('', '/etc/cgiirc/', '/etc/') {
    last if -r ($config_path = $_) . 'cgiirc.config';
 }
 
-for('', '/usr/share/doc/cgiirc/') {
+for('docs/', '/usr/share/doc/cgiirc/') {
    last if -r ($help_path = $_) . 'help.html';
 }
 
