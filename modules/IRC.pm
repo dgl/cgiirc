@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.12 2003/10/27 17:18:52 dgl Exp $
+# $Id: IRC.pm,v 1.13 2006/04/30 12:51:55 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -101,7 +101,13 @@ sub is_channel {
       return 1 if $channel =~ /^[$self->{capab}->{chantypes}]/;
       return 0;
    }
-   return is_vaild_channel($channel);
+   return is_valid_channel($channel);
+}
+
+sub is_nickname {
+  my($self,$nick) = @_;
+  return 0 if $self->is_channel($nick);
+  return is_valid_nickname($nick);
 }
 
 sub sync_channel {

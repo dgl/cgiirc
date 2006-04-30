@@ -349,9 +349,16 @@ sub sendping {
 
 sub help {
    my($self,$config) = @_;
-   my $help = <<EOF;
-.$include ../../docs/help.html
-EOF
+   my %helpmap ( "russian" => "ru." );
+   my $extra = $helpmap{$::formatname} || "";
+
+   open(HELP, "<${::help_path}help${extra}.html") or do {
+     _func_out('doinfowin', '-Help', "Help file not found!");
+     return;
+   };
+   local $/;
+   my $help = <HELP>;
+   close HELP;
    $help =~ s/[\n\r]/ /g;
    _func_out('doinfowin', '-Help', $help);
 }

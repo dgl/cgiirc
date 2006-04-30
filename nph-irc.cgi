@@ -20,19 +20,20 @@
 # Uncomment this if the server doesn't chdir (Boa).
 # BEGIN { (my $dir = $0) =~ s|[^/]+$||; chdir($dir) }
 
-require 5.004;
+require 5.006;
 use strict;
 use lib qw{./modules ./interfaces};
 use vars qw(
       $VERSION @handles %inbuffer $select_bits @output
       $unixfh $ircfh $cookie $ctcptime $intime $pingtime
-      $timer $event $config $cgi $irc $format $interface $ioptions
+      $timer $event $config $cgi $irc $format $formatname $interface $ioptions
       $regexpicon %regexpicon
-      $config_path
+      $config_path $help_path
    );
+no warnings 'uninitialized';
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.112 2005/06/19 18:38:53 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.113 2006/04/30 12:51:55 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -45,6 +46,7 @@ BEGIN {
    eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
    unless(defined $::IPV6) {
       $::IPV6 = 0;
+      no warnings 'redefine';
       eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
    }
    # then check for Encode
@@ -62,6 +64,10 @@ require 'parse.pl';
 
 for('', '/etc/cgiirc/', '/etc/') {
    last if -r ($config_path = $_) . 'cgiirc.config';
+}
+
+for('', '/usr/share/doc/cgiirc/') {
+   last if -r ($help_path = $_) . 'help.html';
 }
 
 my $needtodie = 0;
@@ -266,7 +272,7 @@ sub select_close {
 
 ## Loads the format given to it, or the default
 sub load_format {
-   my $formatname = $config->{format};
+   $formatname = $config->{format};
    if($cgi->{format} && $cgi->{format} !~ /[^A-Za-z0-9]/) {
       $formatname = $cgi->{format};
    }
@@ -330,7 +336,7 @@ sub format_colourhtml {
       $line=~ s/\003(\d{1,2})(\,(\d{1,2})|)([^\003\017]*|.*?$)/
          my $me = "<font ";
          my $fg = sprintf("%0.2d",$1);
-         my $bg = length $3 ? sprintf("%0.2d",$3) : '';
+         my $bg = (defined $3 && length $3) ? sprintf("%0.2d",$3) : '';
 
          if(length $bg) {
             $me .= "style=\"background: ".$format->{$bg}."\" "
@@ -371,7 +377,7 @@ sub format_init_smilies {
       ':-\.'          => 'sorry',
       '8-@'           => 'what',
    );
-   $regexpicon = '(' . join('|', keys %regexpicon) . ')';
+   $regexpicon = '(' . join('|', sort { length $b <=> length $a } keys %regexpicon) . ')';
 }
 
 sub format_linkshorten {
@@ -633,7 +639,7 @@ sub config_set {
 }
 
 sub access_ipcheck {
-   return unless config_set('ip_access_file');
+   return unless config_set('ip_access_file') || config_set("max_users");
 
    my($ip, $hostname) = @_;
    my($ipn) = inet_aton($ip);
@@ -645,7 +651,10 @@ sub access_ipcheck {
    $total += $ips{$_} for keys %ips;
    if(config_set("max_users") && $total > $config->{max_users}) {
       message('access denied', 'Too many connections (global)');
+      irc_close();
    }
+
+   return unless config_set('ip_access_file');
 
    for my $ipaccess_file (split(',', $config->{ip_access_file})) {
       # If any of the files don't exist, we just skip them.
@@ -913,6 +922,10 @@ sub irc_connected {
    print SERVER "$server\n$nick\n";
    close(SERVER);
 
+   if($::ENCODE) {
+     $cgi->{chan} = Encode::encode_utf8($cgi->{chan});
+   }
+
    my $key;
    $key = $1 if $cgi->{chan} =~ s/ (.+)$//;
    unless(access_configcheck('channel', $cgi->{chan})) {
@@ -1001,7 +1014,7 @@ sub irc_ctcp {
          format_out('ctcp msg', $info, [$to, $nick, $host, $command, $params]);
       }
       
-      if($ctcptime > time-4) {
+      if(defined $ctcptime && $ctcptime > time-4) {
          $ctcptime = time;
          return;
       }
@@ -1131,8 +1144,6 @@ sub init {
    }
       
    $cgi->{nick} =~ s/\?/int rand 10/eg;
-   # Only valid nickname characters
-   $cgi->{nick} =~ s/[^A-Za-z0-9\[\]\{\}^\\\|\_\-\`]//g;
 
    $interface = load_interface();
 

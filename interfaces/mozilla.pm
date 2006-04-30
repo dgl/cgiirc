@@ -913,7 +913,7 @@ function xmlhttp_send(xmlhttp, data) {
    data.R = "$cgi->{R}";
    data.xmlhttp = 1; // should be header (needs client.cgi proto changes...)
    for(var i in data)
-      send += i + "=" + escape(data[i]) + "&"
+     send += i + "=" + escape(data[i]).replace('+', '%2b') + "&"
    xmlhttp.send(send)
    return false
 }

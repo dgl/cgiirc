@@ -55,7 +55,7 @@ sub parse_query {
 		  $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))}
 		    {
 				 if(defined($1)) {
-					 if($ext & 2 and hex($1) > 0x7F) {
+					 if(defined($ext) && $ext & 2 and hex($1) > 0x7F) {
 						 make_utf8("00$1");
 					 }else{
 						 pack("C", hex($1));

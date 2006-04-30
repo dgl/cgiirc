@@ -1,26 +1,26 @@
-# $Id: Util.pm,v 1.4 2003/10/27 17:18:52 dgl Exp $
+# $Id: Util.pm,v 1.5 2006/04/30 12:51:55 dgl Exp $
 package IRC::Util;
 use Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(is_vaild_channel is_vaild_nickname is_vaild_server make_lowercase check_mode match_mask fullhost2nick fullhost2host add_mode del_mode);
+@EXPORT = qw(is_valid_channel is_valid_nickname is_valid_server make_lowercase check_mode match_mask fullhost2nick fullhost2host add_mode del_mode);
 
 use strict;
 
-sub is_vaild_channel {
+sub is_valid_channel {
    return 0 if length $_[0] > 64;
    return 0 if $_[0] =~ /[ ,]/;
    return 1 if $_[0] =~ /^[#&]/;
    return 0;
 }
 
-sub is_vaild_nickname {
+sub is_valid_nickname {
    return 0 if length $_[0] > 32 or length $_[0] < 1;
-   return 0 if $_[0] =~ /[^A-Za-z0-9-_\[\]\\\`\^\{\}\|]/;
-   return 0 if $_[0] =~ /^[^A-Za-z_\\\[\]\`\^\{\}\|]/;
+   return 0 if $_[0] =~ / /;
+   return 0 if $_[0] =~ /^[0-9#&]/;
    return 1;
 }
 
-sub is_vaild_server {
+sub is_valid_server {
    return 0 if $_[0] !~ /\./;
    return 0 if $_[0] =~ /[!@]/;
    return 0 if $_[0] =~ /[^-A-Za-z0-9\*\._]/;

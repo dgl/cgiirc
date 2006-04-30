@@ -65,7 +65,9 @@ sub ping { 0 }
 sub login {
    my($self, $this, $interface, $copy, $config, $order, $items, $adv) = @_;
    my $notsupported = 0;
-   if ($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[|OmniWeb|Safari|Mozilla\/4.\d+ .*Mac_PowerPC/i) {
+   # Seems to work on Safari 2 (WebKit >=4xx):
+   # http://developer.apple.com/internet/safari/uamatrix.html
+   if ($ENV{HTTP_USER_AGENT} =~ /konqueror.2|Mozilla\/4.\d+ \[|OmniWeb|Safari\/(\d{2}|[1-3]\d{2})(\D|$)|Mozilla\/4.\d+ .*Mac_PowerPC/i) {
       $notsupported++;
    }
 
@@ -95,21 +97,10 @@ function setjs() {
    document.loginform["interface"].value = 'opera';
  }
 }
-function nickvalid() {
-   var nick = document.loginform.Nickname.value;
-   if(nick.match(/^[A-Za-z0-9\\[\\]\\{\\}^\\\\\\|\\_\\-\`]{1,32}\$/))
-      return true;
-   alert('Please enter a valid nickname');
-   document.loginform.Nickname.value = nick.replace(/[^A-Za-z0-9\\[\\]\\{\\}^\\\\\\|\\_\\-\`]/g, '');
-   return false;
-}
 EOF
 }else{ # dummy functions
 print <<EOF;
 function setjs() {
-   return true;
-}
-function nickvalid() {
    return true;
 }
 EOF
@@ -129,7 +120,7 @@ if($notsupported) {
 	print "<font size=\"+1\" color=\"red\">This web-based IRC interface probably won't work well or at all with your browser.</font>\n<br /><b>You could try a <a href=\"http://irchelp.org\">non web-based IRC client</a> or a browser such as <a href=\"http://www.getfirefox.com/\">Mozilla Firefox</a>.</b><br /><br />\n";
 }
 print <<EOF;
-<form method="post" action="$this" name="loginform" onsubmit="setjs();return nickvalid()">
+<form method="post" action="$this" name="loginform" onsubmit="setjs()">
 EOF
 print "<input type=\"hidden\" name=\"interface\" value=\"" . 
    ($interface eq 'default' ? 'nonjs' : $interface) . "\">\n";

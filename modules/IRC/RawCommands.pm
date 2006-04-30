@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.26 2005/06/19 18:29:04 dgl Exp $
+# $Id: RawCommands.pm,v 1.27 2006/04/30 12:51:55 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -79,7 +79,7 @@ my %raw = (
       my $action = substr($mode,0,1) || '+';
 	  my $num = 3;
       
-	  if(is_vaild_nickname($to)) {
+	  if($self->is_nickname($to)) {
 	     return unless $to eq $self->{nick};
 		 for(split //, $mode) {
 		    if(/([+-])/) {
@@ -173,7 +173,7 @@ my %raw = (
 		  $target =~ s/^[+@%]//g;
 		  $self->{event}->handle('message special', _info($target, 2),
 		     $params->{nick}, $params->{host}, $to, $params->{text});
-	  }elsif(is_vaild_server($params->{nick})) {
+	  }elsif(is_valid_server($params->{nick})) {
 	     $self->{event}->handle('message server', _info($to, 2),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }else{
@@ -196,7 +196,7 @@ my %raw = (
 		  $target =~ s/^[+@%]+//;
 		  $self->{event}->handle('notice special', _info($target, 1),
 		     $params->{nick}, $params->{host}, $to, $params->{text});
-	  }elsif(is_vaild_server($params->{nick})) {
+	  }elsif(is_valid_server($params->{nick})) {
 	     $self->{event}->handle('notice server', _info('Status', 1),
 			 $params->{nick}, $params->{host}, $params->{text});
 	  }else{
