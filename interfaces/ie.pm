@@ -342,7 +342,7 @@ sub sendping {
 
 sub help {
    my($self,$config) = @_;
-   my %helpmap = ( "russian" => "ru." );
+   my %helpmap = ( "russian" => ".ru" );
    my $extra = $helpmap{$::formatname} || "";
 
    open(HELP, "<$::help_path\help${extra}.html") or do {
