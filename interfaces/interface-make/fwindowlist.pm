@@ -400,6 +400,15 @@ function send_make(data) {
 .$else
    var xmlhttp = 0
 .$end
+
+   if(xmlhttp) {
+     try {
+       xmlhttp_send(xmlhttp, data)
+     } catch(e) {
+       xmlhttp = 0
+     }
+   }
+
    if(!xmlhttp) {
       for(var i in data) {
          document.hsubmit[i].value = data[i]
@@ -408,8 +417,6 @@ function send_make(data) {
       for(var i in data) {
          document.hsubmit[i].value = ""
       }
-   }else{
-      xmlhttp_send(xmlhttp, data)
    }
 }
 
