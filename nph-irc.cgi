@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.118 2006/04/30 19:08:55 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.119 2006/06/06 18:41:34 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1220,7 +1220,9 @@ sub init {
          timer => $timer,
          fh => $ircfh,
          nick => $cgi->{nick},
-         server => $cgi->{serv},
+         # yet another form of host spoofing uses these..
+         server => $resolvedip,
+         host => $resolved,
          password => defined $cgi->{pass}
                ? $cgi->{pass} 
                : (config_set('server_password') 

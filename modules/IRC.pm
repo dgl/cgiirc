@@ -1,4 +1,4 @@
-# $Id: IRC.pm,v 1.13 2006/04/30 12:51:55 dgl Exp $
+# $Id: IRC.pm,v 1.14 2006/06/06 18:41:35 dgl Exp $
 package IRC;
 use strict;
 use IRC::UniqueHash;
@@ -81,8 +81,9 @@ sub connect {
    $self->out($self->{preconnect}) if $self->{preconnect};
    $self->out("PASS $self->{password}") if $self->{password};
    $self->out('NICK '.($connect{nick} || $ENV{IRC_NICK} || $ENV{USER}));
-   $self->out('USER '.($connect{user} || $ENV{USER}) . ' localhost ' .
-   ($connect{server} || 'irc') . ' :' . ($connect{realname} || 'unknown'));
+   $self->out('USER '.($connect{user} || $ENV{USER}) . ' '
+     . ($connect{host} || 'localhost') . ' ' .  ($connect{server} || 'irc')
+     . ' :' . ($connect{realname} || 'unknown'));
 }
 
 sub channel {
