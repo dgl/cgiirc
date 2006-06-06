@@ -26,7 +26,7 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.40 2006/04/30 18:03:50 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.41 2006/06/06 18:53:50 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
