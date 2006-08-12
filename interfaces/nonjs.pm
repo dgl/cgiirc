@@ -19,6 +19,7 @@ if(defined $::config->{balance_servers}) {
 
 use default;
 @ISA = qw/default/;
+my %output_none;
 
 sub new {
    my($class,$event,$timer, $config, $icookies) = @_;
@@ -28,6 +29,9 @@ sub new {
    $self->{':_timestamp'} = 0;
    $self->{':_timestamp'}++ if exists $icookies->{timestamp} &&
         $icookies->{timestamp};
+   if(exists $::config->{'output none'}) {
+      @output_none{split /,\s*/, $::config->{'output none'}} = 1;
+   }
    return $self;
 }
 
@@ -116,6 +120,8 @@ sub makeline {
    }elsif($info->{type} eq 'join') {
       $self->reload('u');
    }
+
+   return if exists $output_none{$info->{type}};
 
    if($self->{':_timestamp'}) {
       my($sec,$min,$hour) = localtime;
