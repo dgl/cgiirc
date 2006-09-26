@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.120 2006/06/06 18:50:12 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.121 2006/09/26 22:14:48 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -353,7 +353,7 @@ sub format_colourhtml {
 
 sub format_init_smilies {
    %regexpicon = (
-      '\;-?\)'         => 'wink',
+      '\;-?\)'        => 'wink',
       '\;-?D'         => 'grin',
       ':\'\(?'        => 'cry',
       ':-?/(?!\S)'    => 'notsure',
@@ -367,7 +367,7 @@ sub format_init_smilies {
       ':-[oO]'        => 'surprised',
       '8-?\)'         => 'cool',
       ':-?\|'         => 'flat',
-      ':\'\)'         => 'happycry',
+      ':\'\)\)?'      => 'happycry',
 "\004\&gt;\004:-?/"   => 'hmmm',
 "\004\&gt;\004:-?\\(" => 'angry',
       ':-?\*\*'       => 'kiss',
