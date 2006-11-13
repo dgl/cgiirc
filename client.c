@@ -2,9 +2,10 @@
  * Copyright (c) David Leadbeater 2002-2006
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.14 2006/05/03 06:51:16 dgl Exp $
+ * $Id: client.c,v 1.15 2006/11/13 16:17:08 dgl Exp $
  */
 /* To compile: cc -O2 -o client.cgi client.c */
+/* Add -lsocket on Solaris */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,13 +144,14 @@ void readinput(stralloc *input) {
   }else if(strcmp(method, "POST") == 0) {
     int length;
     char *ctlength = getenv("CONTENT_LENGTH");
+    size_t sz;
     if(!ctlength) return;
     length = atoi(ctlength);
 
-    // Hopefully noone will need to send more than 5KB
+    /* Hopefully noone will need to send more than 5KB */
     if(length <= 0 || length > (1024*5)) return;
     stralloc_ready(input, length);
-    size_t sz = read(STDIN_FILENO, input->s, length);
+    sz = read(STDIN_FILENO, input->s, length);
     if(sz <= 0) return;
     input->len = sz;
   }
@@ -164,7 +166,7 @@ void get_rand(stralloc *params, stralloc *random) {
   ptr += 2;
 
   while(ptr < params->s + params->len) {
-    if(!isalpha(*ptr) && !isdigit(*ptr))
+    if(!isalpha((unsigned char)*ptr) && !isdigit((unsigned char)*ptr))
       break;
     stralloc_append(random, ptr++);
   }
