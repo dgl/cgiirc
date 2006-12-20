@@ -1,4 +1,4 @@
-# $Id: RawCommands.pm,v 1.30 2006/04/30 13:10:37 dgl Exp $
+# $Id: RawCommands.pm,v 1.31 2006/12/20 14:15:19 dgl Exp $
 package IRC::RawCommands;
 use strict;
 
@@ -471,7 +471,8 @@ my %raw = (
       my($event,$self,$params) = @_;
 	  my $channel = $params->{params}->[3];
 	  
-	  if(exists $self->{_channels}->{$channel} && ref $self->{_channels}->{$channel}) {
+	  if(exists $self->{_channels}->{$channel} &&
+            UNIVERSAL::isa($self->{_channels}->{$channel}, "IRC::Channel")) {
 	     for(split / /,$params->{text}) {
 	        my ($op,$halfop,$voice) = 0;
 		    $op = 1 if s/\@//;
