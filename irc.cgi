@@ -26,7 +26,7 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.41 2006/06/06 18:53:50 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.42 2007/02/05 13:43:17 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -42,7 +42,13 @@ for('', '/etc/cgiirc/', '/etc/') {
 $config = parse_config($config_path . 'cgiirc.config');
 
 if(!parse_cookie()) {
-   print "Set-cookie: cgiircauth=". random(25) .";path=/\r\n";
+   my $cookie_domain = $config->{javascript_domain};
+   if(defined $cookie_domain) {
+      $cookie_domain = ";domain=.$cookie_domain";
+   } else {
+      $cookie_domain = "";
+   }
+   print "Set-cookie: cgiircauth=". random(25) .";path=/$cookie_domain\r\n";
 }
 print join("\r\n",
 # Hack to make sure we print the correct type for stylesheets too..
