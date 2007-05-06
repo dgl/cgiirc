@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# CGI:IRC - http://cgiirc.sourceforge.net/
+# CGI:IRC - http://cgiirc.org/
 # Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
@@ -26,7 +26,7 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.42 2007/02/05 13:43:17 dgl Exp $'
+ '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.43 2007/05/06 01:05:35 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -63,7 +63,7 @@ print join("\r\n",
 
 # Please leave this.
 my $copy = <<EOF;
-<a href="http://cgiirc.sourceforge.net/">CGI:IRC</a> $VERSION<br />
+<a href="http://cgiirc.org/">CGI:IRC</a> $VERSION<br />
 EOF
 
 my $scriptname = $config->{script_login} || 'irc.cgi';

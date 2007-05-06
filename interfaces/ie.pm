@@ -5,7 +5,7 @@ use strict;
 use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
-  == http://cgiirc.sourceforge.net/
+  == http://cgiirc.org/
   == Copyright (C) 2000-2006 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
@@ -436,7 +436,7 @@ print q~
 <script language="JavaScript">
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
-// http://cgiirc.sourceforge.net/
+// http://cgiirc.org/
 // Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
 
 //               none      joins    talk       directed talk

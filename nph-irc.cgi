@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# CGI:IRC - http://cgiirc.sourceforge.net/
+# CGI:IRC - http://cgiirc.org/
 # Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.121 2006/09/26 22:14:48 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.122 2007/05/06 01:05:35 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -69,13 +69,6 @@ for('docs/', '/usr/share/doc/cgiirc/') {
 }
 
 my $needtodie = 0;
-$SIG{HUP} = $SIG{INT} = $SIG{TERM} = sub { $needtodie = 1 };
-# Pipe isn't bad..
-$SIG{PIPE} = 'IGNORE';
-
-$SIG{__DIE__} = sub { 
-   error("Program ending: @_");
-};
 
 # DEBUG
 #use Carp;
@@ -1098,10 +1091,11 @@ sub error {
 
 #### Init
 
-sub init {
+sub global_init {
    $timer = new Timer;
    $event = new Event;
    $timer->addforever(interval => 15, code => \&interface_keepalive);
+   $timer->addforever(interval => 30, code => \&session_timeout);
    $event->add('irc out', code => \&irc_out);
    $event->add('unhandled', code => \&irc_event);
    $event->add('server connected', code => \&irc_connected);
@@ -1113,10 +1107,30 @@ sub init {
    $config->{access_command} = '!quote' unless exists $config->{access_command};
    $config->{format} ||= 'default';
 
-   $timer->addforever(interval => 30, code => \&session_timeout);
+   format_init_smilies();
+
+   if(config_set('login secret')) {
+      require Digest::MD5;
+   }
+
+   if(config_set('prerequire_interfaces')) {
+      for my $iface(<./interfaces/*.pm>) {
+         require($iface);
+      }
+   }
+}
+
+sub init {
+   # Set up some sig handlers..
+   $SIG{HUP} = $SIG{INT} = $SIG{TERM} = sub { $needtodie = 1 };
+   # Pipe isn't bad..
+   $SIG{PIPE} = 'IGNORE';
+
+   $SIG{__DIE__} = sub { 
+      error("Program ending: @_");
+   };
 
    $cgi = parse_query($ENV{QUERY_STRING});
-   format_init_smilies();
    $format = load_format($cgi->{format});
    $cookie = parse_cookie();
 
@@ -1141,7 +1155,6 @@ sub init {
    $interface = load_interface();
 
    if(config_set('login secret')) {
-      require Digest::MD5;
       my $token = Digest::MD5::md5_hex($cgi->{time}
          . $config->{'login secret'} . $cgi->{R});
       if($token ne $cgi->{token}) {
@@ -1295,6 +1308,91 @@ sub main_loop {
    }
 }
 
-init();
-main_loop();
+global_init();
+
+if(config_set('fcgi_socket')) {
+   # FastCGI external server mode
+   my $running = 1;
+   
+   require FCGI;
+   die "FCGI module required for FCGI mode\n" if $@;
+
+   my $fcgi = FCGI::OpenSocket($config->{fcgi_socket}, 10);
+   die "FCGI open failed: $!\n" unless $fcgi;
+
+   # Just so the child can get rid of it easily.
+   my $fcgi_fh;
+   open($fcgi_fh, "<&=$fcgi") or die "FCGI re-open() failed\n";
+
+   my $request = FCGI::Request(\*STDIN, \*STDOUT, \*STDERR, \%ENV, $fcgi);
+
+   # This isn't great, as we'll accept once more, but this is good enough for
+   # now, hopefully.
+   $SIG{USR1} = sub {
+      $request->LastCall;
+      $running = 0;
+   };
+
+   $SIG{HUP} = sub {
+      $config = parse_config($config_path . 'cgiirc.config');
+   };
+   
+   # XXX: need to do this properly for non-Linux
+   $SIG{CHLD} = 'IGNORE';
+
+   # Due to the FCGI API sucking we can't easily call accept in the parent and
+   # then fork, so we do it in a child. This probably gives us a tiny speed
+   # increase due to pre-forking too.
+   
+   my($parentfh, $childfh);
+   pipe($parentfh, $childfh);
+
+   while($running) {
+      my $pid = fork;
+      if($pid) {
+         # parent - wait for child to accept a connection
+         my $tmp;
+         my $ret = sysread($parentfh, $tmp, 1);
+         if($ret != 1) {
+            # Really shouldn't happen, just delay things to hopefully make this
+            # less of a fork bomb.
+            print STDERR "Read returned $ret ($!) from child, sleeping 10s\n";
+            sleep 10;
+         } else {
+            my $accept_ret = unpack("c", $tmp);
+            if($accept_ret < 0) {
+               # XXX: maybe try to reopen socket or something?
+               print STDERR "Child accept got $accept_ret, sleeping 10s\n";
+               sleep 10;
+            } else {
+               #print "Accepted new client..\n";
+            }
+         }
+      } elsif($pid == 0) {
+         # child
+         close $parentfh;
+
+         # Wait to accept something
+         my $ret = $request->Accept;
+         syswrite($childfh, pack("c", $ret));
+         # up to here should be fast, as the write limits the speed of the
+         # accept loop
+         exit if $ret < 0;
+         close $fcgi_fh;
+         close $childfh;
+
+         init();
+         main_loop();
+         exit(1);
+      } else {
+         # uh-oh, failed, wait a bit for things to calm down
+         print STDERR "Fork failed\n";
+         sleep 10;
+      }
+   }
+} else {
+   # Normal CGI
+   init();
+   main_loop();
+}
 

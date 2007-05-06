@@ -4,7 +4,7 @@ use vars qw/@ISA $standardheader/;
 
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
-  == http://cgiirc.sourceforge.net/
+  == http://cgiirc.org/
   == Copyright (C) 2000-2002 David Leadbeater <cgiirc\@dgl.cx>
   == Released under the GNU GPL
   -->
