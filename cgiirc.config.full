@@ -57,6 +57,8 @@ image_path = images
 # Additionally a fallback character set can be specified so if multiple
 # character sets are in use an attempt can be made to decode using the fallback
 # if decoding using the main character set fails. Default is iso-8859-1.
+# Set to the same character set as above to avoid falling back to this
+# character set and use substitution characters for unknown characters.
 #irc charset fallback =
 
 # The location to *append* before the location of the socket directory
