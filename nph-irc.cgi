@@ -32,7 +32,7 @@ use vars qw(
    );
 
 ($VERSION =
-'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.122 2007/05/06 01:05:35 dgl Exp $'
+'$Name:  $ 0_5_CVS $Id: nph-irc.cgi,v 1.123 2007/05/09 14:29:16 dgl Exp $'
 ) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
 $VERSION .= " ($2)";
 $VERSION =~ s/_/./g;
@@ -1180,6 +1180,11 @@ sub init {
       }
    }
 
+   if(!defined $config->{'irc charset fallback'}) {
+      # Default to latin1 as fallback
+      $config->{'irc charset fallback'} = "iso-8859-1";
+   }
+
    my($resolved, $resolvedip) = access_check_host($ENV{REMOTE_ADDR});
 
    unless(access_configcheck('server', $cgi->{serv})) {
@@ -1292,7 +1297,14 @@ sub main_loop {
                
                if($fh == $ircfh) {
                   if($::ENCODE) {
-                     my $input = Encode::decode($config->{'irc charset'}, $theline);
+                     my $input;
+                     eval {
+                        local $SIG{__DIE__} = undef;
+                        $input = Encode::decode($config->{'irc charset'}, $theline, Encode::FB_CROAK);
+                     };
+                     if ($@ && defined $config->{'irc charset fallback'}) {
+                        $input = Encode::decode($config->{'irc charset fallback'}, $theline);
+                     }
                      $theline = $input if defined $input;
                   }
                   $irc->in($theline);

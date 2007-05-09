@@ -54,6 +54,11 @@ image_path = images
 # Extended ASCII:
 #irc charset = iso-8859-1
 
+# Additionally a fallback character set can be specified so if multiple
+# character sets are in use an attempt can be made to decode using the fallback
+# if decoding using the main character set fails. Default is iso-8859-1.
+#irc charset fallback =
+
 # The location to *append* before the location of the socket directory
 # (don't change this unless you understand it - and then think about it again).
 # Remember you will need to either edit client-perl.cgi or
