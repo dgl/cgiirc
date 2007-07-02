@@ -163,7 +163,7 @@ session_timeout = 18000
 
 # Check clients connecting against a DNSBL (deny access if their IP address is in
 # it), seperate with spaces to check more than one.
-#dnsbl = opm.blitzed.org
+#dnsbl = dnsbl.dronebl.org
 
 # Redirect to a different URL (eg. custom login form) instead of the default.
 #form_redirect = http://cgiirc.org/docs/custom.php
