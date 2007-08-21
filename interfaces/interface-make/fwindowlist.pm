@@ -14,7 +14,7 @@ print q~
 <!--
 // This javascript code is released under the same terms as CGI:IRC itself
 // http://cgiirc.org/
-// Copyright (C) 2000-2003 David Leadbeater <cgiirc\@dgl.cx>
+// Copyright (C) 2000-2003 David Leadbeater <http://dgl.cx>
 
 //               none      joins    talk       directed talk
 var activity = ['#000000','#000099','#990000', '#009999'];

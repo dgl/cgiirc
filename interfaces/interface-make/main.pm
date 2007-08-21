@@ -6,7 +6,7 @@ use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
 <!-- This is part of CGI:IRC 0.5
   == http://cgiirc.org/
-  == Copyright (C) 2000-2006 David Leadbeater <cgiirc\@dgl.cx>
+  == Copyright (C) 2000-2007 David Leadbeater <http://dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
