@@ -1,8 +1,8 @@
 /* CGI:IRC C Helper CGI
- * Copyright (c) David Leadbeater 2002-2006
+ * Copyright (c) David Leadbeater 2002-2007
  * Released Under the GNU GPLv2 or Later
  * NO WARRANTY - See GNU GPL for more
- * $Id: client.c,v 1.15 2006/11/13 16:17:08 dgl Exp $
+ * $Id$
  */
 /* To compile: cc -O2 -o client.cgi client.c */
 /* Add -lsocket on Solaris */

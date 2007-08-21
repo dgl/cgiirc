@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # CGI:IRC - http://cgiirc.org/
-# Copyright (C) 2000-2006 David Leadbeater <http://contact.dgl.cx/>
+# Copyright (C) 2000-2007 David Leadbeater <http://dgl.cx/>
 # vim:set ts=3 expandtab shiftwidth=3 cindent:
 
 # This program is free software; you can redistribute it and/or modify
@@ -26,10 +26,8 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
- '$Name:  $ 0_5_CVS $Id: irc.cgi,v 1.43 2007/05/06 01:05:35 dgl Exp $'
-) =~ s/^.*?(\d\S+) .*?(\d{4}\/\S+) .*$/$1/;
-$VERSION .= " ($2)";
-$VERSION =~ s/_/./g;
+'$Name:  $ 0.5-g $Id$'
+) =~ s/^.*?(\d\S+) .*?([0-9a-f]{4}).*/$1 . (index($1, "g") > 0 ? "$2" : "")/e;
 
 require 'parse.pl';
 
