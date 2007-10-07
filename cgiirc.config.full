@@ -224,6 +224,9 @@ format = default
 # cannot enter colours, etc
 #disable_format_input = 1
 
+# Location of smilies configuration file
+#smilies = smilies.conf
+
 # ----
 # Interface settings
 # These control the options for the user - the user can change these via the

@@ -11,8 +11,15 @@ sub parse_config {
       s/(\015\012|\012)$//; # Be forgiving for poor windows users
       next if /^\s*[#;]/; # Comments
       next if !/=/;
+      
+      my($key, $value);
 
-      my($key,$value) = split(/\s*=\s*/, $_, 2);
+      if(($key, $value) = $_ =~ /^"((?:[^"]+(?:(?<=\\))")?)+"\s*=\s*(.*)$/) {
+        $key =~ s/\\"/"/g;
+      } else {
+        ($key,$value) = split(/\s*=\s*/, $_, 2);
+      }
+
       $config{$key} = defined $value ? $value : '';
    }
    close(CONFIG);

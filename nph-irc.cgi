@@ -343,29 +343,33 @@ sub format_colourhtml {
 }
 
 sub format_init_smilies {
-   %regexpicon = (
-      '\;-?\)'        => 'wink',
-      '\;-?D'         => 'grin',
-      ':\'\(?'        => 'cry',
-      ':-?/(?!\S)'    => 'notsure',
-      ':-?[xX]'       => 'confused',
-      ':-?\]'         => 'embarassed',
-      ':-?\*'         => 'love',
-      ':-?[pP]'       => 'tongue',
-      ':-?\)'         => 'happy',
-      '\:-?D'         => 'cheesy',
-      ':-?\('         => 'unhappy',
-      ':-[oO]'        => 'surprised',
-      '8-?\)'         => 'cool',
-      ':-?\|'         => 'flat',
-      ':\'\)\)?'      => 'happycry',
-"\004\&gt;\004:-?/"   => 'hmmm',
-"\004\&gt;\004:-?\\(" => 'angry',
-      ':-?\*\*'       => 'kiss',
-      ':-z'           => 'sleep',
-      ':-\.'          => 'sorry',
-      '8-@'           => 'what',
-   );
+   if(config_set('smilies')) {
+      %regexpicon = %{parse_config($config_path . $config->{smilies})}
+   } else {
+      %regexpicon = (
+         '\;-?\)'        => 'wink',
+         '\;-?D'         => 'grin',
+         ':\'\(?'        => 'cry',
+         ':-?/(?!\S)'    => 'notsure',
+         ':-?[xX]'       => 'confused',
+         ':-?\]'         => 'embarassed',
+         ':-?\*'         => 'love',
+         ':-?[pP]'       => 'tongue',
+         ':-?\)'         => 'happy',
+         '\:-?D'         => 'cheesy',
+         ':-?\('         => 'unhappy',
+         ':-[oO]'        => 'surprised',
+         '8-?\)'         => 'cool',
+         ':-?\|'         => 'flat',
+         ':\'\)\)?'      => 'happycry',
+   "\004\&gt;\004:-?/"   => 'hmmm',
+   "\004\&gt;\004:-?\\(" => 'angry',
+         ':-?\*\*'       => 'kiss',
+         ':-z'           => 'sleep',
+         ':-\.'          => 'sorry',
+         '8-@'           => 'what',
+      );
+   }
    $regexpicon = '(' . join('|', sort { length $b <=> length $a } keys %regexpicon) . ')';
 }
 
