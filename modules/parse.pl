@@ -14,8 +14,9 @@ sub parse_config {
       
       my($key, $value);
 
-      if(($key, $value) = $_ =~ /^"((?:[^"]+(?:(?<=\\))")?)+"\s*=\s*(.*)$/) {
+      if(($key, $value) = $_ =~ /^"((?:[^"]+(?:(?<=\\)")?)+)"\s*=\s*(.*)$/) {
         $key =~ s/\\"/"/g;
+        $key =~ s/\\(\d{1,3})/chr $1/eg;
       } else {
         ($key,$value) = split(/\s*=\s*/, $_, 2);
       }

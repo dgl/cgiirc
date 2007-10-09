@@ -344,7 +344,7 @@ sub format_colourhtml {
 
 sub format_init_smilies {
    if(config_set('smilies')) {
-      %regexpicon = %{parse_config($config_path . $config->{smilies})}
+      %regexpicon = %{parse_config($config_path . $config->{smilies})};
    } else {
       %regexpicon = (
          '\;-?\)'        => 'wink',
