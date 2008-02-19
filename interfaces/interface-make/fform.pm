@@ -37,6 +37,9 @@ EOF
 if($ENV{HTTP_USER_AGENT} !~ /Mac_PowerPC/ && (!exists $config->{disable_format_input} || !$config->{disable_format_input})) {
 print "document.getElementById('extra').style.display = 'none';"
 }
+if(exists $config->{smilies_popup} && $config->{smilies_popup}) {
+  print 't(document.getElementById(\'extra\'), document.forms[0]);';
+}
 print <<EOF;
 .$just ie konqueror
    document.onkeydown = enter_key_trap;
@@ -219,6 +222,11 @@ print <<EOF;
 <span class="form-econtain" id="excont">
 <input type="button" class="form-expand" onclick="t(document.getElementById('extra'),this);" value="&lt;&lt;">
 <span id="extra" class="form-extra">
+EOF
+if(exists $config->{smilies_popup} && $config->{smilies_popup}) {
+  print '<img onclick="parent.fmain.smilies();" src="'.$config->{image_path}.'/happy.gif" alt=":)">';
+}
+print <<EOF;
 <input type="button" class="form-boldbutton" value="B" onclick="append('\%B')">
 <input type="button" class="form-boldbutton" value="_" onclick="append('\%U')">
 EOF

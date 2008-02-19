@@ -4,9 +4,8 @@ package **BROWSER;
 use strict;
 use vars qw/@ISA $standardheader/;
 $standardheader = <<EOF;
-<!-- This is part of CGI:IRC 0.5
-  == http://cgiirc.org/
-  == Copyright (C) 2000-2007 David Leadbeater <http://dgl.cx>
+<!-- This is part of CGI:IRC 0.5 (http://cgiirc.org)
+  == Copyright (C) 2000-2008 David Leadbeater <http://dgl.cx>
   == Released under the GNU GPL
   -->
 EOF
@@ -151,6 +150,8 @@ sub _escapehtml {
    return $in;
 }
 
+# XXX: switch this to use a proper JSON library one day..
+
 sub _jsp {
    return join(', ', @_);
 }
@@ -158,6 +159,11 @@ sub _jsp {
 sub _outputarray {
    my $array = shift;
    return '[' . _jsp(map(_escapejs($_), @$array)) . ']';
+}
+
+sub _outputhash {
+   my $hash = shift;
+   return '{' . _jsp(map(_escapejs($_) . ":" . _escapejs($hash->{$_}), keys %$hash)) . '}';
 }
 
 sub useradd {
@@ -324,10 +330,10 @@ framespacing="0" border="0" frameborder="0" onfocus="form_focus()" onload="form_
 scrolling="no">
 <frameset cols="*,120" framespacing="0" border="0" frameborder="0">
 <frame name="fmain"
-src="$scriptname?item=fmain&interface=$interface&style=$style" scrolling="yes">
+src="$scriptname?item=fmain&interface=$interface&style=$style">
 <frame name="fuserlist"
 src="$scriptname?item=fuserlist&interface=$interface&style=$style"
-scrolling="yes">
+scrolling="auto">
 </frameset>
 <frame name="fform"
 src="$scriptname?item=fform&interface=$interface&style=$style" scrolling="no"

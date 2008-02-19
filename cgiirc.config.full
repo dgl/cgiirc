@@ -227,6 +227,10 @@ format = default
 # Location of smilies configuration file
 #smilies = smilies.conf
 
+# Show a popup for users to select smilies from?
+# The smilies option above must also be set to a valid file.
+#smilies_popup = 1
+
 # ----
 # Interface settings
 # These control the options for the user - the user can change these via the

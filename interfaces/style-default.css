@@ -22,6 +22,7 @@
    scrollbar-arrow-color: #777;
    background-color: #f8f8f8;
    border-left: 1px solid #999999;
+   height: 100%;
 }
 
 .userlist-div {
@@ -120,6 +121,17 @@
    scrollbar-darkshadow-color: #ccc;
    scrollbar-track-color: #e8e8e8;
    scrollbar-arrow-color: #777;
+   overflow: hidden;
+   margin: 0;
+   padding: 0;
+}
+
+.main-span {
+   overflow: auto;
+   width: 98%;
+   height: 97%;
+   padding-top: 1.5em;
+   padding: 0.5em;
 }
 
 .main-span IMG {
@@ -134,6 +146,21 @@
 .main-item {
    margin-left: 15px;
    text-indent: -15px;
+}
+
+.main-smilies {
+  border: 1px dashed #ccc;
+  background: #ccf;
+  position: absolute;
+  bottom: 0;
+  left: 62%;
+  width: 20%;
+  height: 55%;
+  overflow: auto;
+}
+
+.main-smilies span {
+  width: 49%;
 }
 
 /* RawCommands.pm styles */
@@ -171,7 +198,7 @@
 }
 
 .form-extra { 
-   display: none; 
+   display: inline;
 }
 
 .form-boldbutton { 

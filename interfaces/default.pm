@@ -1,11 +1,10 @@
 package default;
 use vars qw/$standardheader/;
 use strict;
-$standardheader = <<EOF;
-<!-- This is part of CGI:IRC 0.5
-  == http://cgiirc.org/
-  == Copyright (C) 2000-2006 David Leadbeater <http://dgl.cx>
-  == Released under the GNU GPL
+$standardheader = <<'EOF';
+<!-- This is part of CGI:IRC 0.5 (http://cgiirc.org/)
+  == Copyright (C) 2000-2008 David Leadbeater <http://dgl.cx>
+  == Released under the GNU GPLv2
   -->
 EOF
 
