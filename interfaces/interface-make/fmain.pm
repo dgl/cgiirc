@@ -41,11 +41,12 @@ function smilies() {
 
     var c = 0, tr;
     for(var i in smilies) {
-      if((c++ % 2) == 0) {
+      if((c++ % 5) == 0) {
         tr = document.createElement("tr");
         swin.appendChild(tr);
       }
       var cont = document.createElement("td");
+      cont.width = "20%";
       var p = document.createElement("img");
       p.title = i;
       p.src = "$config->{image_path}/" + smilies[i] + ".gif";
@@ -54,14 +55,11 @@ function smilies() {
         parent.fform.append(this.firstChild.title + " ");
         this.parentNode.parentNode.style.display = 'none';
       }
-      cont.appendChild(document.createTextNode(" " +
-        smilies[i].substr(0,1).toUpperCase() + smilies[i].substr(1)));
       tr.appendChild(cont);
     }
     document.body.appendChild(swin);
-  } else {
-    swin.style.display = 'block';
   }
+  swin.style.display = '';
 }
 </script>
 EOF
