@@ -231,6 +231,9 @@ format = default
 # The smilies option above must also be set to a valid file.
 #smilies_popup = 1
 
+# Number of smilies per row in popup.
+#smilies_perrow = 5
+
 # ----
 # Interface settings
 # These control the options for the user - the user can change these via the

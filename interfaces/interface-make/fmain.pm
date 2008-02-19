@@ -31,6 +31,8 @@ if($::config->{smilies_popup}) {
   }
   $smilies = _outputhash(\%smilies);
 
+  $config->{smilies_perrow} = 5 unless exists $config->{smilies_perrow};
+
 print <<EOF;
 var swin;
 function smilies() {
@@ -41,12 +43,12 @@ function smilies() {
 
     var c = 0, tr;
     for(var i in smilies) {
-      if((c++ % 5) == 0) {
+      if((c++ % $config->{smilies_perrow}) == 0) {
         tr = document.createElement("tr");
         swin.appendChild(tr);
       }
       var cont = document.createElement("td");
-      cont.width = "20%";
+      cont.width = "@{[int(100 / $config->{smilies_perrow})]}%";
       var p = document.createElement("img");
       p.title = i;
       p.src = "$config->{image_path}/" + smilies[i] + ".gif";
