@@ -111,8 +111,9 @@ sub net_tcpconnect {
    if($inet_addr !~ /:/) {
       $saddr = sockaddr_in($port, inet_aton($inet_addr));
       if(config_set('vhost')) {
-         (my $vhost) = $config->{vhost} =~ /([^ ]+)/;
-         bind($fh, pack_sockaddr_in(0, inet_aton($vhost)));
+         (my $vhost) = $config->{vhost} =~ /(.*)/; # untaint
+         my @vhosts = split /,\s*/, $vhost;
+         bind($fh, pack_sockaddr_in(0, inet_aton($vhosts[rand @vhosts])));
       }else{
          bind($fh, pack_sockaddr_in(0, inet_aton('0.0.0.0')));
       }
