@@ -138,6 +138,7 @@ if(ref $cgi && defined $cgi->{item}) {
    my $server = dolist($config->{default_server});
    my $channel = dolist($config->{default_channel});
    my $port = dolist($config->{default_port});
+   my $nickname = $ENV{REMOTE_USER} || $config->{default_nick};
    
    my $charset = [ $config->{'irc charset'} || 'Unicode (UTF-8)' ];
 
@@ -158,6 +159,10 @@ if(ref $cgi && defined $cgi->{item}) {
 
    if(ref $cgi && $cgi->{chan}) {
       $channel = $cgi->{chan};
+   }
+
+   if(ref $cgi && $cgi->{nick}) {
+      $nickname = $cgi->{nick};
    }
 
    if(!defined $config->{allow_non_default} || !$config->{allow_non_default}) {
@@ -183,7 +188,7 @@ if(ref $cgi && defined $cgi->{item}) {
    closedir(FORMATS);
 
    %items = (
-      Nickname => $ENV{REMOTE_USER} || $config->{default_nick},
+      Nickname => $nickname,
       Channel => $channel,
       Server => $server,
       Port => $port,
