@@ -782,6 +782,8 @@ sub encode_ip {
 # proxy is listed in the trusted-proxy file).
 sub access_check_host {
    my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
+   $ip =~ s/^::ffff://; # Treat as plain IPv4 if listening on IPv6.
+
    my $ipn = inet_aton($ip);
 
    access_dnsbl($ip);
