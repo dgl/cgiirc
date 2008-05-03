@@ -784,6 +784,15 @@ sub access_check_host {
    my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
    $ip =~ s/^::ffff://; # Treat as plain IPv4 if listening on IPv6.
 
+   if($ip =~ /:/) { # IPv6
+     $ip =~ s/^:/0:/;
+     # Hack: No access checking for IPv6 yet.
+     # We just make sure that connections are allowed in general by checking
+     # against 0.0.0.0.
+     access_ipcheck("0.0.0.0", "0.0.0.0");
+     return($ip, $ip);
+   }
+
    my $ipn = inet_aton($ip);
 
    access_dnsbl($ip);
@@ -1019,7 +1028,7 @@ sub irc_ctcp {
       
       if(uc($command) eq 'VERSION') {
          $irc->ctcpreply($nick, $command,
-               "CGI:IRC $VERSION - http://cgiirc.sf.net/");
+               "CGI:IRC $VERSION - http://cgiirc.org");
       }elsif(uc($command) eq 'PING') {
          return if $params =~ /[^0-9 ]/ || length $params > 50;
          unless($interface->ctcpping($nick, $params)) {

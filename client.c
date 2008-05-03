@@ -127,7 +127,7 @@ int main(void) {
 }
 
 int error(char *error) {
-  puts("Content-type: text/html\n");
+  puts("Content-type: text/html\nStatus: 500\n");
   puts("An error occurred:");
   puts(error);
   exit(1);
