@@ -278,8 +278,22 @@ sub format_out {
    return unless $format->{$formatname};
 
    my $line = format_parse($format->{$formatname}, $info, $params);
-   $line = format_colourhtml($line);
-   interface_lineout($info, $line);
+
+   my $try = 0;
+   # If there is malformed UTF8 various regexes under here can die for odd
+   # reasons (which I don't fully understand) therefore wrap in an eval.
+   OUTPUT: eval {
+      $line = format_colourhtml($line);
+      interface_lineout($info, $line);
+   };
+
+   if($@) {
+      print STDERR "Output failed with: $@\n";
+      # Try again without UTF8 (treat as binary, probably only does something
+      # vaguely useful for latin characters?)
+      Encode::_utf8_off($line) if $::ENCODE;
+      goto OUTPUT unless $try++;
+   }
 }
 
 sub message {
