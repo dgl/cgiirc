@@ -62,8 +62,8 @@ sub parse_query {
 
          # Modified from unescape as found in CGI::Util
          # (can't use CGI::Util due to + oddity from XMLHTTP).
-	 $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))} {
-            if(defined($1)) {
+         $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))} {
+           if(defined($1)) {
                if(defined($ext) && $ext & 2 and hex($1) > 0x7F) {
                   make_utf8("00$1");
                }else{
@@ -103,11 +103,11 @@ sub parse_query {
 
 sub parse_cookie {
    if(exists $ENV{HTTP_COOKIE} && $ENV{HTTP_COOKIE} =~ /cgiircauth/) {
-	  for(split /;/, $ENV{HTTP_COOKIE}) {
-		 s/^\s+//;
-		 my($name,$value) = split(/=/,$_,2);
-		 return $value if $name eq "cgiircauth";
-	  }
+      for(split /;/, $ENV{HTTP_COOKIE}) {
+         s/^\s+//;
+         my($name,$value) = split(/=/,$_,2);
+         return $value if $name eq "cgiircauth";
+      }
    }
    return 0;
 }
