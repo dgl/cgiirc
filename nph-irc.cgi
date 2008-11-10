@@ -1174,7 +1174,7 @@ sub init {
    if($::ENCODE) {
       eval {
          local $SIG{__DIE__};
-         binmode STDOUT, ":utf8";
+         binmode STDOUT, ":encoding(utf-8)";
       };
    }
       

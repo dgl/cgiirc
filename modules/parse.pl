@@ -80,9 +80,9 @@ sub parse_query {
            $val =~ s/[\r\n\0\001]//g;
         }
 
-		  Encode::_utf8_on($val) if $::ENCODE;
+        $val = Encode::decode_utf8($val) if $::ENCODE;
 
-	     $key => $val; # Return a hash element to map.
+        $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)
    };
 }
