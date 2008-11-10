@@ -28,9 +28,10 @@ sub parse_config {
 }
 
 sub make_utf8 {
-	# Use perl's unicode support assuming we have 5.6 and Encode
-	return pack("U", hex($_[0])) if $] >= 5.006 && $::ENCODE;
-	# From http://www1.tip.nl/~t876506/utf8tbl.html
+   # Use perl's unicode support assuming we have 5.6 and Encode
+   return pack("U", hex($_[0])) if $] >= 5.006 && $::ENCODE;
+
+   # From http://www1.tip.nl/~t876506/utf8tbl.html
    my $chr = unpack("n", pack("H*", shift));
    return chr $chr if $chr < 0x7F;
    return chr(192 + int($chr / 64)) . chr(128 + $chr % 64) if $chr <= 0x7FF;
@@ -51,38 +52,51 @@ sub parse_query {
    return {} unless defined $query and length $query;
 
    return {
-	  map {
-	     s/\+/ /g unless defined $ext and $ext & 2;
-	     my($key, $val) = split(/=/,$_,2);
-	     $val = "" unless defined $val;
+      map {
+         s/\+/ /g unless defined $ext and $ext & 2;
+         my($key, $val) = split(/=/,$_,2);
+         $val = "" unless defined $val;
 
-	     $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
-	     $key =~ s/[\r\n\0\001]//g;
+         $key =~ s/%([A-Fa-f0-9]{2})/pack("c",hex($1))/ge;
+         $key =~ s/[\r\n\0\001]//g;
 
-        # Modified from unescape as found in CGI::Util
-		  # (can't use CGI::Util due to + oddity from XMLHTTP).
-		  $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))}
-		    {
-				 if(defined($1)) {
-					 if(defined($ext) && $ext & 2 and hex($1) > 0x7F) {
-						 make_utf8("00$1");
-					 }else{
-						 pack("C", hex($1));
-					 }
-				 }else{
-					 make_utf8($2);
-				 }
-			}ge;
+         # Modified from unescape as found in CGI::Util
+         # (can't use CGI::Util due to + oddity from XMLHTTP).
+	 $val =~ s{%(?:([0-9a-fA-F]{2})|u([0-9a-fA-F]{4}))} {
+            if(defined($1)) {
+               if(defined($ext) && $ext & 2 and hex($1) > 0x7F) {
+                  make_utf8("00$1");
+               }else{
+                  pack("C", hex($1));
+               }
+            }else{
+               make_utf8($2);
+            }
+         }ge;
 
-        if(defined $ext and $ext & 1) {
-           $val =~ s/[\0\001]//g;
-        }else{
-           $val =~ s/[\r\n\0\001]//g;
-        }
+         if(defined $ext and $ext & 1) {
+            $val =~ s/[\0\001]//g;
+         }else{
+            $val =~ s/[\r\n\0\001]//g;
+         }
 
-        $val = Encode::decode_utf8($val) if $::ENCODE;
+         if($::ENCODE) {
+            if($ext & 2) {
+               # xmlhttp
+               $val = Encode::decode_utf8($val);
+            } else {
+               # we don't really have enough information, but see if we can guess..
+               eval {
+                  local $SIG{__DIE__} = undef;
+                  $val = Encode::decode_utf8($val, Encode::FB_CROAK());
+               };
+               if ($@ && defined $::config->{'irc charset'}) {
+                  $val = Encode::decode($::config->{'irc charset'}, $val);
+               }
+            }
+         }
 
-        $key => $val; # Return a hash element to map.
+         $key => $val; # Return a hash element to map.
       } split(/[&;]/, $query)
    };
 }
