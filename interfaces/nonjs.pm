@@ -68,6 +68,8 @@ sub todo {
 }
 
 sub exists {
+   return 0 if $_[1] =~ /^_/;
+   return 0 if $_[1] eq 'header';
    return 1 if defined &{__PACKAGE__ . '::' . $_[1]};
 }
 
@@ -198,10 +200,11 @@ EOF
 
 sub fuserlist {
    my($self, $cgi, $config) = @_;
+   my $r = _escape($cgi->{R});
 print <<EOF;
 $standardheader
 <html><head>
-<noscript><meta http-equiv="Refresh" content="15;URL=$config->{script_form}?R=$cgi->{R}&item=userlist"></noscript>
+<noscript><meta http-equiv="Refresh" content="15;URL=$config->{script_form}?R=$r&item=userlist"></noscript>
 </head><body bgcolor="#ffffff" text="#000000">
 Loading..
 </body></html>
@@ -257,6 +260,8 @@ sub form {
 
 sub _form_out {
    my($rand, $script, $target, $targets) = @_;
+   $rand = _escape($rand);
+
 my $out = <<EOF;
 <html>
 <head>
