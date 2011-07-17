@@ -41,11 +41,7 @@ if(exists $config->{smilies_popup} && $config->{smilies_popup}) {
   print 't(document.getElementById(\'extra\'), document.forms[0]);';
 }
 print <<EOF;
-.$just ie konqueror
    document.onkeydown = enter_key_trap;
-.$else
-   document.onkeypress = enter_key_trap;
-.$end
 }
 
 function append(a) {
