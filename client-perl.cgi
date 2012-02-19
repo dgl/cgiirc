@@ -60,7 +60,7 @@ my $cookie = parse_cookie();
 my($input,$rand) = cgi_read();
 error("Invalid random value") if !defined $rand || $rand =~ /[^a-z0-9]/i;
 
-my($fh,$error) = net_unixconnect($PREFIX . $rand . '/sock');
+my($fh,$error) = net_unixconnect($PREFIX . ($rand =~ /([a-z0-9]+)/)[0] . '/sock');
 error("Connection to unix-domain socket($PREFIX$rand/sock): $error") if $fh == 0;
 
 net_send($fh, "COOKIE=$cookie&$input\n");
