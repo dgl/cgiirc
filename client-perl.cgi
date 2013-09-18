@@ -24,11 +24,6 @@ use vars qw($VERSION $PREFIX);
 # change this if needed
 $PREFIX = "/tmp/cgiirc-";
 
-($VERSION =
-'$Name:  $ 0_5_CVS $Id$'
-) =~ s/^.*?(\d\S+) .*$/$1/;
-$VERSION =~ s/_/./g;
-
 use Socket;
 use Symbol;
 $|++;
