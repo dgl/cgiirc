@@ -154,6 +154,7 @@
 
 .form-say {
    border: 0;
+   outline: 0;
    width: 90%;
    padding-left: 4px;
    background-color: #505050;
