@@ -81,6 +81,7 @@ sub new {
       $tmp .= "$_: " . _escapejs($icookies->{$_}) . ', ';
    }
    $tmp =~ s/, $//;
+   _out('document.onreadystatechange = function() { if(this.readyState == "complete") parent.disconnected(); }');
    _out('parent.options = { ' . $tmp . '};');
    $event->add('user add', code => \&useradd);
    $event->add('user del', code => \&userdel);
