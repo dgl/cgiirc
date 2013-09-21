@@ -20,7 +20,6 @@ print <<EOF;
 $standardheader
 <html><head>
 <link rel="stylesheet" href="$config->{script_login}?interface=**BROWSER&item=style&style=$cgi->{style}" />
-<script>
 EOF
 
 if($::config->{smilies_popup}) {
@@ -34,6 +33,7 @@ if($::config->{smilies_popup}) {
   $config->{smilies_perrow} = 5 unless exists $config->{smilies_perrow};
 
 print <<EOF;
+<script>
 var swin;
 function smilies() {
   if(!swin) {
