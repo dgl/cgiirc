@@ -544,17 +544,9 @@ function post_results() {
 <noscript>Scripting is required for this interface</noscript>
 <table class="wlist-table">
 <tr><td width="1">
-.$just ie
-<iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="display:none;" onreadystatechange="if(this.readyState=='complete')disconnected()"></iframe>
-.$else
-<iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="border:0"></iframe>
-.$end
+<iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="display:none;border:0;" ></iframe>
 
-.$just ie
-<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="display:none;" name="hiddenframe"></iframe>
-.$else
-<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="border:0" name="hiddenframe"></iframe>
-.$end
+<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" width="1" height="1" style="display:none; border:0; " name="hiddenframe"></iframe>
 </td>
 <td id="windowlist" class="wlist-container">
 </td><td class="wlist-buttons">
