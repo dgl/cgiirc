@@ -129,7 +129,7 @@ function selectOther(sel) {
 </script>
 <title>CGI:IRC Login</title>
 </head>
-<body bgcolor="#ffffff" text="#000000" onload="setcharset();">
+<body bgcolor="#ffffff" text="#000000" onload="setcharset(); if(document.loginform.Nickname) document.loginform.Nickname.focus();">
 EOF
 if($notsupported) {
 	print "<font size=\"+1\" color=\"red\">This web-based IRC interface probably won't work well or at all with your browser.</font>\n<br /><b>You could try a <a href=\"http://irchelp.org\">non web-based IRC client</a> or a browser such as <a href=\"http://www.getfirefox.com/\">Mozilla Firefox</a>.</b><br /><br />\n";
