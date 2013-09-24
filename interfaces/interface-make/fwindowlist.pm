@@ -301,21 +301,19 @@ function witemredraw() {
 .$end
    parent.fmain.document.getElementById('text').innerHTML = Witems[currentwindow].text.join('');
    if(Witems[currentwindow].info == 1) return;
-.$just ie
    var count = 0;
-   if(scrollok == 1)
-      while(doc.scrollTop < doc.scrollHeight && count < 20) {
-         doc.scrollTop = doc.scrollHeight;
-         count++;
-      }
-.$else
-   var span = parent.fmain.document.getElementById('text')
-   if (span) {
+   var span = parent.fmain.document.getElementById('text');
+   if (span.scrollHeight) {
      var count = 0;
      while(span.scrollTop < span.scrollHeight && count < 20) {
        span.scrollTop = span.scrollHeight;
        count++;
      }
+   } else if(doc.scrollHeight && scrollok == 1) {
+      while(doc.scrollTop < doc.scrollHeight && count < 20) {
+         doc.scrollTop = doc.scrollHeight;
+         count++;
+      }
    } else {
      var doc = parent.fmain.window;
      var scroll = -1;
@@ -324,7 +322,6 @@ function witemredraw() {
             doc.scrollBy(0, 500);
      }
   }
-.$end
 }
 
 function wlistredraw() {
