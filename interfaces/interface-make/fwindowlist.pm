@@ -375,7 +375,10 @@ function sendcmd(cmd) {
 	  alert('Not connected to IRC!');
 	  return;
    }
-   if(Witems[currentwindow] && !Witems[currentwindow].speak && cmd.substr(0,1) != '/') return;
+   if(Witems[currentwindow] && !Witems[currentwindow].speak && cmd.substr(0,1) != '/') {
+     alert("You can't speak here, select a channel or query tab.");
+     return;
+   }
    sendcmd_real('say', cmd, currentwindow);
 }
 
