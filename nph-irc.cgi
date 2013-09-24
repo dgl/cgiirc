@@ -594,7 +594,7 @@ sub input_command {
       $ioptions->{$params->{name}} = $params->{value};
       $interface->setoption($params->{name}, $params->{value});
 # write proper cookie code one day.
-      net_send($fh, "Set-Cookie: cgiirc$params->{name}=$params->{value}; path=/; expires=Sun, 01-Jan-2011 00:00:00 GMT\r\n");
+      net_send($fh, "Set-Cookie: cgiirc$params->{name}=$params->{value}; path=/; expires=Fri, 01-Jan-2021 00:00:00 GMT\r\n");
    }
 }
 
