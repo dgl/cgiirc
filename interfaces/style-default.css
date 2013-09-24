@@ -127,10 +127,13 @@
 }
 
 .main-span {
+   margin: 0;
    overflow: auto;
-   width: 98%;
-   height: 97%;
+   overflow-y: scroll;
+   width: 100%;
+   height: 98%;
    padding-top: 1.5em;
+   padding-bottom: 1.5em;
    padding: 0.5em;
 }
 
