@@ -309,12 +309,21 @@ function witemredraw() {
          count++;
       }
 .$else
-   var doc = parent.fmain.window;
-   var scroll = -1;
-   while(doc.scrollY > scroll) {
-	  scroll = doc.scrollY;
-	  doc.scrollBy(0, 500);
-   }
+   var span = parent.fmain.document.getElementById('text')
+   if (span) {
+     var count = 0;
+     while(span.scrollTop < span.scrollHeight && count < 20) {
+       span.scrollTop = span.scrollHeight;
+       count++;
+     }
+   } else {
+     var doc = parent.fmain.window;
+     var scroll = -1;
+     while(doc.scrollY > scroll) {
+            scroll = doc.scrollY;
+            doc.scrollBy(0, 500);
+     }
+  }
 .$end
 }
 
