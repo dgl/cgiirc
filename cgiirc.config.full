@@ -76,8 +76,8 @@ socket_prefix = /tmp/cgiirc-
 # For IPv6
 #vhost6 = 
 
-# Prefer IPv6 addresses if both addresses resolve (default is IPv4).
-#prefer_v6 = 0 (XXX: This option does not currently work)
+# Prefer IPv4 addresses if both addresses resolve (default is IPv6 if Socket6 is installed).
+prefer_v4 = 0
 
 # -----
 # Access related settings
