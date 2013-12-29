@@ -650,7 +650,15 @@ sub access_ipcheck {
    return unless config_set('ip_access_file') || config_set("max_users");
 
    my($ip, $hostname) = @_;
-   my($ipn) = inet_aton($ip);
+   my $ipn;
+   my $ipn_family;
+   if($ip =~ /:/) { # IPv6
+      $ipn = inet_pton(AF_INET6, $ip);
+      $ipn_family = AF_INET6;
+   } else { # IPv4
+      $ipn = inet_aton($ip);
+      $ipn_family = AF_INET;
+   }
    my($ipaccess_match) = 0;
    my($limit) = undef;
 
@@ -678,9 +686,17 @@ sub access_ipcheck {
          if ($check =~ /\//) {
             # IP address with subnet mask
             my($addr,$mask) = split('/', $check, 2);
-            $mask = "1" x $mask . "0" x (32-$mask);
-            $mask = pack ("B32", $mask);
-            $mask = inet_ntoa($mask & $ipn);
+            # calculate mask depending on source address type
+            my $maxmask = $ipn_family eq AF_INET ? 32 : 128;
+            $mask = "1" x $mask . "0" x ($maxmask-$mask);
+            $mask = pack ("B".$maxmask, $mask);
+            if($check =~ /:/ && $ipn_family eq AF_INET6) {
+               # check IPv6 subnet on IPv6 address
+               $mask = inet_ntop(AF_INET6, $mask & $ipn);
+            } elsif($ipn_family eq AF_INET) {
+               # check IPv4 subnet on IPv4 address
+               $mask = inet_ntoa($mask & $ipn);
+            }
             if($addr eq $mask) {
                $ipaccess_match = 1;
             }
@@ -798,36 +814,38 @@ sub access_check_host {
    my $ip = defined $_[0] ? $_[0] : $ENV{REMOTE_ADDR};
    $ip =~ s/^::ffff://; # Treat as plain IPv4 if listening on IPv6.
 
+   my $ipn;
+   my $ipn_family;
    if($ip =~ /:/) { # IPv6
-     $ip =~ s/^:/0:/;
-     # Hack: No access checking for IPv6 yet.
-     # We just make sure that connections are allowed in general by checking
-     # against 0.0.0.0.
-     access_ipcheck("0.0.0.0", "0.0.0.0");
-     return($ip, $ip);
+      $ip =~ s/^:/0:/;
+      $ipn = inet_pton(AF_INET6, $ip);
+      $ipn_family = AF_INET6;
+   } else { # IPv4
+      $ipn = inet_aton($ip);
+      $ipn_family = AF_INET;
    }
-
-   my $ipn = inet_aton($ip);
 
    access_dnsbl($ip);
 
-   my($hostname) = gethostbyaddr($ipn, AF_INET);
+   my($hostname) = gethostbyaddr($ipn, $ipn_family);
    unless(defined $hostname && $hostname) {
       access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
 
    # Check reverse == forward
-   my(undef,undef,undef,undef,@ips) = gethostbyname($hostname);
    my $ok = 0;
-   for(@ips) {
-      $ok = 1 if $_ eq $ipn;
+   my @res = getaddrinfo($hostname, undef, $ipn_family, SOCK_STREAM);
+   while (scalar(@res) >= 5) {
+      (undef, undef, undef, my $saddr, undef, @res) = @res;
+      $ok = 1 if ($ipn_family = AF_INET && (unpack_sockaddr_in($saddr))[1] eq $ipn);
+      $ok = 1 if ($ipn_family = AF_INET6 && (unpack_sockaddr_in6($saddr))[1] eq $ipn);
    }
    if(!$ok) {
       access_ipcheck($ip, $ip);
       return($ip, $ip);
    }
-   
+
    access_ipcheck($ip, $hostname);
 
    my $client_ip = $ENV{HTTP_X_FORWARDED_FOR};
