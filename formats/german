@@ -1,49 +1,47 @@
-looking up = {prefix-client} Lees onze chatregels: http://www.chatservice.be/chatregels 
-connecting = {prefix-client} Die verbindung wird hergestellt, bitte warten...
+looking up = {prefix-client} Suche Server {server $0}
+connecting = {prefix-client} Verbindung mit {server $0} [$1] Port {hilight $2}
 
-access denied = {prefix-error} Zugang nicht gestattet: $0
-access server denied = {prefix-error} Der Zugang zu diesem Server wurde verweigert !
-access channel denied = {prefix-error} Der Zugang zu diesem Raum wurde verweigert !
-command denied = {prefix-error} Dieses Commando ist nicht zugelassen !
-session timeout = {prefix-error} Timeout - Wegen InaktivitÑ wurde die Verbinding unterbrochen !
+access denied = {prefix-client} Zugang nicht gestattet: $0
+access server denied = {prefix-client} Der Zugang zum Server $0 wurde verweigert
+access port denied = {prefix-client} Der Zugang zum Port $0 wurde verweigert
+access channel denied = {prefix-client} Der Zugang zum Channel $0 wurde verweigert
+command denied = {prefix-client} Dieser Befehl ist nicht zugelassen
+session timeout = {prefix-client} Timeout - Die Verbindung wurde wegen Inaktivit√§t getrennt
 
-kill ok = {prefix-error} Ihre Verbindung wurde geschlossen durch $0 ($1)
-kill wrong = {prefix-error} $0 hat probiert Ihre Verbindung zu beenden. Aber das Password war incorrect! ($1)
+kill ok = {prefix-error} Ihre Verbindung wurde durch $0 beendet ($1)
+kill wrong = {prefix-error} $0 hat probiert Ihre Verbindung zu beenden, aber das Password war falsch! ($1)
 
-command notparams = {prefix-client} Nicht genug Optionen fÅr dieses Kommando
-command error = {prefix-client} Fehler bei ausfÅhrung der Funktion
-error = {prefix-error} Es gab einen Fehler: $0
-not supported = {prefix-client} $0 hat ein $3 probiert, aber CGI:IRC fehlt die UnterstÅzung dafÅr ($2)
+command notparams = {prefix-client} Nicht gen√ºgend Parameter f√ºr diesen Befehl
+command error = {prefix-client} Fehler bei Ausf√ºhrung des Befehls
+error = {prefix-error} Ein Fehler ist aufgetreten: $0
+not supported = {prefix-client} $0 hat ein $3 probiert, aber CGI:IRC fehlt die Unterst√ºzung daf√ºr ($2)
 
-cgiirc welcome = {prefix-client} Willkommen auf dem HTML chat !
+cgiirc welcome = {prefix-client} Willkommen bei CGI:IRC $VERSION
 
-join = {prefix-channel} $0 hat den Raum {channel $T} betreten
-nick = {prefix-channel} $0 hat seinen/ihren namen geÑndert in $2
-quit = {prefix-user} $0 hat den Chat verlassen ($1)
-part = {prefix-channel} $0 hat {channel $T} verlassen {reason $2}
+join = {prefix-user} $0 {host $1} hat den Channel {channel $T} betreten
+nick = {prefix-user} $0 hei√üt jetzt $2
+quit = {prefix-user} $0 {host $1} hat den Chat verlassen {reason $2}
+part = {prefix-user} $0 hat {channel $T} verlassen {reason $2}
 user mode = {prefix-user} usermode/$0 $2
-mode = {prefix-channel} $0 setzt modus: $2
-topic = {prefix-channel} $0 Ñndert den Titel '$2'
-invite = {prefix-channel} $0 {host $1} laedt sie ein in {channel $2}
-kick = {prefix-channel} $2 wurde gekicked durch $0 {reason $3}
+mode = {prefix-user} mode/$T [$2] by $0
+topic = {prefix-user} $0 √§ndert das Topic in: $2
+invite = {prefix-user} $0 {host $1} l√§dt dich nach $2 ein
+kick = {prefix-user} $2 wurde gekicked durch $0 {reason $3}
 
-prefix-error = %04***
-prefix-info = %03***
-prefix-channel = %03***
-prefix-user = %02***
-prefix-client = %12***
-prefix-server = %05***
-prefix-ctcp = %04
-prefix-normal = ***
+prefix-error = %04***%n
+prefix-info = %03***%n
+prefix-user = %03***%n
+prefix-client = %02***%n
+prefix-server = %05***%n
 
 notice public = {notice-target $0 $T} {text $2}
 notice special = {notice-target $0 $2} {text $3}
-notice private = {prefix-user} -{notice-nick $0}- {text $2}
-notice server = 
-notice public own = {prefix-user} {notice-target $0 $T} {text $2}
-notice private own = {prefix-user} [notice:$T] {text $2}
+notice private = -{notice-nick $0}- {text $2}
+notice server = %05-$0%05-%n {text $2}
+notice public own = {notice-target $0 $T} {text $2}
+notice private own = [notice:$T] {text $2}
 
-notice-target = %05-$0:$1-
+notice-target = %05-$0:$1%05-%n
 notice-nick = %03$0%n
 notice-host = [$0]
 
@@ -61,54 +59,56 @@ message public own = {message-nick-own $0} {text $2}
 message private window own = {message-nick-own $0} {text $2}
 message private own = [msg->$T] {text $2}
 
-action-nick = %06%_*%_ $0
+action-nick = %_*%_ $0
 action public = {action-nick $0} {text $2}
 action private = {action-nick $0} {text $2}
 
 action public own = {action-nick $0} {text $2}
 action private own = {action-nick $0} {text $2}
 
-ctcp own msg = {prefix-ctcp} CTCP naar $T: $1
-ctcp msg = {prefix-ctcp} $1 CTCP %_$3%_ von $0: $4
-ctcp reply = {prefix-ctcp} CTCP %_$2%_ antwort von $0: $3
+ctcp own msg = {prefix-user} CTCP zu $T: $1
+ctcp msg = {prefix-user} $1 CTCP %_$3%_ Anfrage von $0: $4
+ctcp reply = {prefix-user} CTCP %_$2%_ Antwort von $0: $3
 
 text = $0
 channel = %_$0%_
-reason = ($0)
+reason = [$0]
 
 server = %_$0%_
 hilight = %_$0%_
-host = ($0)
+host = [$0]
 
-default = 
-raw =
+default = {prefix-server} $0-
+raw = {prefix-server} $0-
 
-ignore list = {prefix-client} Blokiere: $0-
-ignored = {prefix-client} Blokkiert: $0-
-unignored = {prefix-client} Deblokiert: $0-
+ignore list = {prefix-client} Ignoriere: $0-
+ignored = {prefix-client} Ignoriert: $0-
+unignored = {prefix-client} Ignoriere nicht mehr: $0-
 
-reply away = {prefix-user} $T ist nicht anwesend: $0
-reply nowaway = {prefix-user} Sie sind jetzt als abwesend markiert
-reply unaway = {prefix-user} Sie sind jetzt nicht mehr als abwesend markiert
+reply away = {prefix-user} $T ist abwesend: $0
+reply nowaway = {prefix-server} Du bist jetzt als abwesend markiert
+reply unaway = {prefix-server} Du bist jetzt nicht mehr als abwesend markiert
 
-reply channel time = 
-reply notopic = 
-reply topic = {prefix-channel} Titel: $0
-reply topicwhotime = {prefix-channel} Titel gesetzt durch $0
+reply channel time = {prefix-server} Channel erstellt am $0
+reply notopic = {prefix-server} Kein Topic gesetzt
+reply topic = {prefix-server} Topic: $0
+reply topicwhotime = {prefix-server} Topic gesetzt durch $0 [$1]
 
 reply whois user = {prefix-user} $T [$0@$1]: $2
 reply whowas user = {prefix-user} $T [$0@$1]: $2
-reply whois channel = {prefix-user} KanÑle: $0
+reply whois channel = {prefix-user} Channels: $0
 reply whois regnick = {prefix-user} Registriert: $0
-reply whois operator = {prefix-user} IRCop: $0
-reply whois idle = {prefix-user} Abwesend: $0 - Online seit: $1
-time = $7 d $2 h $1 min $0 sekunde(n)
-reply whois server = {prefix-user} Server: $0 
+reply whois operator = {prefix-user} IRC-Op: $0
+reply whois idle = {prefix-user} Unt√§tig: $0 ‚Äì Online seit: $1
+time = $7 d $2 h $1 min $0 s
+reply whois server = {prefix-user} Server: $0 [$1]
+reply whois end = {prefix-user} $0
 
-error nosuchnick = {prefix-server} {hilight $T} Kein Nick/Kanaal gefunden
-error nickinuse = {prefix-server} Nickname $0 wirdt bereits benutzt, gebrauche /nick neuername um einen anderen zu probieren.
+error nosuchnick = {prefix-server} {hilight $T} Der Nick/Channel existiert nicht
+error nickinuse = {prefix-server} Der Nickname $0 wird bereits verwendet, bitte mit "/nick neuernick" (ohne Anf√ºhrungszeichen) einen neuen Nickname w√§hlen.
 
-irc close = {prefix-error} Verbindung mit dem chatserver wurde unterbrochen ! (reconnect)
+irc close = {prefix-error} Die Verbindung zum Server wurde unterbrochen (Klicken um erneut zu Verbinden)
+
 
 bg = 00
 fg = 01
@@ -124,9 +124,9 @@ fg = 01
 09 = #00ff00
 10 = #008080
 11 = #00ffff
-12 = #000099
+12 = #0000ff
 13 = #ff00ff
 14 = #808080
 15 = #c0c0c0
 
-style = german 
+style = default
