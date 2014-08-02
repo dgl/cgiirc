@@ -108,15 +108,15 @@ encoded_ip = 2
 # settings above and use access_channel, access_port and access_server below.
 allow_non_default = 1
 
-# This is regular experssion that sets what channels access should
+# This is regular expression that sets what channels access should
 # be allowed to.
 access_channel = .*
 
-# This is regular experssion that sets what servers access should
+# This is regular expression that sets what servers access should
 # be allowed to.
 access_server = .*
 
-# This is regular experssion that sets what ports access should
+# This is regular expression that sets what ports access should
 # be allowed to.
 access_port = .*
 
