@@ -26,7 +26,7 @@ use lib qw/modules interfaces/;
 no warnings 'uninitialized';
 
 ($VERSION =
-'0.5.11 $Id$'
+'0.5.12 $Id$'
 ) =~ s/^.*?(\d\S+) .*?([0-9a-f]{4}).*/$1 . (index($1, "g") > 0 ? "$2" : "")/e;
 
 require 'parse.pl';
