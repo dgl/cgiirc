@@ -73,6 +73,7 @@ require($interface . '.pm');
 
 if(ref $cgi && defined $cgi->{item}) {
    print "\r\n"; # send final header
+   error('Communication socket name is invalid') if $cgi->{R} =~ /[^A-Za-z0-9]/;
    my $name = $cgi->{item};
    exit unless $interface->exists($name);
    $interface->$name($cgi, $config, 0);
