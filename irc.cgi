@@ -228,7 +228,7 @@ if(ref $cgi && defined $cgi->{item}) {
 }
 
 sub random {
-   return join('',map(('a'..'z','0'..'9')[int rand 62], 0..($_[0] || 15)));
+   return join('',map(('a'..'z','0'..'9')[int rand 36], 0..($_[0] || 15)));
 }
 
 sub dolist {
