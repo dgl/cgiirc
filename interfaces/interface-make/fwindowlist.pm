@@ -553,7 +553,26 @@ function post_results() {
 <noscript>Scripting is required for this interface</noscript>
 <table class="wlist-table">
 <tr><td width="1">
-<iframe src="$config->{script_nph}?$string" id="iframe" width="1" height="1" style="display:none;border:0;" ></iframe>
+<iframe src="$config->{script_login}?interface=**BROWSER&item=blank" id="iframe" width="1" height="1" style="display:none;border:0;" ></iframe>
+<script>
+  var nph_iframe_src = '$config->{script_nph}?$string';
+  if (navigator.userAgent.match(/(iPad|iPhone);/)) {
+    // Apple special, iOS 12 appears to have issues with loading several resources at a time.
+    var wait_counter = [2];
+    var wait_func = function() {
+      if (--wait_counter[0] == 0) start_load_process();
+    };
+    setTimeout(wait_func, 1000);
+    document.addEventListener('DOMContentLoaded', wait_func);
+  } else {
+    // Don't delay other browsers
+    start_load_process();
+  }
+
+  function start_load_process() {
+    document.getElementById('iframe').src = nph_iframe_src;
+  }
+</script>
 
 <iframe src="$config->{script_login}?interface=**BROWSER&item=blank" width="1" height="1" style="display:none; border:0; " name="hiddenframe"></iframe>
 </td>
