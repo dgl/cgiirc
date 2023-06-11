@@ -40,10 +40,16 @@ use Symbol; # gensym
 $|++;
 # Check for IPV6. Bit yucky but avoids errors when module isn't present
 BEGIN {
-   eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
-   unless(defined $::IPV6) {
-      $::IPV6 = 0;
-      eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
+  if (not exists $Socket::{AF_INET6}) {
+    # Legacy Socket6 module
+     eval('use Socket6; $::IPV6++ if defined $Socket6::VERSION');
+     unless(defined $::IPV6) {
+        $::IPV6 = 0;
+        eval('sub AF_INET6 {0};sub NI_NUMERICHOST {0};sub NI_NUMERICSERV {}');
+     }
+   } else {
+     Socket->import(":addrinfo");
+     $::IPV6++;
    }
    # then check for Encode
    $::ENCODE = 0;
