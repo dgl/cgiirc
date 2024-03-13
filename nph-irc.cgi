@@ -86,16 +86,21 @@ sub net_hostlookup {
    my($host) = @_;
 
    if($::IPV6) {
-      my($family,$socktype, $proto, $saddr, $canonname, @res) = 
-      getaddrinfo($host, undef, AF_UNSPEC, SOCK_STREAM);
-      return undef unless $family;
-      my($addr, $port) = getnameinfo($saddr, NI_NUMERICHOST | NI_NUMERICSERV);
-=pod
-      my $ip = config_set('prefer_v6') 
-         ? ($ipv6 ? $ipv6 : $ipv4) 
-         : ($ipv4 ? $ipv4 : $ipv6);
-=cut
-      return $addr;
+      my ($ipv6, $ipv4);
+
+      my @res = getaddrinfo($host, undef, AF_UNSPEC, SOCK_STREAM);
+      while (scalar(@res) >= 5) {
+         (my $family, undef, undef, my $saddr, undef, @res) = @res;
+         my ($ipaddr, undef) = getnameinfo( $saddr, NI_NUMERICHOST | NI_NUMERICSERV);
+
+         $ipv4 = $ipaddr unless ($family != AF_INET || defined $ipv4);
+         $ipv6 = $ipaddr unless ($family != AF_INET6 || defined $ipv6);
+      }
+
+      return undef unless (defined $ipv4 || $ipv6);
+      return config_set('prefer_v4')
+         ? ($ipv4 ? $ipv4 : $ipv6)
+         : ($ipv6 ? $ipv6 : $ipv4);
    }else{ # IPv4
       my $ip = (gethostbyname($host))[4];
       return $ip ? inet_ntoa($ip) : undef;
